@@ -5,56 +5,50 @@ import re
 import statistics
 
 import numpy as np
-import pandas as pd
 import scipy
 import fnmatch
 import traceback
-
 
 from evolution_figures import create_usage_evolution
 from metrics.kl import KLdivergence, JSDistance
 from metrics.kl import KLDivergenceUnivariate
 from metrics.mmd import mmd_rbf
 from dtaidistance import dtw_ndim
-from dtaidistance import dtw
-import torch
-import pandas
+
 from metrics.visualization_metrics import visualization
 
-import sklearn.metrics as metrics
 
-
-def main(args):
-    if (args.recursive == 'true'):
-        root_dir = args.experiment_dir
+def main(args_params):
+    if args_params.recursive == 'true':
+        root_dir = args_params.experiment_dir
         first_level_dirs = []
         for subdir, dirs, files in os.walk(root_dir):
             first_level_dirs = dirs
             break
         is_header_printed = False
-        for dir in first_level_dirs:
-            args.experiment_dir = root_dir + dir
+        for dir_name in first_level_dirs:
+            args_params.experiment_dir = root_dir + dir_name
             try:
-                print("Computing metrics for directory ", dir)
-                saved_metrics, metrics_values, saved_experiment_parameters = compute_metrics(args)
+                print("Computing metrics for directory ", dir_name)
+                saved_metrics, metrics_values, saved_experiment_parameters = compute_metrics(args_params)
                 parameters_keys, parameters_values = extract_experiment_parameters(saved_experiment_parameters)
-                if (not is_header_printed):
+                if not is_header_printed:
                     with open(root_dir + 'experiments_metrics.csv', 'w') as f:
                         print("Printing header")
                         f.write('experiment_dir_name;' + parameters_keys + saved_metrics + '\n')
                     is_header_printed = True
 
                 with open(root_dir + 'experiments_metrics.csv', 'a') as f:
-                    f.write(dir + ';' + parameters_values + metrics_values + '\n')
+                    f.write(dir_name + ';' + parameters_values + metrics_values + '\n')
 
             except Exception as e:
-                print('Error computing experiment dir:', args.experiment_dir)
+                print('Error computing experiment dir:', args_params.experiment_dir)
                 print(e)
                 traceback.print_exc()
 
         print("\nCSVs for all experiments metrics results saved in:\n", root_dir + 'experiments_metrics.csv')
     else:
-        compute_metrics(args)
+        compute_metrics(args_params)
 
 
 def extract_experiment_parameters(saved_experiment_parameters):
@@ -69,13 +63,13 @@ def extract_experiment_parameters(saved_experiment_parameters):
     return parameters_keys, parameters_values
 
 
-def compute_metrics(args):
-    metrics_list, path_to_save_metrics, saved_experiments_parameters, saved_metrics, dataset_info = initialization(args)
+def compute_metrics(args_params):
+    metrics_list, path_to_save_metrics, saved_experiments_parameters, saved_metrics, dataset_info = initialization(args_params)
 
-    ori_data = np.loadtxt(args.ori_data_filename, delimiter=",", skiprows=0)
+    ori_data = np.loadtxt(args_params.ori_data_filename, delimiter=",", skiprows=0)
     # ori_data[:, [1, 0]] = ori_data[:, [0, 1]] # timestamp como primera columna
     if "tsne" in metrics_list or "pca" in metrics_list:
-        generate_visualization_figures(args, path_to_save_metrics, metrics_list, ori_data)
+        generate_visualization_figures(args_params, path_to_save_metrics, metrics_list, ori_data)
         metrics_list.remove("tsne")
         metrics_list.remove("pca")
 
@@ -90,11 +84,11 @@ def compute_metrics(args):
                     metrics_results[metric + '-JSD-' + str(column)] = []
 
         n_files_iteration = 0
-        total_files = len(fnmatch.filter(os.listdir(args.experiment_dir + '/generated_data'), '*.csv'))
-        for filename in os.listdir(args.experiment_dir + '/generated_data'):
+        total_files = len(fnmatch.filter(os.listdir(args_params.experiment_dir + '/generated_data'), '*.csv'))
+        for filename in os.listdir(args_params.experiment_dir + '/generated_data'):
             print('Computing: ', metric, '[' + str(n_files_iteration + 1) + '/' + str(total_files) + ']', end='\r')
-            ori_data_sample = get_ori_data_sample(args, ori_data)
-            f = os.path.join(args.experiment_dir + '/generated_data', filename)
+            ori_data_sample = get_ori_data_sample(args_params, ori_data)
+            f = os.path.join(args_params.experiment_dir + '/generated_data', filename)
             if os.path.isfile(f):  # checking if it is a file
                 generated_data_sample = np.loadtxt(f, delimiter=",")
                 computed_metric = 0
@@ -145,7 +139,6 @@ def compute_metrics(args):
                 n_files_iteration += 1
         print('')
 
-
     for metric, results in metrics_results.items():
         if metric != 'tsne' and metric != 'pca' and metric != 'evolution_figures':
             avg_results[metric] = statistics.mean(metrics_results[metric])
@@ -154,19 +147,19 @@ def compute_metrics(args):
     return saved_metrics, metrics_values, saved_experiments_parameters
 
 
-def initialization(args):
-    path_to_save_metrics = args.experiment_dir + "/evaluation_metrics/"
-    f = open(args.experiment_dir + '/parameters.txt', 'r')
+def initialization(args_params):
+    path_to_save_metrics = args_params.experiment_dir + "/evaluation_metrics/"
+    f = open(args_params.experiment_dir + '/parameters.txt', 'r')
     saved_experiments_parameters = f.readline()
-    f = open(args.experiment_dir + '/metrics.txt', 'r')
+    f = open(args_params.experiment_dir + '/metrics.txt', 'r')
     saved_metrics = f.readline()
-    args.seq_len = int(re.search("\Wseq_len=([^,}]+)\)", saved_experiments_parameters).group(1))
+    args_params.seq_len = int(re.search("\Wseq_len=([^,}]+)\)", saved_experiments_parameters).group(1))
     os.makedirs(path_to_save_metrics, exist_ok=True)
     os.makedirs(path_to_save_metrics + '/figures/', exist_ok=True)
 
-    metrics_list = [metric for metric in args.metrics.split(',')]
+    metrics_list = [metric for metric in args_params.metrics.split(',')]
 
-    if (args.trace == 'alibaba2018'):
+    if args_params.trace == 'alibaba2018':
         dataset_info = {
             "timestamp_frequency_secs": 10,
             "column_config": {
@@ -192,7 +185,7 @@ def initialization(args):
                 }
             }
         }
-    elif (args.trace == 'google2019'):
+    elif args_params.trace == 'google2019':
         dataset_info = {
             "timestamp_frequency_secs": 300,
             "column_config": {
@@ -216,7 +209,7 @@ def initialization(args):
                 }
             }
         }
-    elif (args.trace == 'azure_v2'):
+    elif args_params.trace == 'azure_v2':
         dataset_info = {
             "timestamp_frequency_secs": 300,
             "column_config": {
@@ -228,7 +221,7 @@ def initialization(args):
                 }
             }
         }
-    elif (args.trace == 'reddit'):
+    elif args_params.trace == 'reddit':
         dataset_info = {
             "timestamp_frequency_secs": 3600,
             "column_config": {
@@ -293,11 +286,11 @@ def compute_ks(generated_data_sample, ori_data_sample):
 
 
 def compute_dtw(generated_data_sample, ori_data_sample):
-    sample_lenght = len(generated_data_sample)
-    processed_generated_data_sample = np.insert(generated_data_sample, 0, np.ones(sample_lenght, dtype=int), axis=1)
-    processed_generated_data_sample = np.insert(processed_generated_data_sample, 0, range(sample_lenght), axis=1)
-    processed_ori_data_sample = np.insert(ori_data_sample, 0, np.ones(sample_lenght, dtype=int), axis=1)
-    processed_ori_data_sample = np.insert(processed_ori_data_sample, 0, range(sample_lenght), axis=1)
+    sample_length = len(generated_data_sample)
+    processed_generated_data_sample = np.insert(generated_data_sample, 0, np.ones(sample_length, dtype=int), axis=1)
+    processed_generated_data_sample = np.insert(processed_generated_data_sample, 0, range(sample_length), axis=1)
+    processed_ori_data_sample = np.insert(ori_data_sample, 0, np.ones(sample_length, dtype=int), axis=1)
+    processed_ori_data_sample = np.insert(processed_ori_data_sample, 0, range(sample_length), axis=1)
 
     return dtw_ndim.distance_fast(processed_generated_data_sample, processed_ori_data_sample)
 

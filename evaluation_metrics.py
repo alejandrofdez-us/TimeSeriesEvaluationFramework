@@ -257,6 +257,26 @@ def initialization(args_params):
                     "y_axis_min": 0,
                     "y_axis_max": 100
                 }
+            },
+            "metadata": {
+                "fields": {
+                    "cpu": {
+                        "type": "numerical",
+                        "subtype": "float"
+                    },
+                    "mem": {
+                        "type": "numerical",
+                        "subtype": "float"
+                    },
+                    "net_in": {
+                        "type": "numerical",
+                        "subtype": "float"
+                    },
+                    "net_out": {
+                        "type": "numerical",
+                        "subtype": "float"
+                    }
+                }
             }
         }
     elif args_params.trace == 'google2019':

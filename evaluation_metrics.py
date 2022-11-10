@@ -5,22 +5,26 @@ import re
 import statistics
 
 import numpy as np
+import pandas as pd
 import scipy
 import fnmatch
 import traceback
 
+from sdmetrics.reports.single_table import QualityReport, DiagnosticReport
+
 from evolution_figures import create_usage_evolution
-from metrics.kl import KLdivergence, JSDistance
+from metrics.kl import KLdivergence, JSdistance, JSdistanceMultivariate
 from metrics.kl import KLDivergenceUnivariate
 from metrics.mmd import mmd_rbf
 from dtaidistance import dtw_ndim
 
 from metrics.visualization_metrics import visualization
-
+from datetime import datetime
 
 def main(args_params):
     if args_params.recursive == 'true':
         root_dir = args_params.experiment_dir
+        experiment_results_file_name = root_dir + 'experiments_metrics-' +datetime.now().strftime("%j-%H-%M-%S") + '.csv'
         first_level_dirs = []
         for subdir, dirs, files in os.walk(root_dir):
             first_level_dirs = dirs
@@ -33,12 +37,12 @@ def main(args_params):
                 saved_metrics, metrics_values, saved_experiment_parameters = compute_metrics(args_params)
                 parameters_keys, parameters_values = extract_experiment_parameters(saved_experiment_parameters)
                 if not is_header_printed:
-                    with open(root_dir + 'experiments_metrics.csv', 'w') as f:
+                    with open(experiment_results_file_name, 'w') as f:
                         print("Printing header")
                         f.write('experiment_dir_name;' + parameters_keys + saved_metrics + '\n')
                     is_header_printed = True
 
-                with open(root_dir + 'experiments_metrics.csv', 'a') as f:
+                with open(experiment_results_file_name, 'a') as f:
                     f.write(dir_name + ';' + parameters_values + metrics_values + '\n')
 
             except Exception as e:
@@ -46,7 +50,7 @@ def main(args_params):
                 print(e)
                 traceback.print_exc()
 
-        print("\nCSVs for all experiments metrics results saved in:\n", root_dir + 'experiments_metrics.csv')
+        print("\nCSVs for all experiments metrics results saved in:\n", experiment_results_file_name)
     else:
         compute_metrics(args_params)
 
@@ -63,10 +67,16 @@ def extract_experiment_parameters(saved_experiment_parameters):
     return parameters_keys, parameters_values
 
 
+def compute_js(ori_data, generated_data_sample):
+   return JSdistanceMultivariate(ori_data,generated_data_sample)
+
 def compute_metrics(args_params):
-    metrics_list, path_to_save_metrics, saved_experiments_parameters, saved_metrics, dataset_info = initialization(args_params)
+    metrics_list, path_to_save_metrics, saved_experiments_parameters, saved_metrics, dataset_info, path_to_save_sdv_figures = initialization(
+        args_params)
 
     ori_data = np.loadtxt(args_params.ori_data_filename, delimiter=",", skiprows=0)
+    ori_data_df = pd.DataFrame(ori_data, columns=dataset_info['column_config'])
+
     # ori_data[:, [1, 0]] = ori_data[:, [0, 1]] # timestamp como primera columna
     if "tsne" in metrics_list or "pca" in metrics_list:
         generate_visualization_figures(args_params, path_to_save_metrics, metrics_list, ori_data)
@@ -76,12 +86,18 @@ def compute_metrics(args_params):
     metrics_results = {}
     avg_results = {}
     for metric in metrics_list:
-        metrics_results[metric] = []
-        if metric == 'mmd' or metric == 'dtw' or metric == 'kl' or metric == 'hi' or metric == 'ks':
+        if metric != 'sdv-diagnostic':
+            metrics_results[metric] = []
+        if metric == 'mmd' or metric == 'dtw' or metric == 'kl' or metric == 'hi' or metric == 'ks' or metric == 'js':
             for column in range(ori_data.shape[1]):
                 metrics_results[metric + '-' + str(column)] = []
-                if metric == 'kl':
-                    metrics_results[metric + '-JSD-' + str(column)] = []
+        if metric == 'sdv-quality':
+            metrics_results[metric + '-column_shapes'] = []
+            metrics_results[metric + '-column_pair_trends'] = []
+        if metric == 'sdv-diagnostic':
+            metrics_results[metric + '-synthesis'] = []
+            metrics_results[metric + '-coverage'] = []
+            metrics_results[metric + '-boundaries'] = []
 
         n_files_iteration = 0
         total_files = len(fnmatch.filter(os.listdir(args_params.experiment_dir + '/generated_data'), '*.csv'))
@@ -110,9 +126,13 @@ def compute_metrics(args_params):
                         metrics_results[metric + '-' + str(column)].append(
                             KLDivergenceUnivariate(ori_data_sample[:, column].reshape(-1, 1),
                                                    generated_data_sample[:, column].reshape(-1, 1))[0])
-                        metrics_results[metric + '-JSD-' + str(column)].append(
-                            JSDistance(ori_data_sample[:, column].reshape(-1, 1),
-                                       generated_data_sample[:, column].reshape(-1, 1)))
+
+                if metric == 'js':
+                    computed_metric = compute_js(ori_data, generated_data_sample)
+                    for column in range(generated_data_sample.shape[1]):
+                        metrics_results[metric + '-' + str(column)].append(
+                                JSdistance(ori_data_sample[:, column].reshape(-1, 1),
+                                           generated_data_sample[:, column].reshape(-1, 1)))
                 if metric == 'ks':  # menor valor mejor
                     computed_metric = compute_ks(generated_data_sample, ori_data_sample)
                     for column in range(generated_data_sample.shape[1]):
@@ -122,19 +142,35 @@ def compute_metrics(args_params):
                 if metric == 'cc':  # mayor valor peor. covarianza
                     computed_metric = compute_cc(generated_data_sample, ori_data_sample)
                 if metric == 'cp':  # mayor valor peor. coeficiente de pearson
-                    computed_metric = compute_cp(generated_data_sample, ori_data_sample)
+                    computed_metric = compute_cp(generated_data_sample, ori_data)
                 if metric == 'hi':  # mayor valor peor
                     computed_metric = compute_hi(generated_data_sample, ori_data_sample)
                     for column in range(generated_data_sample.shape[1]):
                         metrics_results[metric + '-' + str(column)].append(
                             compute_hi(generated_data_sample[:, column].reshape(-1, 1),
                                        ori_data_sample[:, column].reshape(-1, 1)))
+                if metric == 'sdv-quality':
+                    computed_metric, column_shapes, column_pair_trends = compute_sdv_quality_metrics(dataset_info, generated_data_sample,
+                                                                  n_files_iteration, ori_data_df,
+                                                                  path_to_save_sdv_figures)
+                if metric == 'sdv-diagnostic':
+                    diagnostic_synthesis, diagnostic_coverage, diagnostic_boundaries = compute_sdv_diagnostic_metrics(dataset_info, generated_data_sample,
+                                                                  n_files_iteration, ori_data_df,
+                                                                  path_to_save_sdv_figures)
                 if metric == 'evolution_figures':
                     if n_files_iteration % 10 == 0:  # generates a 10% of the figures
                         create_usage_evolution(generated_data_sample, ori_data, ori_data_sample,
                                                path_to_save_metrics + 'figures/', n_files_iteration, dataset_info)
                 if metric != 'evolution_figures':
-                    metrics_results[metric].append(computed_metric)
+                    if metric != 'sdv-diagnostic':
+                        metrics_results[metric].append(computed_metric)
+                    if metric == 'sdv-quality':
+                        metrics_results[metric+'-column_shapes'].append(column_shapes)
+                        metrics_results[metric+'-column_pair_trends'].append(column_pair_trends)
+                    if metric == 'sdv-diagnostic':
+                        metrics_results[metric + '-synthesis'].append(diagnostic_synthesis)
+                        metrics_results[metric + '-coverage'].append(diagnostic_coverage)
+                        metrics_results[metric + '-boundaries'].append(diagnostic_boundaries)
 
                 n_files_iteration += 1
         print('')
@@ -147,8 +183,45 @@ def compute_metrics(args_params):
     return saved_metrics, metrics_values, saved_experiments_parameters
 
 
+def compute_sdv_quality_metrics(dataset_info, generated_data_sample, n_files_iteration, ori_data_df,
+                                path_to_save_sdv_quality_figures):
+    report = QualityReport()
+    generated_data_sample_df = pd.DataFrame(generated_data_sample,
+                                            columns=dataset_info['column_config'])
+    report.generate(ori_data_df, generated_data_sample_df, dataset_info['metadata'])
+    fig_column_shapes = report.get_visualization(property_name='Column Shapes')
+    fig_column_pair_trends = report.get_visualization(property_name='Column Pair Trends')
+    fig_column_shapes.write_image(
+        path_to_save_sdv_quality_figures + '/column_shapes-' + str(n_files_iteration) + '.pdf')
+    fig_column_pair_trends.write_image(
+        path_to_save_sdv_quality_figures + '/column_pair_trends-' + str(n_files_iteration) + '.pdf')
+
+    return report.get_score(), report.get_properties().iloc[0,1], report.get_properties().iloc[1,1]
+
+
+def compute_sdv_diagnostic_metrics(dataset_info, generated_data_sample, n_files_iteration, ori_data_df,
+                                path_to_save_sdv_quality_figures):
+    report = DiagnosticReport()
+    generated_data_sample_df = pd.DataFrame(generated_data_sample,
+                                            columns=dataset_info['column_config'])
+    report.generate(ori_data_df, generated_data_sample_df, dataset_info['metadata'])
+    fig_synthesis = report.get_visualization(property_name='Synthesis')
+    fig_coverage = report.get_visualization(property_name='Coverage')
+    fig_boundaries = report.get_visualization(property_name='Boundaries')
+
+    fig_synthesis.write_image(
+        path_to_save_sdv_quality_figures + '/synthesis-' + str(n_files_iteration) + '.pdf')
+    fig_coverage.write_image(
+        path_to_save_sdv_quality_figures + '/coverage-' + str(n_files_iteration) + '.pdf')
+    fig_boundaries.write_image(
+        path_to_save_sdv_quality_figures + '/boundaries-' + str(n_files_iteration) + '.pdf')
+
+    return report.get_properties()['Synthesis'], report.get_properties()['Coverage'], report.get_properties()['Boundaries']
+
+
 def initialization(args_params):
     path_to_save_metrics = args_params.experiment_dir + "/evaluation_metrics/"
+    path_to_save_sdv_figures = path_to_save_metrics + 'figures/sdv/'
     f = open(args_params.experiment_dir + '/parameters.txt', 'r')
     saved_experiments_parameters = f.readline()
     f = open(args_params.experiment_dir + '/metrics.txt', 'r')
@@ -156,6 +229,7 @@ def initialization(args_params):
     args_params.seq_len = int(re.search("\Wseq_len=([^,}]+)\)", saved_experiments_parameters).group(1))
     os.makedirs(path_to_save_metrics, exist_ok=True)
     os.makedirs(path_to_save_metrics + '/figures/', exist_ok=True)
+    os.makedirs(path_to_save_sdv_figures, exist_ok=True)
 
     metrics_list = [metric for metric in args_params.metrics.split(',')]
 
@@ -207,6 +281,26 @@ def initialization(args_params):
                 "cycles_per_instruction": {
                     "column_index": 3
                 }
+            },
+            "metadata": {
+                "fields": {
+                    "cpu": {
+                        "type": "numerical",
+                        "subtype": "float"
+                    },
+                    "mem": {
+                        "type": "numerical",
+                        "subtype": "float"
+                    },
+                    "assigned_mem": {
+                        "type": "numerical",
+                        "subtype": "float"
+                    },
+                    "cycles_per_instruction": {
+                        "type": "numerical",
+                        "subtype": "float"
+                    }
+                }
             }
         }
     elif args_params.trace == 'azure_v2':
@@ -231,7 +325,7 @@ def initialization(args_params):
             }
         }
 
-    return metrics_list, path_to_save_metrics, saved_experiments_parameters, saved_metrics, dataset_info
+    return metrics_list, path_to_save_metrics, saved_experiments_parameters, saved_metrics, dataset_info, path_to_save_sdv_figures
 
 
 def preprocess_dataset(ori_data, seq_len):
@@ -298,8 +392,8 @@ def compute_dtw(generated_data_sample, ori_data_sample):
 def compute_cp(generated_data_sample, ori_data_sample):
     # normalized_ori_data_sample = normalize_start_time_to_zero(ori_data_sample)
     # normalized_generated_data_sample = normalize_start_time_to_zero(generated_data_sample)
-    ori_data_sample_pearson = np.corrcoef(ori_data_sample)
-    generated_data_sample_pearson = np.corrcoef(generated_data_sample)
+    ori_data_sample_pearson = np.corrcoef(ori_data_sample, rowvar=False)
+    generated_data_sample_pearson = np.corrcoef(generated_data_sample, rowvar=False)
     correlation_diff_matrix = ori_data_sample_pearson - generated_data_sample_pearson
     l1_norms_avg = np.mean([np.linalg.norm(row) for row in correlation_diff_matrix])
     return l1_norms_avg
@@ -365,7 +459,6 @@ def generate_visualization_figures(args, directory_name, metrics_list, ori_data)
     if "pca" in metrics_list:
         visualization(ori_data=ori_data_for_visualization, generated_data=generated_data, analysis='pca',
                       n_samples=n_samples, path_for_saving_images=directory_name)
-
 
 if __name__ == '__main__':
     # Inputs for the main function

@@ -150,11 +150,13 @@ def compute_metrics(args_params):
                             compute_hi(generated_data_sample[:, column].reshape(-1, 1),
                                        ori_data_sample[:, column].reshape(-1, 1)))
                 if metric == 'sdv-quality':
-                    computed_metric, column_shapes, column_pair_trends = compute_sdv_quality_metrics(dataset_info, generated_data_sample,
+                    if n_files_iteration % 5 == 0:
+                        computed_metric, column_shapes, column_pair_trends = compute_sdv_quality_metrics(dataset_info, generated_data_sample,
                                                                   n_files_iteration, ori_data_df,
                                                                   path_to_save_sdv_figures)
                 if metric == 'sdv-diagnostic':
-                    diagnostic_synthesis, diagnostic_coverage, diagnostic_boundaries = compute_sdv_diagnostic_metrics(dataset_info, generated_data_sample,
+                    if n_files_iteration % 5 == 0:
+                        diagnostic_synthesis, diagnostic_coverage, diagnostic_boundaries = compute_sdv_diagnostic_metrics(dataset_info, generated_data_sample,
                                                                   n_files_iteration, ori_data_df,
                                                                   path_to_save_sdv_figures)
                 if metric == 'evolution_figures':

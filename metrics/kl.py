@@ -4,18 +4,31 @@ import numpy as np
 import math
 
 
-def KLDivergenceUnivariate(array_1, array_2, num_bins=100):
+def KLDivergenceUnivariate(array_1, array_2, range_values=None, num_bins=10):
+    # smoothing implementes as per https://www.cs.bgu.ac.il/~elhadad/nlp09/KL.html
+    # pc = eps*|SU-SP|/|SP| and qc = eps*|SU-SQ|/|SQ|.
+    # eps=0.0001
+    # SP and SQ the samples observed in P and Q respectively
+    # SU = SP U SQ
+    # pc = eps*|SU-SP|/|SP| and qc = eps*|SU-SQ|/|SQ|.
+    # P'(i) = P(i) - pc if i in SP
+    # P'(i) = eps otherwise for i in SU - SP
+    eps = 0.000001
     min_array1 = array_1.min()
     min_array2 = array_2.min()
     min_all = min(min_array1, min_array2)
     max_array1 = array_1.max()
     max_array2 = array_2.max()
     max_all = max(max_array1, max_array2)
-    range_values = (min_all, max_all)
+    range_values = range_values if range_values is not None else (min_all, max_all)
     p = np.histogram(array_1, bins=np.linspace(range_values[0], range_values[1], num_bins + 1))[0] / len(array_1)
     q = np.histogram(array_2, bins=np.linspace(range_values[0], range_values[1], num_bins + 1))[0] / len(array_2)
-    KL_p_m = sum([p[i] * np.log(p[i] / q[i]) if (p[i] != 0 and q[i] != 0) else 0 for i in range(len(p))])
-    KL_q_m = sum([q[i] * np.log(q[i] / p[i]) if (p[i] != 0 and q[i] != 0) else 0 for i in range(len(p))])
+    pc = eps * (num_bins - (p != 0).sum()) / (p != 0).sum()
+    pq = eps * (num_bins - (q != 0).sum()) / (q != 0).sum()
+    p = np.vectorize(lambda p_i: eps if p_i == 0 else p_i - pc)(p)
+    q = np.vectorize(lambda q_i: eps if q_i == 0 else q_i - pc)(q)
+    KL_p_m = sum([p[i] * np.log(p[i] / q[i]) for i in range(len(p))])
+    KL_q_m = sum([q[i] * np.log(q[i] / p[i]) for i in range(len(p))])
     return KL_p_m, KL_q_m
 
 

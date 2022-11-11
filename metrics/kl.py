@@ -26,7 +26,7 @@ def KLDivergenceUnivariate(array_1, array_2, range_values=None, num_bins=10):
     pc = eps * (num_bins - (p != 0).sum()) / (p != 0).sum()
     pq = eps * (num_bins - (q != 0).sum()) / (q != 0).sum()
     p = np.vectorize(lambda p_i: eps if p_i == 0 else p_i - pc)(p)
-    q = np.vectorize(lambda q_i: eps if q_i == 0 else q_i - pc)(q)
+    q = np.vectorize(lambda q_i: eps if q_i == 0 else q_i - pq)(q)
     KL_p_m = sum([p[i] * np.log(p[i] / q[i]) for i in range(len(p))])
     KL_q_m = sum([q[i] * np.log(q[i] / p[i]) for i in range(len(p))])
     return KL_p_m, KL_q_m

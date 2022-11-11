@@ -1,4 +1,5 @@
 # https://mail.python.org/pipermail/scipy-user/2011-May/029521.html
+import sys
 
 import numpy as np
 import math
@@ -82,11 +83,18 @@ Theory, 2008.
     # of each point in x.
     xtree = KDTree(x)
     ytree = KDTree(y)
+    eps = 0.000001
 
     # Get the first two nearest neighbours for x, since the closest one is the
     # sample itself.
     r = xtree.query(x, k=2, eps=.01, p=2)[0][:, 1]
     s = ytree.query(x, k=1, eps=.01, p=2)[0]
+    np.set_printoptions(threshold=sys.maxsize)
+
+    pr = eps * (len(r) - (r != 0).sum()) / (r != 0).sum()
+    ps = eps * (len(s) - (s != 0).sum()) / (s != 0).sum()
+    r = np.vectorize(lambda r_i: eps if r_i == 0 else r_i - pr)(r)
+    s = np.vectorize(lambda s_i: eps if s_i == 0 else s_i - ps)(s)
 
     # There is a mistake in the paper. In Eq. 14, the right side misses a negative sign
     # on the first term of the right hand side.

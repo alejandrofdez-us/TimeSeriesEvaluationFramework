@@ -236,6 +236,9 @@ def initialization(args_params):
     os.makedirs(path_to_save_metrics + '/figures/', exist_ok=True)
     os.makedirs(path_to_save_sdv_figures, exist_ok=True)
 
+    if args_params.metrics == 'all':
+        args_params.metrics = 'mmd,dtw,js,kl,ks,cc,cp,hi,sdv-quality,sdv-diagnostic,evolution_figures'
+
     metrics_list = [metric for metric in args_params.metrics.split(',')]
 
     if args_params.trace == 'alibaba2018':

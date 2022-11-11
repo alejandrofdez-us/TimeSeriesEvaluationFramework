@@ -165,11 +165,14 @@ def compute_metrics(args_params):
                                                path_to_save_metrics + 'figures/', n_files_iteration, dataset_info)
                 if metric != 'evolution_figures':
                     if metric != 'sdv-diagnostic':
-                        metrics_results[metric].append(computed_metric)
-                    if metric == 'sdv-quality':
+                        if metric != 'sdv-quality':
+                            metrics_results[metric].append(computed_metric)
+                        elif metric == 'sdv-quality' and n_files_iteration % 5 == 0:
+                            metrics_results[metric].append(computed_metric)
+                    if metric == 'sdv-quality' and n_files_iteration % 5 == 0:
                         metrics_results[metric+'-column_shapes'].append(column_shapes)
                         metrics_results[metric+'-column_pair_trends'].append(column_pair_trends)
-                    if metric == 'sdv-diagnostic':
+                    if metric == 'sdv-diagnostic' and n_files_iteration % 5 == 0:
                         metrics_results[metric + '-synthesis'].append(diagnostic_synthesis)
                         metrics_results[metric + '-coverage'].append(diagnostic_coverage)
                         metrics_results[metric + '-boundaries'].append(diagnostic_boundaries)

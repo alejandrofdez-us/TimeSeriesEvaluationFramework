@@ -344,11 +344,11 @@ def initialization(args_params):
             },
             "metadata": {
                 "fields": {
-                    "cpu": {
+                    "cpu_total": {
                         "type": "numerical",
                         "subtype": "float"
                     },
-                    "mem": {
+                    "mem_total": {
                         "type": "numerical",
                         "subtype": "float"
                     }

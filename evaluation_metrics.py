@@ -341,6 +341,18 @@ def initialization(args_params):
                 "mem_total": {
                     "column_index": 1
                 }
+            },
+            "metadata": {
+                "fields": {
+                    "cpu": {
+                        "type": "numerical",
+                        "subtype": "float"
+                    },
+                    "mem": {
+                        "type": "numerical",
+                        "subtype": "float"
+                    }
+                }
             }
         }
     elif args_params.trace == 'reddit':

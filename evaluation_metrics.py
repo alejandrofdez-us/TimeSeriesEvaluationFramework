@@ -21,10 +21,12 @@ from dtaidistance import dtw_ndim
 from metrics.visualization_metrics import visualization
 from datetime import datetime
 
+
 def main(args_params):
     if args_params.recursive == 'true':
         root_dir = args_params.experiment_dir
-        experiment_results_file_name = root_dir + 'experiments_metrics-' +datetime.now().strftime("%j-%H-%M-%S") + '.csv'
+        experiment_results_file_name = root_dir + 'experiments_metrics-' + datetime.now().strftime(
+            "%j-%H-%M-%S") + '.csv'
         first_level_dirs = []
         for subdir, dirs, files in os.walk(root_dir):
             first_level_dirs = dirs
@@ -68,7 +70,8 @@ def extract_experiment_parameters(saved_experiment_parameters):
 
 
 def compute_js(ori_data, generated_data_sample):
-   return JSdistanceMultivariate(ori_data,generated_data_sample)
+    return JSdistanceMultivariate(ori_data, generated_data_sample)
+
 
 def compute_metrics(args_params):
     metrics_list, path_to_save_metrics, saved_experiments_parameters, saved_metrics, dataset_info, path_to_save_sdv_figures = initialization(
@@ -103,10 +106,11 @@ def compute_metrics(args_params):
         total_files = len(fnmatch.filter(os.listdir(args_params.experiment_dir + '/generated_data'), '*.csv'))
         for filename in os.listdir(args_params.experiment_dir + '/generated_data'):
             print('Computing: ', metric, '[' + str(n_files_iteration + 1) + '/' + str(total_files) + ']', end='\r')
-            ori_data_sample = get_ori_data_sample(args_params, ori_data)
             f = os.path.join(args_params.experiment_dir + '/generated_data', filename)
             if os.path.isfile(f):  # checking if it is a file
                 generated_data_sample = np.loadtxt(f, delimiter=",")
+                seq_len = len(generated_data_sample)
+                ori_data_sample = get_ori_data_sample(seq_len, ori_data)
                 computed_metric = 0
                 if metric == 'mmd':  # mayor valor más distintas son
                     computed_metric = mmd_rbf(X=ori_data_sample, Y=generated_data_sample)
@@ -131,8 +135,8 @@ def compute_metrics(args_params):
                     computed_metric = compute_js(ori_data, generated_data_sample)
                     for column in range(generated_data_sample.shape[1]):
                         metrics_results[metric + '-' + str(column)].append(
-                                JSdistance(ori_data_sample[:, column].reshape(-1, 1),
-                                           generated_data_sample[:, column].reshape(-1, 1)))
+                            JSdistance(ori_data_sample[:, column].reshape(-1, 1),
+                                       generated_data_sample[:, column].reshape(-1, 1)))
                 if metric == 'ks':  # menor valor mejor
                     computed_metric = compute_ks(generated_data_sample, ori_data_sample)
                     for column in range(generated_data_sample.shape[1]):
@@ -151,14 +155,17 @@ def compute_metrics(args_params):
                                        ori_data_sample[:, column].reshape(-1, 1)))
                 if metric == 'sdv-quality':
                     if n_files_iteration % 5 == 0:
-                        computed_metric, column_shapes, column_pair_trends = compute_sdv_quality_metrics(dataset_info, generated_data_sample,
-                                                                  n_files_iteration, ori_data_df,
-                                                                  path_to_save_sdv_figures)
+                        computed_metric, column_shapes, column_pair_trends = compute_sdv_quality_metrics(dataset_info,
+                                                                                                         generated_data_sample,
+                                                                                                         n_files_iteration,
+                                                                                                         ori_data_df,
+                                                                                                         path_to_save_sdv_figures)
                 if metric == 'sdv-diagnostic':
                     if n_files_iteration % 5 == 0:
-                        diagnostic_synthesis, diagnostic_coverage, diagnostic_boundaries = compute_sdv_diagnostic_metrics(dataset_info, generated_data_sample,
-                                                                  n_files_iteration, ori_data_df,
-                                                                  path_to_save_sdv_figures)
+                        diagnostic_synthesis, diagnostic_coverage, diagnostic_boundaries = compute_sdv_diagnostic_metrics(
+                            dataset_info, generated_data_sample,
+                            n_files_iteration, ori_data_df,
+                            path_to_save_sdv_figures)
                 if metric == 'evolution_figures':
                     if n_files_iteration % 10 == 0:  # generates a 10% of the figures
                         create_usage_evolution(generated_data_sample, ori_data, ori_data_sample,
@@ -170,8 +177,8 @@ def compute_metrics(args_params):
                         elif metric == 'sdv-quality' and n_files_iteration % 5 == 0:
                             metrics_results[metric].append(computed_metric)
                     if metric == 'sdv-quality' and n_files_iteration % 5 == 0:
-                        metrics_results[metric+'-column_shapes'].append(column_shapes)
-                        metrics_results[metric+'-column_pair_trends'].append(column_pair_trends)
+                        metrics_results[metric + '-column_shapes'].append(column_shapes)
+                        metrics_results[metric + '-column_pair_trends'].append(column_pair_trends)
                     if metric == 'sdv-diagnostic' and n_files_iteration % 5 == 0:
                         metrics_results[metric + '-synthesis'].append(diagnostic_synthesis)
                         metrics_results[metric + '-coverage'].append(diagnostic_coverage)
@@ -201,11 +208,11 @@ def compute_sdv_quality_metrics(dataset_info, generated_data_sample, n_files_ite
     fig_column_pair_trends.write_image(
         path_to_save_sdv_quality_figures + '/column_pair_trends-' + str(n_files_iteration) + '.pdf')
 
-    return report.get_score(), report.get_properties().iloc[0,1], report.get_properties().iloc[1,1]
+    return report.get_score(), report.get_properties().iloc[0, 1], report.get_properties().iloc[1, 1]
 
 
 def compute_sdv_diagnostic_metrics(dataset_info, generated_data_sample, n_files_iteration, ori_data_df,
-                                path_to_save_sdv_quality_figures):
+                                   path_to_save_sdv_quality_figures):
     report = DiagnosticReport()
     generated_data_sample_df = pd.DataFrame(generated_data_sample,
                                             columns=dataset_info['column_config'])
@@ -221,7 +228,8 @@ def compute_sdv_diagnostic_metrics(dataset_info, generated_data_sample, n_files_
     fig_boundaries.write_image(
         path_to_save_sdv_quality_figures + '/boundaries-' + str(n_files_iteration) + '.pdf')
 
-    return report.get_properties()['Synthesis'], report.get_properties()['Coverage'], report.get_properties()['Boundaries']
+    return report.get_properties()['Synthesis'], report.get_properties()['Coverage'], report.get_properties()[
+        'Boundaries']
 
 
 def initialization(args_params):
@@ -476,29 +484,33 @@ def normalize_start_time_to_zero(sample):
     return sample
 
 
-def get_ori_data_sample(args, ori_data):
-    ori_data_sample_start = random.randrange(0, len(ori_data) - args.seq_len)
-    ori_data_sample_end = ori_data_sample_start + args.seq_len
+def get_ori_data_sample(seq_len, ori_data):
+    ori_data_sample_start = random.randrange(0, len(ori_data) - seq_len)
+    ori_data_sample_end = ori_data_sample_start + seq_len
     ori_data_sample = ori_data[ori_data_sample_start:ori_data_sample_end]
     return ori_data_sample
 
 
-def generate_visualization_figures(args, directory_name, metrics_list, ori_data):
-    ori_data_for_visualization = preprocess_dataset(ori_data, args.seq_len)
+def generate_visualization_figures(args_param, directory_name, metrics_list, ori_data):
     generated_data = []
     n_samples = 0
-    for filename in os.listdir(args.experiment_dir + '/generated_data'):
-        f = os.path.join(args.experiment_dir + '/generated_data', filename)
+    seq_len = 0
+    for filename in os.listdir(args_param.experiment_dir + '/generated_data'):
+        f = os.path.join(args_param.experiment_dir + '/generated_data', filename)
         if os.path.isfile(f):  # checking if it is a file
             n_samples = n_samples + 1
             generated_data_sample = np.loadtxt(f, delimiter=",")
+            seq_len = len(generated_data_sample)
             generated_data.append(generated_data_sample)
+
+    ori_data_for_visualization = preprocess_dataset(ori_data, seq_len)
     if "tsne" in metrics_list:
         visualization(ori_data=ori_data_for_visualization, generated_data=generated_data, analysis='tsne',
                       n_samples=n_samples, path_for_saving_images=directory_name)
     if "pca" in metrics_list:
         visualization(ori_data=ori_data_for_visualization, generated_data=generated_data, analysis='pca',
                       n_samples=n_samples, path_for_saving_images=directory_name)
+
 
 if __name__ == '__main__':
     # Inputs for the main function
@@ -514,9 +526,6 @@ if __name__ == '__main__':
         '--metrics',
         default='mmd',
         type=str)
-    parser.add_argument(
-        '--seq_len',
-        type=int)
     # implementar diccionario de configuración por tipo de traza
     parser.add_argument(
         '--trace',

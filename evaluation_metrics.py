@@ -403,6 +403,7 @@ def results_for_excel(avg_results):
 
 def save_metrics(avg_results, metrics_results, path_to_save_metrics, saved_experiments_parameters, saved_metrics):
     _, _, parameters_dict = extract_experiment_parameters(saved_experiments_parameters)
+    print ("Parameters dict", parameters_dict)
     data_name = parameters_dict['data_name']
     iteration = parameters_dict['iteration']
     seq_len = parameters_dict['seq_len']

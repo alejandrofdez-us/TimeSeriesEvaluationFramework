@@ -239,7 +239,6 @@ def initialization(args_params):
     saved_experiments_parameters = f.readline()
     f = open(args_params.experiment_dir + '/metrics.txt', 'r')
     saved_metrics = f.readline()
-    args_params.seq_len = int(re.search("\Wseq_len=([^,}]+)\)", saved_experiments_parameters).group(1))
     os.makedirs(path_to_save_metrics, exist_ok=True)
     os.makedirs(path_to_save_metrics + '/figures/', exist_ok=True)
     os.makedirs(path_to_save_sdv_figures, exist_ok=True)

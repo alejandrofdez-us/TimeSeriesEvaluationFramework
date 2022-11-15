@@ -37,7 +37,7 @@ def main(args_params):
             try:
                 print("Computing metrics for directory ", dir_name)
                 saved_metrics, metrics_values, saved_experiment_parameters = compute_metrics(args_params)
-                parameters_keys, parameters_values = extract_experiment_parameters(saved_experiment_parameters)
+                parameters_keys, parameters_values,_ = extract_experiment_parameters(saved_experiment_parameters)
                 if not is_header_printed:
                     with open(experiment_results_file_name, 'w') as f:
                         print("Printing header")

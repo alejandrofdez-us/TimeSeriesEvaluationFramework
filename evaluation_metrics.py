@@ -59,7 +59,7 @@ def main(args_params):
 
 def extract_experiment_parameters(saved_experiment_parameters):
     saved_experiment_parameters_dict = dict(
-        item.split("=") for item in saved_experiment_parameters.replace('Namespace(', '').replace('Parameters(', '').replace(')', '').replace('\n', '').split(", "))
+        item.split("=") for item in re.split(', (?![^\[]*\])', saved_experiment_parameters.replace('Namespace(', '').replace('Parameters(', '').replace(')', '').replace('\n', '')))
     parameters_values = ''
     parameters_keys = ''
     for parameter_value in saved_experiment_parameters_dict.values():

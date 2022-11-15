@@ -66,7 +66,7 @@ def extract_experiment_parameters(saved_experiment_parameters):
         parameters_values += parameter_value + ';'
     for parameter_key in saved_experiment_parameters_dict.keys():
         parameters_keys += parameter_key + ';'
-    return parameters_keys, parameters_values
+    return parameters_keys, parameters_values, saved_experiment_parameters_dict
 
 
 def compute_js(ori_data, generated_data_sample):
@@ -402,11 +402,12 @@ def results_for_excel(avg_results):
 
 
 def save_metrics(avg_results, metrics_results, path_to_save_metrics, saved_experiments_parameters, saved_metrics):
-    data_name = re.search("\Wdata_name=([^,}]+)", saved_experiments_parameters).group(1).replace("'", "")
-    iterations = re.search("\Witeration=([^,}]+)", saved_experiments_parameters).group(1)
-    seq_len = re.search("\Wseq_len=([^,}]+)\)", saved_experiments_parameters).group(1)
+    _, _, parameters_dict = extract_experiment_parameters(saved_experiments_parameters)
+    data_name = parameters_dict['data_name']
+    iteration = parameters_dict['iteration']
+    seq_len = parameters_dict['seq_len']
     with open(
-            path_to_save_metrics + '/metrics-' + data_name + '-iterations-' + iterations + '-seq_len' + seq_len + '.txt',
+            path_to_save_metrics + '/metrics-' + data_name + '-iterations-' + iteration + '-seq_len' + seq_len + '.txt',
             'w') as f:
         f.write(saved_experiments_parameters + '\n\n')
         f.write(saved_metrics + '\n\n')

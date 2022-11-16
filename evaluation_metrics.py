@@ -527,7 +527,6 @@ if __name__ == '__main__':
         '--metrics',
         default='mmd',
         type=str)
-    # implementar diccionario de configuración por tipo de traza
     parser.add_argument(
         '--trace',
         default='alibaba2018',

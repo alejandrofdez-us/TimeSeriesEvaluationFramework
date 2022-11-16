@@ -154,32 +154,32 @@ def compute_metrics(args_params):
                             compute_hi(generated_data_sample[:, column].reshape(-1, 1),
                                        ori_data_sample[:, column].reshape(-1, 1)))
                 if metric == 'sdv-quality':
-                    if n_files_iteration % 5 == 0:
+                    if n_files_iteration % args_params.stride == 0:
                         computed_metric, column_shapes, column_pair_trends = compute_sdv_quality_metrics(dataset_info,
                                                                                                          generated_data_sample,
                                                                                                          n_files_iteration,
                                                                                                          ori_data_df,
                                                                                                          path_to_save_sdv_figures)
                 if metric == 'sdv-diagnostic':
-                    if n_files_iteration % 5 == 0:
+                    if n_files_iteration % args_params.stride == 0:
                         diagnostic_synthesis, diagnostic_coverage, diagnostic_boundaries = compute_sdv_diagnostic_metrics(
                             dataset_info, generated_data_sample,
                             n_files_iteration, ori_data_df,
                             path_to_save_sdv_figures)
                 if metric == 'evolution_figures':
-                    if n_files_iteration % 10 == 0:  # generates a 10% of the figures
+                    if n_files_iteration % args_params.stride == 0:  # generates a 10% of the figures
                         create_usage_evolution(generated_data_sample, ori_data, ori_data_sample,
                                                path_to_save_metrics + 'figures/', n_files_iteration, dataset_info)
                 if metric != 'evolution_figures':
                     if metric != 'sdv-diagnostic':
                         if metric != 'sdv-quality':
                             metrics_results[metric].append(computed_metric)
-                        elif metric == 'sdv-quality' and n_files_iteration % 5 == 0:
+                        elif metric == 'sdv-quality' and n_files_iteration % args_params.stride == 0:
                             metrics_results[metric].append(computed_metric)
-                    if metric == 'sdv-quality' and n_files_iteration % 5 == 0:
+                    if metric == 'sdv-quality' and n_files_iteration % args_params.stride == 0:
                         metrics_results[metric + '-column_shapes'].append(column_shapes)
                         metrics_results[metric + '-column_pair_trends'].append(column_pair_trends)
-                    if metric == 'sdv-diagnostic' and n_files_iteration % 5 == 0:
+                    if metric == 'sdv-diagnostic' and n_files_iteration % args_params.stride == 0:
                         metrics_results[metric + '-synthesis'].append(diagnostic_synthesis)
                         metrics_results[metric + '-coverage'].append(diagnostic_coverage)
                         metrics_results[metric + '-boundaries'].append(diagnostic_boundaries)
@@ -535,6 +535,10 @@ if __name__ == '__main__':
         '--recursive',
         default='false',
         type=str)
+    parser.add_argument(
+        '--stride',
+        default='1',
+        type=int)
 
     args = parser.parse_args()
     main(args)

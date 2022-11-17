@@ -410,7 +410,13 @@ def save_metrics(avg_results, metrics_results, path_to_save_metrics, saved_exper
         data_name = parameters_dict['trace']
     else:
         data_name = 'not_found'
-    iteration = parameters_dict['iteration']
+    if 'iteration' in parameters_dict:
+        iteration = parameters_dict['iteration']
+    elif 'epochs' in parameters_dict:
+        iteration = parameters_dict['epochs']
+    else:
+        iteration = 'not_found'
+
     seq_len = parameters_dict['seq_len']
     with open(
             path_to_save_metrics + '/metrics-' + data_name + '-iterations-' + iteration + '-seq_len' + seq_len + '.txt',

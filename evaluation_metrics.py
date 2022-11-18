@@ -81,13 +81,13 @@ def compute_metrics(args_params):
 
     #ori_data = np.loadtxt(args_params.ori_data_filename, delimiter=",", skiprows=1)
     #ori_data_df = pd.DataFrame(ori_data, columns=dataset_info['column_config'])
-    ori_data = loadtraces.get_alibaba_2018_trace(stride_seconds = dataset_info['timestamp_frequency_secs'], format='ndarray')
-    ori_data_df = pd.DataFrame(ori_data, columns=dataset_info['column_config'])
-    ori_data_df_from_pip = loadtraces.get_alibaba_2018_trace(stride_seconds = dataset_info['timestamp_frequency_secs'])
+    ori_data_df = loadtraces.get_alibaba_2018_trace(stride_seconds = dataset_info['timestamp_frequency_secs'])
+    ori_data = ori_data_df.to_numpy()
+    #ori_data_df_from_pip = loadtraces.get_alibaba_2018_trace(stride_seconds = dataset_info['timestamp_frequency_secs'])
     #ori_data_df.reset_index(drop=True)
     print("ori_data_df shape", ori_data_df.head())
-    print("ori_data_df_from_pip shape", ori_data_df_from_pip.head())
-    print ("Are equals?", ori_data_df.equals(ori_data_df_from_pip))
+    # print("ori_data_df_from_pip shape", ori_data_df_from_pip.head())
+    # print ("Are equals?", ori_data_df.equals(ori_data_df_from_pip))
     #print("ori_data_df_pip shape", ori_data_df_pip.shape)
     #print("ori_data_numpy", ori_data[:10])
 
@@ -266,12 +266,12 @@ def initialization(args_params):
         dataset_info = {
             "timestamp_frequency_secs": 300,
             "column_config": {
-                "cpu": {
+                "cpu_util_percent": {
                     "column_index": 0,
                     "y_axis_min": 0,
                     "y_axis_max": 100
                 },
-                "mem": {
+                "mem_util_percent": {
                     "column_index": 1,
                     "y_axis_min": 0,
                     "y_axis_max": 100
@@ -295,11 +295,11 @@ def initialization(args_params):
             },
             "metadata": {
                 "fields": {
-                    "cpu": {
+                    "cpu_util_percent": {
                         "type": "numerical",
                         "subtype": "float"
                     },
-                    "mem": {
+                    "mem_util_percent": {
                         "type": "numerical",
                         "subtype": "float"
                     },

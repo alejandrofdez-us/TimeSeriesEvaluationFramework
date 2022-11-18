@@ -81,10 +81,11 @@ def compute_metrics(args_params):
 
     ori_data = np.loadtxt(args_params.ori_data_filename, delimiter=",", skiprows=1)
     ori_data_df = pd.DataFrame(ori_data, columns=dataset_info['column_config'])
-    #ori_data_df = loadtraces.get_alibaba_2018_trace(stride_seconds = dataset_info['timestamp_frequency_secs'])
-    #ori_data = ori_data_df.to_numpy()
+    ori_data_df_pip = loadtraces.get_alibaba_2018_trace(stride_seconds = dataset_info['timestamp_frequency_secs'])
+    ori_data_df_pip_to_numpy = ori_data_df_pip.to_numpy()
     #ori_data_df.reset_index(drop=True)
-    print("ori_data_df", ori_data_df.head())
+    print("ori_data_df shape", ori_data_df.shape)
+    print("ori_data_df_pip shape", ori_data_df_pip.shape)
     print("ori_data_numpy", ori_data[:10])
 
     # ori_data[:, [1, 0]] = ori_data[:, [0, 1]] # timestamp como primera columna
@@ -207,6 +208,9 @@ def compute_sdv_quality_metrics(dataset_info, generated_data_sample, n_files_ite
     report = QualityReport()
     generated_data_sample_df = pd.DataFrame(generated_data_sample,
                                             columns=dataset_info['column_config'])
+    print("Report")
+    print("ori_data_df shape", ori_data_df.shape)
+    print("generated_data_df shape", generated_data_sample_df.shape)
     report.generate(ori_data_df, generated_data_sample_df, dataset_info['metadata'])
     fig_column_shapes = report.get_visualization(property_name='Column Shapes')
     fig_column_pair_trends = report.get_visualization(property_name='Column Pair Trends')

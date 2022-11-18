@@ -78,8 +78,6 @@ def compute_metrics(args_params):
         args_params)
 
     ori_data = np.loadtxt(args_params.ori_data_filename, delimiter=",", skiprows=1)
-    print("ori_data", ori_data)
-    print("column_config", dataset_info['column_config'])
     ori_data_df = pd.DataFrame(ori_data, columns=dataset_info['column_config'])
 
     # ori_data[:, [1, 0]] = ori_data[:, [0, 1]] # timestamp como primera columna
@@ -252,7 +250,7 @@ def initialization(args_params):
 
     if args_params.trace == 'alibaba2018':
         dataset_info = {
-            "timestamp_frequency_secs": 10,
+            "timestamp_frequency_secs": 300,
             "column_config": {
                 "cpu": {
                     "column_index": 0,

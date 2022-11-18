@@ -81,8 +81,8 @@ def compute_metrics(args_params):
 
     #ori_data = np.loadtxt(args_params.ori_data_filename, delimiter=",", skiprows=1)
     #ori_data_df = pd.DataFrame(ori_data, columns=dataset_info['column_config'])
-    ori_data_df = loadtraces.get_alibaba_2018_trace(stride_seconds = dataset_info['timestamp_frequency_secs'])
-    ori_data = ori_data_df.to_numpy()
+    ori_data = loadtraces.get_alibaba_2018_trace(stride_seconds = dataset_info['timestamp_frequency_secs'], format='ndarray')
+    ori_data_df = pd.DataFrame(ori_data, columns=dataset_info['column_config'])
     #ori_data_df.reset_index(drop=True)
     print("ori_data_df shape", ori_data_df.shape)
     #print("ori_data_df_pip shape", ori_data_df_pip.shape)

@@ -83,6 +83,7 @@ def compute_metrics(args_params):
     #ori_data_df = pd.DataFrame(ori_data, columns=dataset_info['column_config'])
     ori_data_df = loadtraces.get_alibaba_2018_trace(stride_seconds = dataset_info['timestamp_frequency_secs'])
     ori_data = ori_data_df.to_numpy()
+    ori_data_df.reset_index(drop=True)
     print("ori_data_df", ori_data_df.head())
     print("ori_data_numpy", ori_data[:10])
 

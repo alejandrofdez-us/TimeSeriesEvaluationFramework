@@ -79,19 +79,13 @@ def compute_metrics(args_params):
     metrics_list, path_to_save_metrics, saved_experiments_parameters, saved_metrics, dataset_info, path_to_save_sdv_figures = initialization(
         args_params)
 
-    #ori_data = np.loadtxt(args_params.ori_data_filename, delimiter=",", skiprows=1)
-    #ori_data_df = pd.DataFrame(ori_data, columns=dataset_info['column_config'])
-    ori_data_df = loadtraces.get_alibaba_2018_trace(stride_seconds = dataset_info['timestamp_frequency_secs'])
-    ori_data = ori_data_df.to_numpy()
-    #ori_data_df_from_pip = loadtraces.get_alibaba_2018_trace(stride_seconds = dataset_info['timestamp_frequency_secs'])
-    #ori_data_df.reset_index(drop=True)
-    print("ori_data_df shape", ori_data_df.head())
-    # print("ori_data_df_from_pip shape", ori_data_df_from_pip.head())
-    # print ("Are equals?", ori_data_df.equals(ori_data_df_from_pip))
-    #print("ori_data_df_pip shape", ori_data_df_pip.shape)
-    #print("ori_data_numpy", ori_data[:10])
+    if (args_params.ori_data_filename):
+        ori_data = np.loadtxt(args_params.ori_data_filename, delimiter=",", skiprows=1)
+        ori_data_df = pd.DataFrame(ori_data, columns=dataset_info['column_config'])
+    else:
+        ori_data_df = loadtraces.get_alibaba_2018_trace(stride_seconds = dataset_info['timestamp_frequency_secs'])
+        ori_data = ori_data_df.to_numpy()
 
-    # ori_data[:, [1, 0]] = ori_data[:, [0, 1]] # timestamp como primera columna
     if "tsne" in metrics_list or "pca" in metrics_list:
         generate_visualization_figures(args_params, path_to_save_metrics, metrics_list, ori_data)
         metrics_list.remove("tsne")

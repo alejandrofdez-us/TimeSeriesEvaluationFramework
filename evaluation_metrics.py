@@ -79,11 +79,11 @@ def compute_metrics(args_params):
     metrics_list, path_to_save_metrics, saved_experiments_parameters, saved_metrics, dataset_info, path_to_save_sdv_figures = initialization(
         args_params)
 
-    #ori_data = np.loadtxt(args_params.ori_data_filename, delimiter=",", skiprows=1)
-    #ori_data_df = pd.DataFrame(ori_data, columns=dataset_info['column_config'])
-    ori_data_df = loadtraces.get_alibaba_2018_trace(stride_seconds = dataset_info['timestamp_frequency_secs'])
-    ori_data = ori_data_df.to_numpy()
-    ori_data_df.reset_index(drop=True)
+    ori_data = np.loadtxt(args_params.ori_data_filename, delimiter=",", skiprows=1)
+    ori_data_df = pd.DataFrame(ori_data, columns=dataset_info['column_config'])
+    #ori_data_df = loadtraces.get_alibaba_2018_trace(stride_seconds = dataset_info['timestamp_frequency_secs'])
+    #ori_data = ori_data_df.to_numpy()
+    #ori_data_df.reset_index(drop=True)
     print("ori_data_df", ori_data_df.head())
     print("ori_data_numpy", ori_data[:10])
 
@@ -544,6 +544,10 @@ def generate_visualization_figures(args_param, directory_name, metrics_list, ori
 if __name__ == '__main__':
     # Inputs for the main function
     parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--ori_data_filename',
+        default='data/mu_day3_cut.csv',
+        type=str)
     parser.add_argument(
         '--experiment_dir',
         type=str)

@@ -271,7 +271,13 @@ def initialization(args_params):
                     "column_index": 3,
                     "y_axis_min": 0,
                     "y_axis_max": 100
+                },
+                "disk_io_percent": {
+                    "column_index": 4,
+                    "y_axis_min": 0,
+                    "y_axis_max": 100
                 }
+
             },
             "metadata": {
                 "fields": {
@@ -288,6 +294,10 @@ def initialization(args_params):
                         "subtype": "float"
                     },
                     "net_out": {
+                        "type": "numerical",
+                        "subtype": "float"
+                    },
+                    "disk_io_percent": {
                         "type": "numerical",
                         "subtype": "float"
                     }

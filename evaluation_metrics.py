@@ -83,8 +83,11 @@ def compute_metrics(args_params):
     #ori_data_df = pd.DataFrame(ori_data, columns=dataset_info['column_config'])
     ori_data = loadtraces.get_alibaba_2018_trace(stride_seconds = dataset_info['timestamp_frequency_secs'], format='ndarray')
     ori_data_df = pd.DataFrame(ori_data, columns=dataset_info['column_config'])
+    ori_data_df_from_pip = loadtraces.get_alibaba_2018_trace(stride_seconds = dataset_info['timestamp_frequency_secs'])
     #ori_data_df.reset_index(drop=True)
     print("ori_data_df shape", ori_data_df.shape)
+    print("ori_data_df_from_pip shape", ori_data_df_from_pip.shape)
+    print ("Are equals?", ori_data_df.equals(ori_data_df_from_pip))
     #print("ori_data_df_pip shape", ori_data_df_pip.shape)
     #print("ori_data_numpy", ori_data[:10])
 

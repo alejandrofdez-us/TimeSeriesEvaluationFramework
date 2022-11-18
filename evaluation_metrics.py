@@ -78,8 +78,6 @@ def compute_metrics(args_params):
         args_params)
 
     ori_data = np.loadtxt(args_params.ori_data_filename, delimiter=",", skiprows=0)
-    print("ori_data", ori_data.head())
-    print("column_config", dataset_info['column'])
     ori_data_df = pd.DataFrame(ori_data, columns=dataset_info['column_config'])
 
     # ori_data[:, [1, 0]] = ori_data[:, [0, 1]] # timestamp como primera columna

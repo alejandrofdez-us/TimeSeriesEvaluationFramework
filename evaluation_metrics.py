@@ -32,7 +32,7 @@ def main(args_params):
             first_level_dirs = dirs
             break
         is_header_printed = False
-        progress_bar = tqdm(first_level_dirs)
+        progress_bar = tqdm(first_level_dirs, colour="green")
         for dir_name in progress_bar:
             args_params.experiment_dir = root_dir + dir_name
             try:

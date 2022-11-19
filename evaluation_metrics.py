@@ -32,10 +32,12 @@ def main(args_params):
             first_level_dirs = dirs
             break
         is_header_printed = False
-        for dir_name in tqdm(first_level_dirs):
+        progress_bar = tqdm(first_level_dirs)
+        for dir_name in progress_bar:
             args_params.experiment_dir = root_dir + dir_name
             try:
-                print("Computing metrics for directory ", dir_name)
+                progress_bar.set_description("Computing metrics for directory" + dir_name)
+                #print("Computing metrics for directory ", dir_name)
                 saved_metrics, metrics_values, saved_experiment_parameters = compute_metrics(args_params)
                 parameters_keys, parameters_values,_ = extract_experiment_parameters(saved_experiment_parameters)
                 if not is_header_printed:

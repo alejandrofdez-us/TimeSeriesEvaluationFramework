@@ -42,7 +42,6 @@ def main(args_params):
                 parameters_keys, parameters_values,_ = extract_experiment_parameters(saved_experiment_parameters)
                 if not is_header_printed:
                     with open(experiment_results_file_name, 'w') as f:
-                        print("Printing header")
                         f.write('experiment_dir_name;' + parameters_keys + saved_metrics + '\n')
                     is_header_printed = True
 

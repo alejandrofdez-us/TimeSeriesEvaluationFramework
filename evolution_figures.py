@@ -1,12 +1,10 @@
-import argparse
 import os
-import random
+from itertools import cycle
 
 import matplotlib.pyplot as plt
 import numpy as np
-from itertools import cycle
 
-from evaluation_metrics import get_ori_data_sample
+from utils import get_ori_data_sample
 
 
 def create_figure(ori_column_values_array, generated_column_values, axis, name, path_to_save_metrics):

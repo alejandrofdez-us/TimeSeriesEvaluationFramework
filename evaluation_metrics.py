@@ -1,28 +1,25 @@
 import argparse
+import fnmatch
 import os
-import random
 import re
 import statistics
+import traceback
+from datetime import datetime
 
 import numpy as np
 import pandas as pd
 import scipy
-import fnmatch
-import traceback
-
+from datacentertracesdatasets import loadtraces
+from dtaidistance import dtw_ndim
 from sdmetrics.reports.single_table import QualityReport, DiagnosticReport
 from tqdm import tqdm
 
 from evolution_figures import create_usage_evolution
-from metrics.kl import KLdivergence, JSdistance, JSdistanceMultivariate
 from metrics.kl import KLDivergenceUnivariate
+from metrics.kl import KLdivergence, JSdistance, JSdistanceMultivariate
 from metrics.mmd import mmd_rbf
-from dtaidistance import dtw_ndim
-
 from metrics.visualization_metrics import visualization
-from datetime import datetime
-from datacentertracesdatasets import loadtraces
-
+from utils import get_ori_data_sample
 
 
 def main(args_params):
@@ -512,17 +509,6 @@ def normalize_start_time_to_zero(sample):
     normalized_timestamp_column = timestamp_column - min_timestamp
     sample[:, 0] = normalized_timestamp_column
     return sample
-
-
-def get_ori_data_sample(seq_len, ori_data):
-    if len(ori_data) > seq_len:
-        ori_data_sample_start = random.randrange(0, len(ori_data) - seq_len)
-    else: # seq_len is the full ori_data_length
-        ori_data_sample_start = 0
-
-    ori_data_sample_end = ori_data_sample_start + seq_len
-    ori_data_sample = ori_data[ori_data_sample_start:ori_data_sample_end]
-    return ori_data_sample
 
 
 def generate_visualization_figures(args_param, directory_name, metrics_list, ori_data):

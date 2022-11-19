@@ -11,6 +11,7 @@ import fnmatch
 import traceback
 
 from sdmetrics.reports.single_table import QualityReport, DiagnosticReport
+from tqdm import tqdm
 
 from evolution_figures import create_usage_evolution
 from metrics.kl import KLdivergence, JSdistance, JSdistanceMultivariate
@@ -34,7 +35,7 @@ def main(args_params):
             first_level_dirs = dirs
             break
         is_header_printed = False
-        for dir_name in first_level_dirs:
+        for dir_name in tqdm(first_level_dirs):
             args_params.experiment_dir = root_dir + dir_name
             try:
                 print("Computing metrics for directory ", dir_name)

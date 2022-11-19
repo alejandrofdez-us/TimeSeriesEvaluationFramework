@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from itertools import cycle
 
-
+from evaluation_metrics import get_ori_data_sample
 
 
 def create_figure(ori_column_values_array, generated_column_values, axis, name, path_to_save_metrics):
@@ -75,10 +75,3 @@ def compute_grouped_delta_from_sample(column_number, minutes, data_sample, seq_l
     sample_column_mean = [np.mean(batch) for batch in sample_column_splitted]
     delta_sample_column = -np.diff(sample_column_mean)
     return delta_sample_column
-
-
-def get_ori_data_sample(seq_len, ori_data):
-    ori_data_sample_start = random.randrange(0, len(ori_data) - seq_len)
-    ori_data_sample_end = ori_data_sample_start + seq_len
-    ori_data_sample = ori_data[ori_data_sample_start:ori_data_sample_end]
-    return ori_data_sample

@@ -9,6 +9,7 @@ import sys
 import traceback
 from datetime import datetime
 from io import StringIO
+from IPython.utils import io
 
 import numpy as np
 import pandas as pd
@@ -219,7 +220,7 @@ def compute_sdv_quality_metrics(dataset_info, generated_data_sample, n_files_ite
     generated_data_sample_df = pd.DataFrame(generated_data_sample,
                                             columns=dataset_info['column_config'])
     print("\nBefore no printing")
-    with open(os.devnull, "w") as f, contextlib.redirect_stdout(f):
+    with io.capture_output() as captured:
         print("SHOULD NOT BE PRINTED")
         report.generate(ori_data_df, generated_data_sample_df, dataset_info['metadata'])
 

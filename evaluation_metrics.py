@@ -203,25 +203,25 @@ def compute_metrics(args_params):
                                                   saved_experiments_parameters, saved_metrics)
     return saved_metrics, metrics_values, saved_experiments_parameters
 
-# Disable
-def blockPrint():
-    sys.stdout = open(os.devnull, 'w')
 
-# Restore
-def enablePrint():
-    sys.stdout = sys.__stdout__
+class HiddenPrints:
+    def __enter__(self):
+        self._original_stdout = sys.stdout
+        sys.stdout = open(os.devnull, 'w')
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        sys.stdout.close()
+        sys.stdout = self._original_stdout
     
 def compute_sdv_quality_metrics(dataset_info, generated_data_sample, n_files_iteration, ori_data_df,
                                 path_to_save_sdv_quality_figures):
     report = QualityReport()
     generated_data_sample_df = pd.DataFrame(generated_data_sample,
                                             columns=dataset_info['column_config'])
-    print("Before no printing")
-    blockPrint()
-    print("SHOULD NOT BE PRINTED")
-    report.generate(ori_data_df, generated_data_sample_df, dataset_info['metadata'])
-
-    enablePrint()
+    print("\nBefore no printing")
+    with HiddenPrints():
+        print("SHOULD NOT BE PRINTED")
+        report.generate(ori_data_df, generated_data_sample_df, dataset_info['metadata'])
 
     print("After no printing")
 

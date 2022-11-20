@@ -6,6 +6,7 @@ import statistics
 import sys
 import traceback
 from datetime import datetime
+from io import StringIO
 
 import numpy as np
 import pandas as pd
@@ -200,6 +201,9 @@ def compute_metrics(args_params):
                                                   saved_experiments_parameters, saved_metrics)
     return saved_metrics, metrics_values, saved_experiments_parameters
 
+class NullIO(StringIO):
+    def write(self, txt):
+       pass
 
 def compute_sdv_quality_metrics(dataset_info, generated_data_sample, n_files_iteration, ori_data_df,
                                 path_to_save_sdv_quality_figures):
@@ -207,11 +211,12 @@ def compute_sdv_quality_metrics(dataset_info, generated_data_sample, n_files_ite
     generated_data_sample_df = pd.DataFrame(generated_data_sample,
                                             columns=dataset_info['column_config'])
     print("Before no printing")
-    old_stdout = sys.stdout  # backup current stdout
-    sys.stdout = open(os.devnull, "w")
+    #old_stdout = sys.stdout  # backup current stdout
+    sys.stdout = NullIO()
     print("Shouldnt be printed")
     report.generate(ori_data_df, generated_data_sample_df, dataset_info['metadata'])
-    sys.stdout = old_stdout  # reset old stdout
+    sys.stdout = sys.__stdout__
+    #sys.stdout = old_stdout  # reset old stdout
     print("YES printed")
 
     fig_column_shapes = report.get_visualization(property_name='Column Shapes')

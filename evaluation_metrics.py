@@ -1,15 +1,11 @@
 import argparse
-import contextlib
 import fnmatch
-import io
 import os
 import re
 import statistics
 import sys
 import traceback
 from datetime import datetime
-from io import StringIO
-from IPython.utils import io
 
 import numpy as np
 import pandas as pd
@@ -219,13 +215,7 @@ def compute_sdv_quality_metrics(dataset_info, generated_data_sample, n_files_ite
     report = QualityReport()
     generated_data_sample_df = pd.DataFrame(generated_data_sample,
                                             columns=dataset_info['column_config'])
-    print("\nBefore no printing")
-    with io.capture_output() as captured:
-        print("SHOULD NOT BE PRINTED")
-        report.generate(ori_data_df, generated_data_sample_df, dataset_info['metadata'])
-
-    print("After no printing")
-
+    report.generate(ori_data_df, generated_data_sample_df, dataset_info['metadata'])
     fig_column_shapes = report.get_visualization(property_name='Column Shapes')
     fig_column_pair_trends = report.get_visualization(property_name='Column Pair Trends')
     fig_column_shapes.write_image(

@@ -27,12 +27,12 @@ def main(args_params):
         root_dir = args_params.experiment_dir
         experiment_results_file_name = root_dir + 'experiments_metrics-' + datetime.now().strftime(
             "%j-%H-%M-%S") + '.csv'
-        first_level_dirs = []
+        experiment_directories = []
         for subdir, dirs, files in os.walk(root_dir):
-            first_level_dirs = dirs
-            break
+            if 'generated_data' in dirs:
+                experiment_directories.append(subdir)
         is_header_printed = False
-        progress_bar = tqdm(first_level_dirs, colour="green")
+        progress_bar = tqdm(experiment_directories, colour="green")
         for dir_name in progress_bar:
             args_params.experiment_dir = root_dir + dir_name
             try:

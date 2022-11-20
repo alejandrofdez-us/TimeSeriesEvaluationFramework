@@ -206,6 +206,7 @@ def compute_sdv_quality_metrics(dataset_info, generated_data_sample, n_files_ite
     report = QualityReport()
     generated_data_sample_df = pd.DataFrame(generated_data_sample,
                                             columns=dataset_info['column_config'])
+    print("Before no printing")
     old_stdout = sys.stdout  # backup current stdout
     sys.stdout = open(os.devnull, "w")
     print("Shouldnt be printed")

@@ -243,13 +243,15 @@ def initialization(args_params):
         parameters_file = open(args_params.experiment_dir + '/../parameters.txt', 'r')
     else:
         parameters_file = open(args_params.experiment_dir + '/parameters.txt', 'r')
+    saved_metrics ="no metrics"
     if args_params.recursive == 'true' and os.path.isfile(args_params.experiment_dir + '/../metrics.txt'):
         metrics_file = open(args_params.experiment_dir + '/../metrics.txt', 'r')
-    else:
+        saved_metrics = metrics_file.readline()
+    elif os.path.isfile(args_params.experiment_dir + '/metrics.txt'):
         metrics_file = open(args_params.experiment_dir + '/metrics.txt', 'r')
+        saved_metrics = metrics_file.readline()
 
     saved_experiments_parameters = parameters_file.readline()
-    saved_metrics = metrics_file.readline()
     os.makedirs(path_to_save_metrics, exist_ok=True)
     os.makedirs(path_to_save_metrics + '/figures/', exist_ok=True)
     os.makedirs(path_to_save_sdv_figures, exist_ok=True)

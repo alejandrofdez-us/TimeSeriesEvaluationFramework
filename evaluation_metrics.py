@@ -108,7 +108,7 @@ def compute_metrics(args_params):
 
         n_files_iteration = 0
         total_files = len(fnmatch.filter(os.listdir(args_params.experiment_dir + '/generated_data'), '*.csv'))
-        progress_bar2 = tqdm(os.listdir(args_params.experiment_dir + '/generated_data'), colour='blue')
+        progress_bar2 = tqdm(os.listdir(args_params.experiment_dir + '/generated_data'), colour='blue', leave=False)
         for filename in progress_bar2:
             progress_bar2.set_description(f'Computing {metric:20} [{n_files_iteration+1}/{total_files}]')
             f = os.path.join(args_params.experiment_dir + '/generated_data', filename)

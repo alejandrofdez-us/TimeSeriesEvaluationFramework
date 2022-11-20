@@ -110,7 +110,7 @@ def compute_metrics(args_params):
         total_files = len(fnmatch.filter(os.listdir(args_params.experiment_dir + '/generated_data'), '*.csv'))
         progress_bar2 = tqdm(os.listdir(args_params.experiment_dir + '/generated_data'), colour='blue')
         for filename in progress_bar2:
-            progress_bar2.set_description(f'Computing {metric} \t\t[{n_files_iteration}/{total_files}]')
+            progress_bar2.set_description(f'Computing {metric:15} [{n_files_iteration}/{total_files}]')
             f = os.path.join(args_params.experiment_dir + '/generated_data', filename)
             if os.path.isfile(f):  # checking if it is a file
                 generated_data_sample = np.loadtxt(f, delimiter=",")

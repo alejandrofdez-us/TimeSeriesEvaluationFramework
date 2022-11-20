@@ -1,4 +1,5 @@
 import argparse
+import contextlib
 import fnmatch
 import os
 import re
@@ -214,10 +215,12 @@ def compute_sdv_quality_metrics(dataset_info, generated_data_sample, n_files_ite
     generated_data_sample_df = pd.DataFrame(generated_data_sample,
                                             columns=dataset_info['column_config'])
     print("Before no printing")
-    deafen(report.generate, ori_data_df, generated_data_sample_df, dataset_info['metadata'])
-    #report.generate(ori_data_df, generated_data_sample_df, dataset_info['metadata'])
+    #deafen(report.generate, ori_data_df, generated_data_sample_df, dataset_info['metadata'])
+    with open(os.devnull, 'w') as devnull:
+        with contextlib.redirect_stdout(devnull):
+            report.generate(ori_data_df, generated_data_sample_df, dataset_info['metadata'])
 
-    print("Afte no printing")
+    print("After no printing")
 
     fig_column_shapes = report.get_visualization(property_name='Column Shapes')
     fig_column_pair_trends = report.get_visualization(property_name='Column Pair Trends')

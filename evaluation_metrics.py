@@ -211,6 +211,7 @@ def compute_sdv_quality_metrics(dataset_info, generated_data_sample, n_files_ite
     print("Shouldnt be printed")
     report.generate(ori_data_df, generated_data_sample_df, dataset_info['metadata'])
     sys.stdout = old_stdout  # reset old stdout
+    print("YES printed")
 
     fig_column_shapes = report.get_visualization(property_name='Column Shapes')
     fig_column_pair_trends = report.get_visualization(property_name='Column Pair Trends')

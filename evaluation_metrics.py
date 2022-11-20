@@ -1,6 +1,7 @@
 import argparse
 import contextlib
 import fnmatch
+import io
 import os
 import re
 import statistics
@@ -216,9 +217,8 @@ def compute_sdv_quality_metrics(dataset_info, generated_data_sample, n_files_ite
                                             columns=dataset_info['column_config'])
     print("Before no printing")
     #deafen(report.generate, ori_data_df, generated_data_sample_df, dataset_info['metadata'])
-    with open(os.devnull, 'w') as devnull:
-        with contextlib.redirect_stdout(devnull):
-            report.generate(ori_data_df, generated_data_sample_df, dataset_info['metadata'])
+    with contextlib.redirect_stdout(io.StringIO()):
+        report.generate(ori_data_df, generated_data_sample_df, dataset_info['metadata'])
 
     print("After no printing")
 

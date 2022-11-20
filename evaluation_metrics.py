@@ -34,7 +34,7 @@ def main(args_params):
         is_header_printed = False
         progress_bar = tqdm(experiment_directories, colour="green")
         for dir_name in progress_bar:
-            args_params.experiment_dir = root_dir + dir_name
+            args_params.experiment_dir = dir_name
             try:
                 progress_bar.set_description("Computing metrics for directory" + dir_name)
                 #print("Computing metrics for directory ", dir_name)

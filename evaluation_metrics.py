@@ -109,7 +109,7 @@ def compute_metrics(args_params):
         n_files_iteration = 0
         total_files = len(fnmatch.filter(os.listdir(args_params.experiment_dir + '/generated_data'), '*.csv'))
         for filename in os.listdir(args_params.experiment_dir + '/generated_data'):
-            print('Computing: ', metric, '[' + str(n_files_iteration + 1) + '/' + str(total_files) + ']', end='\r')
+            #print('Computing: ', metric, '[' + str(n_files_iteration + 1) + '/' + str(total_files) + ']', end='\r')
             f = os.path.join(args_params.experiment_dir + '/generated_data', filename)
             if os.path.isfile(f):  # checking if it is a file
                 generated_data_sample = np.loadtxt(f, delimiter=",")
@@ -189,7 +189,7 @@ def compute_metrics(args_params):
                         metrics_results[metric + '-boundaries'].append(diagnostic_boundaries)
 
                 n_files_iteration += 1
-        print('')
+        #print('')
 
     for metric, results in metrics_results.items():
         if metric != 'tsne' and metric != 'pca' and metric != 'evolution_figures':
@@ -204,9 +204,6 @@ def compute_sdv_quality_metrics(dataset_info, generated_data_sample, n_files_ite
     report = QualityReport()
     generated_data_sample_df = pd.DataFrame(generated_data_sample,
                                             columns=dataset_info['column_config'])
-    print("Report")
-    print("ori_data_df shape", ori_data_df.shape)
-    print("generated_data_df shape", generated_data_sample_df.shape)
     report.generate(ori_data_df, generated_data_sample_df, dataset_info['metadata'])
     fig_column_shapes = report.get_visualization(property_name='Column Shapes')
     fig_column_pair_trends = report.get_visualization(property_name='Column Pair Trends')
@@ -420,7 +417,6 @@ def results_for_excel(avg_results):
 
 def save_metrics(avg_results, metrics_results, path_to_save_metrics, saved_experiments_parameters, saved_metrics):
     _, _, parameters_dict = extract_experiment_parameters(saved_experiments_parameters)
-    print ("Parameters dict", parameters_dict)
     if 'data_name' in parameters_dict:
         data_name = parameters_dict['data_name']
     elif 'trace' in parameters_dict:
@@ -445,7 +441,7 @@ def save_metrics(avg_results, metrics_results, path_to_save_metrics, saved_exper
         f.write(
             'Results of the following metrics: ' + computed_metrics + ' in spanish locale Excel format:' + '\n' + metrics_values + '\n')
         f.write(repr(metrics_results))
-    print("Metrics saved in file", f.name)
+    #print("Metrics saved in file", f.name)
     return computed_metrics, metrics_values
 
 

@@ -208,6 +208,7 @@ def compute_sdv_quality_metrics(dataset_info, generated_data_sample, n_files_ite
                                             columns=dataset_info['column_config'])
     old_stdout = sys.stdout  # backup current stdout
     sys.stdout = open(os.devnull, "w")
+    print("Shouldnt be printed")
     report.generate(ori_data_df, generated_data_sample_df, dataset_info['metadata'])
     sys.stdout = old_stdout  # reset old stdout
 

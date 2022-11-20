@@ -219,7 +219,7 @@ def compute_sdv_quality_metrics(dataset_info, generated_data_sample, n_files_ite
     generated_data_sample_df = pd.DataFrame(generated_data_sample,
                                             columns=dataset_info['column_config'])
     print("\nBefore no printing")
-    with HiddenPrints():
+    with open(os.devnull, "w") as f, contextlib.redirect_stdout(f):
         print("SHOULD NOT BE PRINTED")
         report.generate(ori_data_df, generated_data_sample_df, dataset_info['metadata'])
 

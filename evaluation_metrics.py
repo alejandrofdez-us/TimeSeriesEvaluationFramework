@@ -33,6 +33,7 @@ def main(args_params):
             if 'generated_data' in dirs:
                 experiment_directories.append(subdir)
         is_header_printed = False
+        print ("experiment_directories",experiment_directories)
         progress_bar = tqdm(experiment_directories, colour="green")
         for dir_name in progress_bar:
             args_params.experiment_dir = dir_name

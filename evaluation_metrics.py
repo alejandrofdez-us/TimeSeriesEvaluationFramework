@@ -229,7 +229,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '--ori_data_filename',
-        default='data/mu_day3_cut.csv',
         type=str)
     parser.add_argument(
         '--experiment_dir',

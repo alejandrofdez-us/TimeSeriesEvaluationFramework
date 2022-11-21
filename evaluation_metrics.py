@@ -34,11 +34,11 @@ def main(args_params):
                 experiment_directories.append(subdir)
 
         is_header_printed = False
-        progress_bar = tqdm(experiment_directories, colour="green")
-        for dir_name in progress_bar:
+        progress_bar_general = tqdm(experiment_directories, colour="green")
+        for dir_name in progress_bar_general:
             args_params.experiment_dir = dir_name
             try:
-                progress_bar.set_description("Computing metrics for directory" + dir_name)
+                progress_bar_general.set_description("Computing metrics for directory" + dir_name)
                 #print("Computing metrics for directory ", dir_name)
                 saved_metrics, metrics_values, saved_experiment_parameters = compute_metrics(args_params)
                 parameters_keys, parameters_values,_ = extract_experiment_parameters(saved_experiment_parameters)
@@ -87,7 +87,7 @@ def compute_metrics(args_params):
 
     n_files_iteration = 0
     total_files = len(fnmatch.filter(os.listdir(args_params.experiment_dir + '/generated_data'), '*.csv'))
-    sorted_sample_names = sorted(os.listdir(args_params.experiment_dir + '/generated_data'), key=lambda fileName: int(fileName.split('.')[0].split('_')[1]))
+    sorted_sample_names = sorted(fnmatch.filter(os.listdir(args_params.experiment_dir + '/generated_data'), '*.csv'), key=lambda fileName: int(fileName.split('.')[0].split('_')[1]))
     progress_bar = tqdm(sorted_sample_names, colour='green')
     for filename in progress_bar:
         progress_bar.set_description(f'Computing {filename:10} [{n_files_iteration+1}/{total_files}]')
@@ -99,7 +99,6 @@ def compute_metrics(args_params):
             ori_data_sample = get_most_similar_ori_data_sample(ori_data_windows_numpy, generated_data_sample)
             computed_metric = 0
             progress_bar2 = tqdm(metrics_list, colour='blue',leave=False)
-
             metric_iteration=0
             for metric in tqdm(progress_bar2):
                 progress_bar.set_description(f'Computing {metric:10} [{metric_iteration + 1}/{len(metrics_list)}]')

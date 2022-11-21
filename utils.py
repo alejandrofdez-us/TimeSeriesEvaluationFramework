@@ -38,11 +38,11 @@ def get_dataset_info(trace_name):
         dataset_info = {
             "timestamp_frequency_secs": 300,
             "column_config": {
-                # "cpu_util_percent": {
-                #     "column_index": 0,
-                #     "y_axis_min": 0,
-                #     "y_axis_max": 100
-                # },
+                "cpu_util_percent": {
+                    "column_index": 0,
+                    "y_axis_min": 0,
+                    "y_axis_max": 100
+                },
                 "mem_util_percent": {
                     "column_index": 1,
                     "y_axis_min": 0,
@@ -67,10 +67,57 @@ def get_dataset_info(trace_name):
             },
             "metadata": {
                 "fields": {
-                    # "cpu_util_percent": {
-                    #     "type": "numerical",
-                    #     "subtype": "float"
-                    # },
+                    "cpu_util_percent": {
+                        "type": "numerical",
+                        "subtype": "float"
+                    },
+                    "mem_util_percent": {
+                        "type": "numerical",
+                        "subtype": "float"
+                    },
+                    "net_in": {
+                        "type": "numerical",
+                        "subtype": "float"
+                    },
+                    "net_out": {
+                        "type": "numerical",
+                        "subtype": "float"
+                    },
+                    "disk_io_percent": {
+                        "type": "numerical",
+                        "subtype": "float"
+                    }
+                }
+            }
+        }
+    if trace_name == 'alibaba2018-4columns':
+        dataset_info = {
+            "timestamp_frequency_secs": 300,
+            "column_config": {
+                "mem_util_percent": {
+                    "column_index": 0,
+                    "y_axis_min": 0,
+                    "y_axis_max": 100
+                },
+                "net_in": {
+                    "column_index": 1,
+                    "y_axis_min": 0,
+                    "y_axis_max": 100
+                },
+                "net_out": {
+                    "column_index": 2,
+                    "y_axis_min": 0,
+                    "y_axis_max": 100
+                },
+                "disk_io_percent": {
+                    "column_index": 3,
+                    "y_axis_min": 0,
+                    "y_axis_max": 100
+                }
+
+            },
+            "metadata": {
+                "fields": {
                     "mem_util_percent": {
                         "type": "numerical",
                         "subtype": "float"

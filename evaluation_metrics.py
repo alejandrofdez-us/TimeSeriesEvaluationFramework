@@ -93,10 +93,6 @@ def compute_metrics(args_params):
 
     _, _, parameters_dict = extract_experiment_parameters(saved_experiments_parameters)
     ori_data_windows_numpy = split_ori_data_strided(ori_data_df, int(parameters_dict['seq_len']), 30)
-    if "tsne" in metrics_list or "pca" in metrics_list:
-        generate_visualization_figures(args_params, path_to_save_metrics, metrics_list, ori_data)
-        metrics_list.remove("tsne")
-        metrics_list.remove("pca")
 
     metrics_results = {}
     avg_results = {}
@@ -203,7 +199,7 @@ def compute_metrics(args_params):
         #print('')
 
     for metric, results in metrics_results.items():
-        if metric != 'tsne' and metric != 'pca' and metric != 'evolution_figures':
+        if metric != 'evolution_figures':
             avg_results[metric] = statistics.mean(metrics_results[metric])
     saved_metrics, metrics_values, = save_metrics(avg_results, metrics_results, path_to_save_metrics,
                                                   saved_experiments_parameters, saved_metrics)
@@ -400,27 +396,6 @@ def normalize_start_time_to_zero(sample):
     normalized_timestamp_column = timestamp_column - min_timestamp
     sample[:, 0] = normalized_timestamp_column
     return sample
-
-
-def generate_visualization_figures(args_param, directory_name, metrics_list, ori_data):
-    generated_data = []
-    n_samples = 0
-    seq_len = 0
-    for filename in os.listdir(args_param.experiment_dir + '/generated_data'):
-        f = os.path.join(args_param.experiment_dir + '/generated_data', filename)
-        if os.path.isfile(f):  # checking if it is a file
-            n_samples = n_samples + 1
-            generated_data_sample = np.loadtxt(f, delimiter=",")
-            seq_len = len(generated_data_sample)
-            generated_data.append(generated_data_sample)
-
-    ori_data_for_visualization = preprocess_dataset(ori_data, seq_len)
-    if "tsne" in metrics_list:
-        visualization(ori_data=ori_data_for_visualization, generated_data=generated_data, analysis='tsne',
-                      n_samples=n_samples, path_for_saving_images=directory_name)
-    if "pca" in metrics_list:
-        visualization(ori_data=ori_data_for_visualization, generated_data=generated_data, analysis='pca',
-                      n_samples=n_samples, path_for_saving_images=directory_name)
 
 
 if __name__ == '__main__':

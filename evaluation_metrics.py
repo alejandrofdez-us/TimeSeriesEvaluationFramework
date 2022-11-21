@@ -6,6 +6,7 @@ import os
 import statistics
 import traceback
 from datetime import datetime
+from time import sleep
 
 import numpy as np
 import pandas as pd
@@ -66,7 +67,7 @@ def compute_metrics(args_params):
         args_params)
 
     _, _, parameters_dict = extract_experiment_parameters(saved_experiments_parameters)
-    ori_data_windows_numpy = split_ori_data_strided(ori_data_df, int(parameters_dict['seq_len']), 30)
+    ori_data_windows_numpy = split_ori_data_strided(ori_data_df, int(parameters_dict['seq_len']), args_params.stride_ori_data_windows)
 
     metrics_results = {}
     avg_results = {}
@@ -84,18 +85,25 @@ def compute_metrics(args_params):
             metrics_results[metric + '-coverage'] = []
             metrics_results[metric + '-boundaries'] = []
 
-        n_files_iteration = 0
-        total_files = len(fnmatch.filter(os.listdir(args_params.experiment_dir + '/generated_data'), '*.csv'))
-        progress_bar2 = tqdm(os.listdir(args_params.experiment_dir + '/generated_data'), colour='blue', leave=False)
-        for filename in progress_bar2:
-            progress_bar2.set_description(f'Computing {metric:20} [{n_files_iteration+1}/{total_files}]')
-            f = os.path.join(args_params.experiment_dir + '/generated_data', filename)
-            if os.path.isfile(f):
-                generated_data_sample = np.loadtxt(f, delimiter=",")
-                generated_data_sample_df = pd.DataFrame(generated_data_sample,
-                                                        columns=dataset_info['column_config'])
-                ori_data_sample = get_most_similar_ori_data_sample(ori_data_windows_numpy, generated_data_sample)
-                computed_metric = 0
+    n_files_iteration = 0
+    total_files = len(fnmatch.filter(os.listdir(args_params.experiment_dir + '/generated_data'), '*.csv'))
+    sorted_sample_names = sorted(os.listdir(args_params.experiment_dir + '/generated_data'), key=lambda fileName: int(fileName.split('.')[0].split('_')[1]))
+    progress_bar = tqdm(sorted_sample_names, colour='green')
+    for filename in progress_bar:
+        progress_bar.set_description(f'Computing {filename:10} [{n_files_iteration+1}/{total_files}]')
+        f = os.path.join(args_params.experiment_dir + '/generated_data', filename)
+        if os.path.isfile(f):
+            generated_data_sample = np.loadtxt(f, delimiter=",")
+            generated_data_sample_df = pd.DataFrame(generated_data_sample,
+                                                    columns=dataset_info['column_config'])
+            ori_data_sample = get_most_similar_ori_data_sample(ori_data_windows_numpy, generated_data_sample)
+            computed_metric = 0
+            progress_bar2 = tqdm(metrics_list, colour='blue',leave=False)
+
+            metric_iteration=0
+            for metric in tqdm(progress_bar2):
+                progress_bar.set_description(f'Computing {metric:10} [{metric_iteration + 1}/{len(metrics_list)}]')
+                sleep(1)
                 if metric == 'mmd':
                     computed_metric = mmd_rbf(X=ori_data_sample, Y=generated_data_sample)
                     for column in range(generated_data_sample.shape[1]):
@@ -114,7 +122,6 @@ def compute_metrics(args_params):
                         metrics_results[metric + '-' + str(column)].append(
                             KLDivergenceUnivariate(ori_data_sample[:, column].reshape(-1, 1),
                                                    generated_data_sample[:, column].reshape(-1, 1))[0])
-
                 if metric == 'js':
                     computed_metric = compute_js(ori_data, generated_data_sample)
                     for column in range(generated_data_sample.shape[1]):
@@ -138,37 +145,38 @@ def compute_metrics(args_params):
                             compute_hi(generated_data_sample[:, column].reshape(-1, 1),
                                        ori_data_sample[:, column].reshape(-1, 1)))
                 if metric == 'sdv-quality':
-                    if n_files_iteration % args_params.stride == 0:
+                    if n_files_iteration % args_params.stride_metrics == 0:
                         computed_metric, column_shapes, column_pair_trends = compute_sdv_quality_metrics(dataset_info,
                                                                                                          generated_data_sample_df,
                                                                                                          n_files_iteration,
                                                                                                          ori_data_df,
                                                                                                          path_to_save_sdv_figures)
                 if metric == 'sdv-diagnostic':
-                    if n_files_iteration % args_params.stride == 0:
+                    if n_files_iteration % args_params.stride_metrics == 0:
                         diagnostic_synthesis, diagnostic_coverage, diagnostic_boundaries = compute_sdv_diagnostic_metrics(
                             dataset_info, generated_data_sample_df,
                             n_files_iteration, ori_data_df,
                             path_to_save_sdv_figures)
                 if metric == 'evolution_figures':
-                    if n_files_iteration % args_params.stride == 0:
+                    if n_files_iteration % args_params.stride_metrics == 0:
                         create_usage_evolution(generated_data_sample, ori_data, ori_data_sample,
                                                path_to_save_metrics + 'figures/', n_files_iteration, dataset_info)
                 if metric != 'evolution_figures':
                     if metric != 'sdv-diagnostic':
                         if metric != 'sdv-quality':
                             metrics_results[metric].append(computed_metric)
-                        elif metric == 'sdv-quality' and n_files_iteration % args_params.stride == 0:
+                        elif metric == 'sdv-quality' and n_files_iteration % args_params.stride_metrics == 0:
                             metrics_results[metric].append(computed_metric)
-                    if metric == 'sdv-quality' and n_files_iteration % args_params.stride == 0:
+                    if metric == 'sdv-quality' and n_files_iteration % args_params.stride_metrics == 0:
                         metrics_results[metric + '-column_shapes'].append(column_shapes)
                         metrics_results[metric + '-column_pair_trends'].append(column_pair_trends)
-                    if metric == 'sdv-diagnostic' and n_files_iteration % args_params.stride == 0:
+                    if metric == 'sdv-diagnostic' and n_files_iteration % args_params.stride_metrics == 0:
                         metrics_results[metric + '-synthesis'].append(diagnostic_synthesis)
                         metrics_results[metric + '-coverage'].append(diagnostic_coverage)
                         metrics_results[metric + '-boundaries'].append(diagnostic_boundaries)
+                metric_iteration += 1
 
-                n_files_iteration += 1
+            n_files_iteration += 1
 
     for metric, results in metrics_results.items():
         if metric != 'evolution_figures':
@@ -240,7 +248,11 @@ if __name__ == '__main__':
         default=False,
         type=lambda x: bool(distutils.util.strtobool(str(x))))
     parser.add_argument(
-        '--stride',
+        '--stride_metrics',
+        default='1',
+        type=int)
+    parser.add_argument(
+        '--stride_ori_data_windows',
         default='1',
         type=int)
     parser.add_argument(

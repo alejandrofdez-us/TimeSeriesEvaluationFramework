@@ -1,1 +1,0 @@
-Namespace(batch_size=100, data_name='google_instance_week1', hidden_dim=10, internal_discriminative_iteration=80, internal_predictive_iteration=100, iteration=5000, metric_iteration=5, module='gru', n_samples=150, num_layer=6, seq_len=288)

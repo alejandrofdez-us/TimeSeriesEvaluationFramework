@@ -1,4 +1,6 @@
 import argparse
+import distutils
+from distutils import util
 import fnmatch
 import os
 import re
@@ -15,25 +17,25 @@ from dtaidistance import dtw_ndim
 from sdmetrics.reports.single_table import QualityReport, DiagnosticReport
 from tqdm import tqdm
 
-from evolution_figures import create_usage_evolution
+from evolution_figures import create_usage_evolution, generate_inter_experiment_figures
 from metrics.kl import KLDivergenceUnivariate
 from metrics.kl import KLdivergence, JSdistance, JSdistanceMultivariate
 from metrics.mmd import mmd_rbf
 from metrics.visualization_metrics import visualization
-from utils import get_ori_data_sample
+from utils import get_ori_data_sample, get_dataset_info, split_ori_data_strided, get_most_similar_ori_data_sample
 
 
 def main(args_params):
-    if args_params.recursive == 'true':
-        root_dir = args_params.experiment_dir
+    if args_params.recursive:
+        root_dir = args_params.experiment_dir+'/'
         experiment_results_file_name = root_dir + 'experiments_metrics-' + datetime.now().strftime(
             "%j-%H-%M-%S") + '.csv'
         experiment_directories = []
         for subdir, dirs, files in os.walk(root_dir):
             if 'generated_data' in dirs:
                 experiment_directories.append(subdir)
+
         is_header_printed = False
-        print ("experiment_directories",experiment_directories)
         progress_bar = tqdm(experiment_directories, colour="green")
         for dir_name in progress_bar:
             args_params.experiment_dir = dir_name
@@ -56,6 +58,8 @@ def main(args_params):
                 traceback.print_exc()
 
         print("\nCSVs for all experiments metrics results saved in:\n", experiment_results_file_name)
+        if args_params.inter_experiment_figures:
+            generate_inter_experiment_figures(root_dir,experiment_directories, args_params.trace)
     else:
         compute_metrics(args_params)
 
@@ -87,6 +91,8 @@ def compute_metrics(args_params):
         ori_data_df = loadtraces.get_alibaba_2018_trace(stride_seconds = dataset_info['timestamp_frequency_secs'])
         ori_data = ori_data_df.to_numpy()
 
+    _, _, parameters_dict = extract_experiment_parameters(saved_experiments_parameters)
+    ori_data_windows_numpy = split_ori_data_strided(ori_data_df, int(parameters_dict['seq_len']), 30)
     if "tsne" in metrics_list or "pca" in metrics_list:
         generate_visualization_figures(args_params, path_to_save_metrics, metrics_list, ori_data)
         metrics_list.remove("tsne")
@@ -116,8 +122,10 @@ def compute_metrics(args_params):
             f = os.path.join(args_params.experiment_dir + '/generated_data', filename)
             if os.path.isfile(f):  # checking if it is a file
                 generated_data_sample = np.loadtxt(f, delimiter=",")
-                seq_len = len(generated_data_sample)
-                ori_data_sample = get_ori_data_sample(seq_len, ori_data)
+                generated_data_sample_df = pd.DataFrame(generated_data_sample,
+                                                        columns=dataset_info['column_config'])
+                #seq_len = len(generated_data_sample)
+                ori_data_sample = get_most_similar_ori_data_sample(ori_data_windows_numpy, generated_data_sample)
                 computed_metric = 0
                 if metric == 'mmd':  # mayor valor más distintas son
                     computed_metric = mmd_rbf(X=ori_data_sample, Y=generated_data_sample)
@@ -163,14 +171,14 @@ def compute_metrics(args_params):
                 if metric == 'sdv-quality':
                     if n_files_iteration % args_params.stride == 0:
                         computed_metric, column_shapes, column_pair_trends = compute_sdv_quality_metrics(dataset_info,
-                                                                                                         generated_data_sample,
+                                                                                                         generated_data_sample_df,
                                                                                                          n_files_iteration,
                                                                                                          ori_data_df,
                                                                                                          path_to_save_sdv_figures)
                 if metric == 'sdv-diagnostic':
                     if n_files_iteration % args_params.stride == 0:
                         diagnostic_synthesis, diagnostic_coverage, diagnostic_boundaries = compute_sdv_diagnostic_metrics(
-                            dataset_info, generated_data_sample,
+                            dataset_info, generated_data_sample_df,
                             n_files_iteration, ori_data_df,
                             path_to_save_sdv_figures)
                 if metric == 'evolution_figures':
@@ -211,11 +219,9 @@ class HiddenPrints:
         sys.stdout.close()
         sys.stdout = self._original_stdout
     
-def compute_sdv_quality_metrics(dataset_info, generated_data_sample, n_files_iteration, ori_data_df,
+def compute_sdv_quality_metrics(dataset_info, generated_data_sample_df, n_files_iteration, ori_data_df,
                                 path_to_save_sdv_quality_figures):
     report = QualityReport()
-    generated_data_sample_df = pd.DataFrame(generated_data_sample,
-                                            columns=dataset_info['column_config'])
     report.generate(ori_data_df, generated_data_sample_df, dataset_info['metadata'])
     fig_column_shapes = report.get_visualization(property_name='Column Shapes')
     fig_column_pair_trends = report.get_visualization(property_name='Column Pair Trends')
@@ -227,11 +233,9 @@ def compute_sdv_quality_metrics(dataset_info, generated_data_sample, n_files_ite
     return report.get_score(), report.get_properties().iloc[0, 1], report.get_properties().iloc[1, 1]
 
 
-def compute_sdv_diagnostic_metrics(dataset_info, generated_data_sample, n_files_iteration, ori_data_df,
+def compute_sdv_diagnostic_metrics(dataset_info, generated_data_sample_df, n_files_iteration, ori_data_df,
                                    path_to_save_sdv_quality_figures):
     report = DiagnosticReport()
-    generated_data_sample_df = pd.DataFrame(generated_data_sample,
-                                            columns=dataset_info['column_config'])
     report.generate(ori_data_df, generated_data_sample_df, dataset_info['metadata'])
     fig_synthesis = report.get_visualization(property_name='Synthesis')
     fig_coverage = report.get_visualization(property_name='Coverage')
@@ -251,12 +255,12 @@ def compute_sdv_diagnostic_metrics(dataset_info, generated_data_sample, n_files_
 def initialization(args_params):
     path_to_save_metrics = args_params.experiment_dir + "/evaluation_metrics/"
     path_to_save_sdv_figures = path_to_save_metrics + 'figures/sdv/'
-    if args_params.recursive == 'true' and os.path.isfile(args_params.experiment_dir + '/../parameters.txt'):
+    if args_params.recursive and os.path.isfile(args_params.experiment_dir + '/../parameters.txt'):
         parameters_file = open(args_params.experiment_dir + '/../parameters.txt', 'r')
     else:
         parameters_file = open(args_params.experiment_dir + '/parameters.txt', 'r')
     saved_metrics ="no metrics"
-    if args_params.recursive == 'true' and os.path.isfile(args_params.experiment_dir + '/../metrics.txt'):
+    if args_params.recursive and os.path.isfile(args_params.experiment_dir + '/../metrics.txt'):
         metrics_file = open(args_params.experiment_dir + '/../metrics.txt', 'r')
         saved_metrics = metrics_file.readline()
     elif os.path.isfile(args_params.experiment_dir + '/metrics.txt'):
@@ -273,139 +277,7 @@ def initialization(args_params):
 
     metrics_list = [metric for metric in args_params.metrics.split(',')]
 
-    if args_params.trace == 'alibaba2018':
-        dataset_info = {
-            "timestamp_frequency_secs": 300,
-            "column_config": {
-                "cpu_util_percent": {
-                    "column_index": 0,
-                    "y_axis_min": 0,
-                    "y_axis_max": 100
-                },
-                "mem_util_percent": {
-                    "column_index": 1,
-                    "y_axis_min": 0,
-                    "y_axis_max": 100
-                },
-                "net_in": {
-                    "column_index": 2,
-                    "y_axis_min": 0,
-                    "y_axis_max": 100
-                },
-                "net_out": {
-                    "column_index": 3,
-                    "y_axis_min": 0,
-                    "y_axis_max": 100
-                },
-                "disk_io_percent": {
-                    "column_index": 4,
-                    "y_axis_min": 0,
-                    "y_axis_max": 100
-                }
-
-            },
-            "metadata": {
-                "fields": {
-                    "cpu_util_percent": {
-                        "type": "numerical",
-                        "subtype": "float"
-                    },
-                    "mem_util_percent": {
-                        "type": "numerical",
-                        "subtype": "float"
-                    },
-                    "net_in": {
-                        "type": "numerical",
-                        "subtype": "float"
-                    },
-                    "net_out": {
-                        "type": "numerical",
-                        "subtype": "float"
-                    },
-                    "disk_io_percent": {
-                        "type": "numerical",
-                        "subtype": "float"
-                    }
-                }
-            }
-        }
-    elif args_params.trace == 'google2019':
-        dataset_info = {
-            "timestamp_frequency_secs": 300,
-            "column_config": {
-                "cpu": {
-                    "column_index": 0,
-                    "y_axis_min": 0,
-                    "y_axis_max": 1
-                },
-                "mem": {
-                    "column_index": 1,
-                    "y_axis_min": 0,
-                    "y_axis_max": 1
-                },
-                "assigned_mem": {
-                    "column_index": 2,
-                    "y_axis_min": 0,
-                    "y_axis_max": 1
-                },
-                "cycles_per_instruction": {
-                    "column_index": 3
-                }
-            },
-            "metadata": {
-                "fields": {
-                    "cpu": {
-                        "type": "numerical",
-                        "subtype": "float"
-                    },
-                    "mem": {
-                        "type": "numerical",
-                        "subtype": "float"
-                    },
-                    "assigned_mem": {
-                        "type": "numerical",
-                        "subtype": "float"
-                    },
-                    "cycles_per_instruction": {
-                        "type": "numerical",
-                        "subtype": "float"
-                    }
-                }
-            }
-        }
-    elif args_params.trace == 'azure_v2':
-        dataset_info = {
-            "timestamp_frequency_secs": 300,
-            "column_config": {
-                "cpu_total": {
-                    "column_index": 0
-                },
-                "mem_total": {
-                    "column_index": 1
-                }
-            },
-            "metadata": {
-                "fields": {
-                    "cpu_total": {
-                        "type": "numerical",
-                        "subtype": "float"
-                    },
-                    "mem_total": {
-                        "type": "numerical",
-                        "subtype": "float"
-                    }
-                }
-            }
-        }
-    elif args_params.trace == 'reddit':
-        dataset_info = {
-            "timestamp_frequency_secs": 3600,
-            "column_config": {
-                "interactions": {
-                    "column_index": 0
-                }
-            }
-        }
+    dataset_info = get_dataset_info(args_params.trace)
 
     return metrics_list, path_to_save_metrics, saved_experiments_parameters, saved_metrics, dataset_info, path_to_save_sdv_figures
 
@@ -571,12 +443,16 @@ if __name__ == '__main__':
         type=str)
     parser.add_argument(
         '--recursive',
-        default='false',
-        type=str)
+        default=False,
+        type=lambda x: bool(distutils.util.strtobool(str(x))))
     parser.add_argument(
         '--stride',
         default='1',
         type=int)
+    parser.add_argument(
+        '--inter_experiment_figures',
+        default=False,
+        type=lambda x: bool(distutils.util.strtobool(str(x))))
 
     args = parser.parse_args()
     main(args)

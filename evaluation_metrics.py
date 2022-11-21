@@ -3,26 +3,23 @@ import distutils
 from distutils import util
 import fnmatch
 import os
-import re
 import statistics
-import sys
 import traceback
 from datetime import datetime
 
 import numpy as np
 import pandas as pd
-import scipy
 from datacentertracesdatasets import loadtraces
-from dtaidistance import dtw_ndim
-from sdmetrics.reports.single_table import QualityReport, DiagnosticReport
 from tqdm import tqdm
 
 from evolution_figures import create_usage_evolution, generate_inter_experiment_figures
 from metrics.kl import KLDivergenceUnivariate
-from metrics.kl import KLdivergence, JSdistance, JSdistanceMultivariate
+from metrics.kl import KLdivergence, JSdistance
+from metrics.metrics import compute_sdv_quality_metrics, compute_sdv_diagnostic_metrics, compute_ks, compute_dtw, \
+    compute_cp, compute_cc, compute_hi, compute_js
 from metrics.mmd import mmd_rbf
-from metrics.visualization_metrics import visualization
-from utils import get_ori_data_sample, get_dataset_info, split_ori_data_strided, get_most_similar_ori_data_sample
+from utils import get_dataset_info, split_ori_data_strided, get_most_similar_ori_data_sample, \
+    extract_experiment_parameters, save_metrics
 
 
 def main(args_params):
@@ -64,32 +61,9 @@ def main(args_params):
         compute_metrics(args_params)
 
 
-def extract_experiment_parameters(saved_experiment_parameters):
-    saved_experiment_parameters_dict = dict(
-        item.split("=") for item in re.split(', (?![^\[]*\])', saved_experiment_parameters.replace('Namespace(', '').replace('Parameters(', '').replace(')', '').replace('\n', '')))
-    parameters_values = ''
-    parameters_keys = ''
-    for parameter_value in saved_experiment_parameters_dict.values():
-        parameters_values += parameter_value + ';'
-    for parameter_key in saved_experiment_parameters_dict.keys():
-        parameters_keys += parameter_key + ';'
-    return parameters_keys, parameters_values, saved_experiment_parameters_dict
-
-
-def compute_js(ori_data, generated_data_sample):
-    return JSdistanceMultivariate(ori_data, generated_data_sample)
-
-
 def compute_metrics(args_params):
-    metrics_list, path_to_save_metrics, saved_experiments_parameters, saved_metrics, dataset_info, path_to_save_sdv_figures = initialization(
+    metrics_list, path_to_save_metrics, saved_experiments_parameters, saved_metrics, dataset_info, path_to_save_sdv_figures, ori_data, ori_data_df = initialization(
         args_params)
-
-    if (args_params.ori_data_filename):
-        ori_data = np.loadtxt(args_params.ori_data_filename, delimiter=",", skiprows=1)
-        ori_data_df = pd.DataFrame(ori_data, columns=dataset_info['column_config'])
-    else:
-        ori_data_df = loadtraces.get_alibaba_2018_trace(stride_seconds = dataset_info['timestamp_frequency_secs'])
-        ori_data = ori_data_df.to_numpy()
 
     _, _, parameters_dict = extract_experiment_parameters(saved_experiments_parameters)
     ori_data_windows_numpy = split_ori_data_strided(ori_data_df, int(parameters_dict['seq_len']), 30)
@@ -116,26 +90,25 @@ def compute_metrics(args_params):
         for filename in progress_bar2:
             progress_bar2.set_description(f'Computing {metric:20} [{n_files_iteration+1}/{total_files}]')
             f = os.path.join(args_params.experiment_dir + '/generated_data', filename)
-            if os.path.isfile(f):  # checking if it is a file
+            if os.path.isfile(f):
                 generated_data_sample = np.loadtxt(f, delimiter=",")
                 generated_data_sample_df = pd.DataFrame(generated_data_sample,
                                                         columns=dataset_info['column_config'])
-                #seq_len = len(generated_data_sample)
                 ori_data_sample = get_most_similar_ori_data_sample(ori_data_windows_numpy, generated_data_sample)
                 computed_metric = 0
-                if metric == 'mmd':  # mayor valor más distintas son
+                if metric == 'mmd':
                     computed_metric = mmd_rbf(X=ori_data_sample, Y=generated_data_sample)
                     for column in range(generated_data_sample.shape[1]):
                         metrics_results[metric + '-' + str(column)].append(
                             mmd_rbf(generated_data_sample[:, column].reshape(-1, 1),
                                     ori_data_sample[:, column].reshape(-1, 1)))
-                if metric == 'dtw':  # mayor valor más distintas son
+                if metric == 'dtw':
                     computed_metric = compute_dtw(generated_data_sample, ori_data_sample)
                     for column in range(generated_data_sample.shape[1]):
                         metrics_results[metric + '-' + str(column)].append(
                             compute_dtw(generated_data_sample[:, column].reshape(-1, 1),
                                         ori_data_sample[:, column].reshape(-1, 1)))
-                if metric == 'kl':  # mayor valor peor
+                if metric == 'kl':
                     computed_metric = KLdivergence(ori_data, generated_data_sample)
                     for column in range(generated_data_sample.shape[1]):
                         metrics_results[metric + '-' + str(column)].append(
@@ -148,17 +121,17 @@ def compute_metrics(args_params):
                         metrics_results[metric + '-' + str(column)].append(
                             JSdistance(ori_data_sample[:, column].reshape(-1, 1),
                                        generated_data_sample[:, column].reshape(-1, 1)))
-                if metric == 'ks':  # menor valor mejor
+                if metric == 'ks':
                     computed_metric = compute_ks(generated_data_sample, ori_data_sample)
                     for column in range(generated_data_sample.shape[1]):
                         metrics_results[metric + '-' + str(column)].append(
                             compute_ks(generated_data_sample[:, column].reshape(-1, 1),
                                        ori_data_sample[:, column].reshape(-1, 1)))
-                if metric == 'cc':  # mayor valor peor. covarianza
+                if metric == 'cc':
                     computed_metric = compute_cc(generated_data_sample, ori_data_sample)
-                if metric == 'cp':  # mayor valor peor. coeficiente de pearson
+                if metric == 'cp':
                     computed_metric = compute_cp(generated_data_sample, ori_data)
-                if metric == 'hi':  # mayor valor peor
+                if metric == 'hi':
                     computed_metric = compute_hi(generated_data_sample, ori_data_sample)
                     for column in range(generated_data_sample.shape[1]):
                         metrics_results[metric + '-' + str(column)].append(
@@ -178,7 +151,7 @@ def compute_metrics(args_params):
                             n_files_iteration, ori_data_df,
                             path_to_save_sdv_figures)
                 if metric == 'evolution_figures':
-                    if n_files_iteration % args_params.stride == 0:  # generates a 10% of the figures
+                    if n_files_iteration % args_params.stride == 0:
                         create_usage_evolution(generated_data_sample, ori_data, ori_data_sample,
                                                path_to_save_metrics + 'figures/', n_files_iteration, dataset_info)
                 if metric != 'evolution_figures':
@@ -196,7 +169,6 @@ def compute_metrics(args_params):
                         metrics_results[metric + '-boundaries'].append(diagnostic_boundaries)
 
                 n_files_iteration += 1
-        #print('')
 
     for metric, results in metrics_results.items():
         if metric != 'evolution_figures':
@@ -206,46 +178,6 @@ def compute_metrics(args_params):
     return saved_metrics, metrics_values, saved_experiments_parameters
 
 
-class HiddenPrints:
-    def __enter__(self):
-        self._original_stdout = sys.stdout
-        sys.stdout = open(os.devnull, 'w')
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        sys.stdout.close()
-        sys.stdout = self._original_stdout
-    
-def compute_sdv_quality_metrics(dataset_info, generated_data_sample_df, n_files_iteration, ori_data_df,
-                                path_to_save_sdv_quality_figures):
-    report = QualityReport()
-    report.generate(ori_data_df, generated_data_sample_df, dataset_info['metadata'])
-    fig_column_shapes = report.get_visualization(property_name='Column Shapes')
-    fig_column_pair_trends = report.get_visualization(property_name='Column Pair Trends')
-    fig_column_shapes.write_image(
-        path_to_save_sdv_quality_figures + '/column_shapes-' + str(n_files_iteration) + '.pdf')
-    fig_column_pair_trends.write_image(
-        path_to_save_sdv_quality_figures + '/column_pair_trends-' + str(n_files_iteration) + '.pdf')
-
-    return report.get_score(), report.get_properties().iloc[0, 1], report.get_properties().iloc[1, 1]
-
-
-def compute_sdv_diagnostic_metrics(dataset_info, generated_data_sample_df, n_files_iteration, ori_data_df,
-                                   path_to_save_sdv_quality_figures):
-    report = DiagnosticReport()
-    report.generate(ori_data_df, generated_data_sample_df, dataset_info['metadata'])
-    fig_synthesis = report.get_visualization(property_name='Synthesis')
-    fig_coverage = report.get_visualization(property_name='Coverage')
-    fig_boundaries = report.get_visualization(property_name='Boundaries')
-
-    fig_synthesis.write_image(
-        path_to_save_sdv_quality_figures + '/synthesis-' + str(n_files_iteration) + '.pdf')
-    fig_coverage.write_image(
-        path_to_save_sdv_quality_figures + '/coverage-' + str(n_files_iteration) + '.pdf')
-    fig_boundaries.write_image(
-        path_to_save_sdv_quality_figures + '/boundaries-' + str(n_files_iteration) + '.pdf')
-
-    return report.get_properties()['Synthesis'], report.get_properties()['Coverage'], report.get_properties()[
-        'Boundaries']
 
 
 def initialization(args_params):
@@ -275,127 +207,14 @@ def initialization(args_params):
 
     dataset_info = get_dataset_info(args_params.trace)
 
-    return metrics_list, path_to_save_metrics, saved_experiments_parameters, saved_metrics, dataset_info, path_to_save_sdv_figures
-
-
-def preprocess_dataset(ori_data, seq_len):
-    temp_data = []
-    # Cut data by sequence length
-    for i in range(0, len(ori_data) - seq_len + 1):
-        _x = ori_data[i:i + seq_len]
-        temp_data.append(_x)
-
-    # Mix the datasets (to make it similar to i.i.d)
-    idx = np.random.permutation(len(temp_data))
-    data = []
-    for i in range(len(temp_data)):
-        data.append(temp_data[idx[i]])
-
-    return data
-
-
-def results_for_excel(avg_results):
-    metrics_values = ''
-    computed_metrics = ''
-    for metric_name in avg_results:
-        computed_metrics += metric_name + ';'
-        metrics_values += str(avg_results[metric_name]).replace('.', ',') + ';'
-
-    return computed_metrics, metrics_values
-
-
-def save_metrics(avg_results, metrics_results, path_to_save_metrics, saved_experiments_parameters, saved_metrics):
-    _, _, parameters_dict = extract_experiment_parameters(saved_experiments_parameters)
-    if 'data_name' in parameters_dict:
-        data_name = parameters_dict['data_name']
-    elif 'trace' in parameters_dict:
-        data_name = parameters_dict['trace']
+    if (args_params.ori_data_filename):
+        ori_data = np.loadtxt(args_params.ori_data_filename, delimiter=",", skiprows=1)
+        ori_data_df = pd.DataFrame(ori_data, columns=dataset_info['column_config'])
     else:
-        data_name = 'not_found'
-    if 'iteration' in parameters_dict:
-        iteration = parameters_dict['iteration']
-    elif 'epochs' in parameters_dict:
-        iteration = parameters_dict['epochs']
-    else:
-        iteration = 'not_found'
+        ori_data_df = loadtraces.get_alibaba_2018_trace(stride_seconds = dataset_info['timestamp_frequency_secs'])
+        ori_data = ori_data_df.to_numpy()
 
-    seq_len = parameters_dict['seq_len']
-    with open(
-            path_to_save_metrics + '/metrics-' + data_name + '-iterations-' + iteration + '-seq_len' + seq_len + '.txt',
-            'w') as f:
-        f.write(saved_experiments_parameters + '\n\n')
-        f.write(saved_metrics + '\n\n')
-        f.write(repr(avg_results) + '\n')
-        computed_metrics, metrics_values = results_for_excel(avg_results)
-        f.write(
-            'Results of the following metrics: ' + computed_metrics + ' in spanish locale Excel format:' + '\n' + metrics_values + '\n')
-        f.write(repr(metrics_results))
-    #print("Metrics saved in file", f.name)
-    return computed_metrics, metrics_values
-
-
-def compute_ks(generated_data_sample, ori_data_sample):
-    column_indexes = range(generated_data_sample.shape[1])
-    return statistics.mean(
-        [scipy.stats.ks_2samp(generated_data_sample[:, column_index], ori_data_sample[:, column_index])[0] for
-         column_index in column_indexes])
-
-
-def compute_dtw(generated_data_sample, ori_data_sample):
-    sample_length = len(generated_data_sample)
-    processed_generated_data_sample = np.insert(generated_data_sample, 0, np.ones(sample_length, dtype=int), axis=1)
-    processed_generated_data_sample = np.insert(processed_generated_data_sample, 0, range(sample_length), axis=1)
-    processed_ori_data_sample = np.insert(ori_data_sample, 0, np.ones(sample_length, dtype=int), axis=1)
-    processed_ori_data_sample = np.insert(processed_ori_data_sample, 0, range(sample_length), axis=1)
-
-    return dtw_ndim.distance_fast(processed_generated_data_sample, processed_ori_data_sample)
-
-
-def compute_cp(generated_data_sample, ori_data_sample):
-    # normalized_ori_data_sample = normalize_start_time_to_zero(ori_data_sample)
-    # normalized_generated_data_sample = normalize_start_time_to_zero(generated_data_sample)
-    ori_data_sample_pearson = np.corrcoef(ori_data_sample, rowvar=False)
-    generated_data_sample_pearson = np.corrcoef(generated_data_sample, rowvar=False)
-    correlation_diff_matrix = ori_data_sample_pearson - generated_data_sample_pearson
-    l1_norms_avg = np.mean([np.linalg.norm(row) for row in correlation_diff_matrix])
-    return l1_norms_avg
-
-
-def compute_cc(generated_data_sample, ori_data_sample):
-    # normalized_ori_data_sample = normalize_start_time_to_zero(ori_data_sample)
-    # normalized_generated_data_sample = normalize_start_time_to_zero(generated_data_sample)
-    ori_data_sample_covariance = np.cov(ori_data_sample)
-    generated_data_covariance = np.cov(generated_data_sample)
-    covariance_diff_matrix = ori_data_sample_covariance - generated_data_covariance
-    l1_norms_avg = np.mean([np.linalg.norm(row) for row in covariance_diff_matrix])
-    return l1_norms_avg
-
-
-def compute_hi(generated_data_sample, ori_data):
-    # normalized_ori_data_sample = normalize_start_time_to_zero(ori_data)
-    # normalized_generated_data_sample = normalize_start_time_to_zero(generated_data_sample)
-    histogram_diff_matrix = []
-    for column in range(0, ori_data.shape[1]):
-        ori_data_column_values = ori_data[:, column]
-        ori_histogram, ori_bin_edges = np.histogram(ori_data_column_values)
-        generated_data_column_values = generated_data_sample[:, column]
-        generated_histogram, generated_bin_edges = np.histogram(generated_data_column_values)
-        column_histogram_diff = ori_histogram - generated_histogram
-        histogram_diff_matrix.append(column_histogram_diff)
-    histogram_diff_matrix = np.asmatrix(histogram_diff_matrix)
-    l1_norms_histogram_diff = np.apply_along_axis(np.linalg.norm, 1, histogram_diff_matrix)
-
-    l1_norms_histogram_diff_avg = l1_norms_histogram_diff.mean()
-
-    return l1_norms_histogram_diff_avg
-
-
-def normalize_start_time_to_zero(sample):
-    timestamp_column = sample[:, 0]
-    min_timestamp = np.min(timestamp_column)
-    normalized_timestamp_column = timestamp_column - min_timestamp
-    sample[:, 0] = normalized_timestamp_column
-    return sample
+    return metrics_list, path_to_save_metrics, saved_experiments_parameters, saved_metrics, dataset_info, path_to_save_sdv_figures, ori_data, ori_data_df
 
 
 if __name__ == '__main__':

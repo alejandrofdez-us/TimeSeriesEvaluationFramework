@@ -1,4 +1,6 @@
 import random
+import re
+
 from dtaidistance import dtw_ndim
 import numpy as np
 from tqdm import tqdm
@@ -166,3 +168,63 @@ def get_dataset_info(trace_name):
             }
         }
     return dataset_info
+
+
+def normalize_start_time_to_zero(sample):
+    timestamp_column = sample[:, 0]
+    min_timestamp = np.min(timestamp_column)
+    normalized_timestamp_column = timestamp_column - min_timestamp
+    sample[:, 0] = normalized_timestamp_column
+    return sample
+
+
+def extract_experiment_parameters(saved_experiment_parameters):
+    saved_experiment_parameters_dict = dict(
+        item.split("=") for item in re.split(', (?![^\[]*\])', saved_experiment_parameters.replace('Namespace(', '').replace('Parameters(', '').replace(')', '').replace('\n', '')))
+    parameters_values = ''
+    parameters_keys = ''
+    for parameter_value in saved_experiment_parameters_dict.values():
+        parameters_values += parameter_value + ';'
+    for parameter_key in saved_experiment_parameters_dict.keys():
+        parameters_keys += parameter_key + ';'
+    return parameters_keys, parameters_values, saved_experiment_parameters_dict
+
+
+def save_metrics(avg_results, metrics_results, path_to_save_metrics, saved_experiments_parameters, saved_metrics):
+    _, _, parameters_dict = extract_experiment_parameters(saved_experiments_parameters)
+    if 'data_name' in parameters_dict:
+        data_name = parameters_dict['data_name']
+    elif 'trace' in parameters_dict:
+        data_name = parameters_dict['trace']
+    else:
+        data_name = 'not_found'
+    if 'iteration' in parameters_dict:
+        iteration = parameters_dict['iteration']
+    elif 'epochs' in parameters_dict:
+        iteration = parameters_dict['epochs']
+    else:
+        iteration = 'not_found'
+
+    seq_len = parameters_dict['seq_len']
+    with open(
+            path_to_save_metrics + '/metrics-' + data_name + '-iterations-' + iteration + '-seq_len' + seq_len + '.txt',
+            'w') as f:
+        f.write(saved_experiments_parameters + '\n\n')
+        f.write(saved_metrics + '\n\n')
+        f.write(repr(avg_results) + '\n')
+        computed_metrics, metrics_values = results_for_excel(avg_results)
+        f.write(
+            'Results of the following metrics: ' + computed_metrics + ' in spanish locale Excel format:' + '\n' + metrics_values + '\n')
+        f.write(repr(metrics_results))
+    #print("Metrics saved in file", f.name)
+    return computed_metrics, metrics_values
+
+
+def results_for_excel(avg_results):
+    metrics_values = ''
+    computed_metrics = ''
+    for metric_name in avg_results:
+        computed_metrics += metric_name + ';'
+        metrics_values += str(avg_results[metric_name]).replace('.', ',') + ';'
+
+    return computed_metrics, metrics_values

@@ -101,7 +101,7 @@ def compute_metrics(args_params):
             progress_bar2 = tqdm(metrics_list, colour='blue',leave=False)
             metric_iteration=0
             for metric in tqdm(progress_bar2):
-                progress_bar.set_description(f'Computing {metric:10} [{metric_iteration + 1}/{len(metrics_list)}]')
+                progress_bar2.set_description(f'Computing {metric:10} [{metric_iteration + 1}/{len(metrics_list)}]')
                 sleep(1)
                 if metric == 'mmd':
                     computed_metric = mmd_rbf(X=ori_data_sample, Y=generated_data_sample)

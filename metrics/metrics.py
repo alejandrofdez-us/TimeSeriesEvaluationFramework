@@ -11,6 +11,7 @@ from metrics.kl import JSdistanceMultivariate
 def compute_sdv_quality_metrics(dataset_info, generated_data_sample_df, n_files_iteration, ori_data_df,
                                 path_to_save_sdv_quality_figures):
     report = QualityReport()
+    print("\n\n\n")
     report.generate(ori_data_df, generated_data_sample_df, dataset_info['metadata'])
     fig_column_shapes = report.get_visualization(property_name='Column Shapes')
     fig_column_pair_trends = report.get_visualization(property_name='Column Pair Trends')

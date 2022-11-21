@@ -116,13 +116,13 @@ def compute_metrics(args_params):
                             compute_dtw(generated_data_sample[:, column].reshape(-1, 1),
                                         ori_data_sample[:, column].reshape(-1, 1)))
                 if metric == 'kl':
-                    computed_metric = KLdivergence(ori_data, generated_data_sample)
+                    computed_metric = KLdivergence(ori_data_sample, generated_data_sample)
                     for column in range(generated_data_sample.shape[1]):
                         metrics_results[metric + '-' + str(column)].append(
                             KLDivergenceUnivariate(ori_data_sample[:, column].reshape(-1, 1),
                                                    generated_data_sample[:, column].reshape(-1, 1))[0])
                 if metric == 'js':
-                    computed_metric = compute_js(ori_data, generated_data_sample)
+                    computed_metric = compute_js(ori_data_sample, generated_data_sample)
                     for column in range(generated_data_sample.shape[1]):
                         metrics_results[metric + '-' + str(column)].append(
                             JSdistance(ori_data_sample[:, column].reshape(-1, 1),
@@ -136,7 +136,7 @@ def compute_metrics(args_params):
                 if metric == 'cc':
                     computed_metric = compute_cc(generated_data_sample, ori_data_sample)
                 if metric == 'cp':
-                    computed_metric = compute_cp(generated_data_sample, ori_data)
+                    computed_metric = compute_cp(generated_data_sample, ori_data_sample)
                 if metric == 'hi':
                     computed_metric = compute_hi(generated_data_sample, ori_data_sample)
                     for column in range(generated_data_sample.shape[1]):

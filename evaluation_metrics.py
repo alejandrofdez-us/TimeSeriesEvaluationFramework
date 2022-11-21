@@ -34,7 +34,7 @@ def main(args_params):
                 experiment_directories.append(subdir)
 
         is_header_printed = False
-        progress_bar_general = tqdm(experiment_directories, colour="red", position=8)
+        progress_bar_general = tqdm(experiment_directories, colour="red", position=0)
         for dir_name in progress_bar_general:
             args_params.experiment_dir = dir_name
             try:

@@ -20,7 +20,8 @@ def get_most_similar_ori_data_sample(ori_data_windows_numpy, generated_data_samp
     minimum_dtw = float('inf')
     most_similar_sample = []
     #most_similar_sample = [(dtw_ndim.distance_fast(ori_data_sample, generated_data_sample),ori_data_sample) for ori_data_sample in ori_data_windows_numpy].min()[1]
-    for ori_data_sample in ori_data_windows_numpy:
+    progress_bar_search = tqdm(ori_data_windows_numpy, desc='Searching minimum dtw distance from original data', colour='yellow', position=2, leave=False)
+    for ori_data_sample in progress_bar_search:
         current_distance = dtw_ndim.distance_fast(ori_data_sample, generated_data_sample)
         if current_distance < minimum_dtw:
             minimum_dtw = current_distance

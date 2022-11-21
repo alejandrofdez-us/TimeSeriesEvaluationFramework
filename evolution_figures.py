@@ -2,6 +2,7 @@ import os
 from itertools import cycle
 
 import matplotlib.pyplot as plt
+from matplotlib import cm
 import numpy as np
 import pandas
 from pandas import DataFrame
@@ -100,13 +101,23 @@ def compute_grouped_delta_from_sample(column_number, minutes, data_sample, seq_l
 
 
 def generate_inter_experiment_column_figure(df, filename_param, path, column_config_param=None):
+    if ("y_axis_min" in column_config_param and "y_axis_max" in column_config_param):
+        axis = [0, df.shape[0], column_config_param['y_axis_min'], column_config_param['y_axis_max']]
+    else:
+        axis = None
     plt.rcParams["figure.figsize"] = (16, 9)
     colors = ['#ff0000', '#ff5700', '#ff8200', '#ffa500', '#ffc600', '#fff000', '#e0f500', '#bbf900', '#8efc00',
               '#48ff00', '#006313', '#008251', '#00a08e', '#00bdc9', '#00d8ff', '#3759ff', '#3340d0', '#2a29a4',
               '#1c147a', '#0b0053', '#37009b', '#52009b', '#67009a', '#79009a', '#890199', '#d200ff', '#d200c0',
               '#c2008a', '#a7005f', '#86003e']
     plt.figure()
-    df.plot(color=colors)
+    #df.plot(color=colors)
+    df.plot(colormap=plt.get_cmap('RdYlGn'))
+    if axis is not None:
+        plt.axis(axis)
+    else:
+        plt.xlim([0, len(df.shape[0])])
+
     plt.legend(loc='best')
     plt.xlabel('time')
     plt.ylabel('y_label')
@@ -134,4 +145,4 @@ def generate_inter_experiment_figures(root_experiment_dir, experiments_dirs, tra
         for experiment_name, experiment_dataframe in data_frames.items():
             epoch_name = os.path.basename(os.path.normpath(experiment_name))
             plot_dataframe[epoch_name] = experiment_dataframe[column_name]
-        generate_inter_experiment_column_figure(plot_dataframe, f'inter_experiment-{column_name}', root_experiment_dir)
+        generate_inter_experiment_column_figure(plot_dataframe, f'inter_experiment-{column_name}', root_experiment_dir, dataset_info['column_config'][column_name])

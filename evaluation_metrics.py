@@ -34,11 +34,11 @@ def main(args_params):
                 experiment_directories.append(subdir)
 
         is_header_printed = False
-        progress_bar_general = tqdm(experiment_directories, colour="green")
+        progress_bar_general = tqdm(experiment_directories, colour="red", position=8)
         for dir_name in progress_bar_general:
             args_params.experiment_dir = dir_name
             try:
-                progress_bar_general.set_description("Computing metrics for directory" + dir_name)
+                progress_bar_general.set_description("Computing metrics for directory " + os.path.basename(os.path.normpath(dir_name)))
                 #print("Computing metrics for directory ", dir_name)
                 saved_metrics, metrics_values, saved_experiment_parameters = compute_metrics(args_params)
                 parameters_keys, parameters_values,_ = extract_experiment_parameters(saved_experiment_parameters)
@@ -88,7 +88,7 @@ def compute_metrics(args_params):
     n_files_iteration = 0
     total_files = len(fnmatch.filter(os.listdir(args_params.experiment_dir + '/generated_data'), '*.csv'))
     sorted_sample_names = sorted(fnmatch.filter(os.listdir(args_params.experiment_dir + '/generated_data'), '*.csv'), key=lambda fileName: int(fileName.split('.')[0].split('_')[1]))
-    progress_bar = tqdm(sorted_sample_names, colour='green')
+    progress_bar = tqdm(sorted_sample_names, colour='green', position=1)
     for filename in progress_bar:
         progress_bar.set_description(f'Computing {filename:10} [{n_files_iteration+1}/{total_files}]')
         f = os.path.join(args_params.experiment_dir + '/generated_data', filename)
@@ -98,9 +98,9 @@ def compute_metrics(args_params):
                                                     columns=dataset_info['column_config'])
             ori_data_sample = get_most_similar_ori_data_sample(ori_data_windows_numpy, generated_data_sample)
             computed_metric = 0
-            progress_bar2 = tqdm(metrics_list, colour='blue',leave=False)
+            progress_bar2 = tqdm(metrics_list, colour='blue', position=2, leave=False)
             metric_iteration=0
-            for metric in tqdm(progress_bar2):
+            for metric in progress_bar2:
                 progress_bar2.set_description(f'Computing {metric:10} [{metric_iteration + 1}/{len(metrics_list)}]')
                 sleep(1)
                 if metric == 'mmd':
@@ -194,13 +194,13 @@ def initialization(args_params):
         parameters_file = open(args_params.experiment_dir + '/../parameters.txt', 'r')
     else:
         parameters_file = open(args_params.experiment_dir + '/parameters.txt', 'r')
-    saved_metrics ="no metrics"
+    previously_saved_metrics ="no metrics"
     if args_params.recursive and os.path.isfile(args_params.experiment_dir + '/../metrics.txt'):
         metrics_file = open(args_params.experiment_dir + '/../metrics.txt', 'r')
-        saved_metrics = metrics_file.readline()
+        previously_saved_metrics = metrics_file.readline()
     elif os.path.isfile(args_params.experiment_dir + '/metrics.txt'):
         metrics_file = open(args_params.experiment_dir + '/metrics.txt', 'r')
-        saved_metrics = metrics_file.readline()
+        previously_saved_metrics = metrics_file.readline()
 
     saved_experiments_parameters = parameters_file.readline()
     os.makedirs(path_to_save_metrics, exist_ok=True)
@@ -221,7 +221,7 @@ def initialization(args_params):
         ori_data_df = loadtraces.get_alibaba_2018_trace(stride_seconds = dataset_info['timestamp_frequency_secs'])
         ori_data = ori_data_df.to_numpy()
 
-    return metrics_list, path_to_save_metrics, saved_experiments_parameters, saved_metrics, dataset_info, path_to_save_sdv_figures, ori_data, ori_data_df
+    return metrics_list, path_to_save_metrics, saved_experiments_parameters, previously_saved_metrics, dataset_info, path_to_save_sdv_figures, ori_data, ori_data_df
 
 
 if __name__ == '__main__':
@@ -236,7 +236,6 @@ if __name__ == '__main__':
         type=str)
     parser.add_argument(
         '--metrics',
-        default='mmd',
         type=str)
     parser.add_argument(
         '--trace',

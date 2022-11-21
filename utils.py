@@ -93,7 +93,7 @@ def get_dataset_info(trace_name):
         }
     if trace_name == 'alibaba2018-4columns':
         dataset_info = {
-            "timestamp_frequency_secs": 300,
+            "timestamp_frequency_secs": 10,
             "column_config": {
                 "mem_util_percent": {
                     "column_index": 0,

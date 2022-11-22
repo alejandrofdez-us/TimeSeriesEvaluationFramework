@@ -6,7 +6,6 @@ import os
 import statistics
 import traceback
 from datetime import datetime
-from time import sleep
 
 import numpy as np
 import pandas as pd
@@ -102,7 +101,6 @@ def compute_metrics(args_params):
             metric_iteration=0
             for metric in progress_bar2:
                 progress_bar2.set_description(f'Computing {metric:10} [{metric_iteration + 1}/{len(metrics_list)}]')
-                sleep(1)
                 if metric == 'mmd':
                     computed_metric = mmd_rbf(X=ori_data_sample, Y=generated_data_sample)
                     for column in range(generated_data_sample.shape[1]):

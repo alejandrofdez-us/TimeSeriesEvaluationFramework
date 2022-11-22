@@ -212,7 +212,9 @@ def initialization(args_params):
     os.makedirs(path_to_save_sdv_figures, exist_ok=True)
 
     if args_params.metrics == 'all':
-        args_params.metrics = 'mmd,dtw,js,kl,ks,cc,cp,hi,sdv-quality,sdv-diagnostic,evolution_figures'
+        args_params.metrics = 'mmd,dtw,js,kl,ks,cc,cp,hi,evolution_figures,sdv-quality,sdv-diagnostic'
+    elif args_params.metrics == 'all-no-sdv':
+        args_params.metrics = 'mmd,dtw,js,kl,ks,cc,cp,hi,evolution_figures'
 
     metrics_list = [metric for metric in args_params.metrics.split(',')]
 

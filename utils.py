@@ -271,8 +271,8 @@ def save_metrics(avg_results, metrics_results, path_to_save_metrics, saved_exper
 def results_for_excel(avg_results):
     metrics_values = ''
     computed_metrics = ''
-    for metric_name in avg_results:
+    for metric_name,avg_result in avg_results.items():
         computed_metrics += metric_name + ';'
-        metrics_values += str(avg_results[metric_name]).replace('.', ',') + ';'
+        metrics_values += str(avg_result).replace('.', ',') + ';'
 
     return computed_metrics, metrics_values

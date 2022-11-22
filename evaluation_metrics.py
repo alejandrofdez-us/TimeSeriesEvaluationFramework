@@ -24,7 +24,7 @@ from utils import get_dataset_info, split_ori_data_strided, get_most_similar_ori
 
 def main(args_params):
     if args_params.recursive:
-        root_dir = args_params.experiment_dir+'/'
+        root_dir = args_params.experiment_dir + '/'
         experiment_results_file_name = root_dir + 'experiments_metrics-' + datetime.now().strftime(
             "%j-%H-%M-%S") + '.csv'
         experiment_directories = []
@@ -32,31 +32,33 @@ def main(args_params):
             if 'generated_data' in dirs:
                 experiment_directories.append(subdir)
 
-        is_header_printed = False
-        progress_bar_general = tqdm(experiment_directories, colour="red", position=0)
-        for dir_name in progress_bar_general:
-            args_params.experiment_dir = dir_name
-            try:
-                progress_bar_general.set_description("Computing metrics for directory " + os.path.basename(os.path.normpath(dir_name)))
-                #print("Computing metrics for directory ", dir_name)
-                saved_metrics, metrics_values, saved_experiment_parameters = compute_metrics(args_params)
-                parameters_keys, parameters_values,_ = extract_experiment_parameters(saved_experiment_parameters)
-                if not is_header_printed:
-                    with open(experiment_results_file_name, 'w') as f:
-                        f.write('experiment_dir_name;' + parameters_keys + saved_metrics + '\n')
-                    is_header_printed = True
+        if args.metrics:
+            is_header_printed = False
+            progress_bar_general = tqdm(experiment_directories, colour="red", position=0)
+            for dir_name in progress_bar_general:
+                args_params.experiment_dir = dir_name
+                try:
+                    progress_bar_general.set_description(
+                        "Computing metrics for directory " + os.path.basename(os.path.normpath(dir_name)))
+                    # print("Computing metrics for directory ", dir_name)
+                    saved_metrics, metrics_values, saved_experiment_parameters = compute_metrics(args_params)
+                    parameters_keys, parameters_values, _ = extract_experiment_parameters(saved_experiment_parameters)
+                    if not is_header_printed:
+                        with open(experiment_results_file_name, 'w') as f:
+                            f.write('experiment_dir_name;' + parameters_keys + saved_metrics + '\n')
+                        is_header_printed = True
 
-                with open(experiment_results_file_name, 'a') as f:
-                    f.write(dir_name + ';' + parameters_values + metrics_values + '\n')
+                    with open(experiment_results_file_name, 'a') as f:
+                        f.write(dir_name + ';' + parameters_values + metrics_values + '\n')
 
-            except Exception as e:
-                print('Error computing experiment dir:', args_params.experiment_dir)
-                print(e)
-                traceback.print_exc()
+                except Exception as e:
+                    print('Error computing experiment dir:', args_params.experiment_dir)
+                    print(e)
+                    traceback.print_exc()
 
-        print("\nCSVs for all experiments metrics results saved in:\n", experiment_results_file_name)
+            print("\nCSVs for all experiments metrics results saved in:\n", experiment_results_file_name)
         if args_params.inter_experiment_figures:
-            generate_inter_experiment_figures(root_dir,experiment_directories, args_params.trace)
+            generate_inter_experiment_figures(root_dir, experiment_directories, args_params.trace)
     else:
         compute_metrics(args_params)
 
@@ -66,30 +68,18 @@ def compute_metrics(args_params):
         args_params)
 
     _, _, parameters_dict = extract_experiment_parameters(saved_experiments_parameters)
-    ori_data_windows_numpy = split_ori_data_strided(ori_data_df, int(parameters_dict['seq_len']), args_params.stride_ori_data_windows)
-
-    metrics_results = {}
+    ori_data_windows_numpy = split_ori_data_strided(ori_data_df, int(parameters_dict['seq_len']),
+                                                    args_params.stride_ori_data_windows)
     avg_results = {}
-    for metric in metrics_list:
-        if metric != 'sdv-diagnostic':
-            metrics_results[metric] = []
-        if metric == 'mmd' or metric == 'dtw' or metric == 'kl' or metric == 'hi' or metric == 'ks' or metric == 'js':
-            for column in range(ori_data.shape[1]):
-                metrics_results[metric + '-' + str(column)] = []
-        if metric == 'sdv-quality':
-            metrics_results[metric + '-column_shapes'] = []
-            metrics_results[metric + '-column_pair_trends'] = []
-        if metric == 'sdv-diagnostic':
-            metrics_results[metric + '-synthesis'] = []
-            metrics_results[metric + '-coverage'] = []
-            metrics_results[metric + '-boundaries'] = []
+    metrics_results = initializa_metrics_results_structure(metrics_list, ori_data)
 
     n_files_iteration = 0
     total_files = len(fnmatch.filter(os.listdir(args_params.experiment_dir + '/generated_data'), '*.csv'))
-    sorted_sample_names = sorted(fnmatch.filter(os.listdir(args_params.experiment_dir + '/generated_data'), '*.csv'), key=lambda fileName: int(fileName.split('.')[0].split('_')[1]))
+    sorted_sample_names = sorted(fnmatch.filter(os.listdir(args_params.experiment_dir + '/generated_data'), '*.csv'),
+                                 key=lambda fileName: int(fileName.split('.')[0].split('_')[1]))
     progress_bar = tqdm(sorted_sample_names, colour='green', position=1)
     for filename in progress_bar:
-        progress_bar.set_description(f'Computing {filename:10} [{n_files_iteration+1}/{total_files}]')
+        progress_bar.set_description(f'Computing {filename:10} [{n_files_iteration + 1}/{total_files}]')
         f = os.path.join(args_params.experiment_dir + '/generated_data', filename)
         if os.path.isfile(f):
             generated_data_sample = np.loadtxt(f, delimiter=",")
@@ -98,7 +88,7 @@ def compute_metrics(args_params):
             ori_data_sample = get_most_similar_ori_data_sample(ori_data_windows_numpy, generated_data_sample)
             computed_metric = 0
             progress_bar2 = tqdm(metrics_list, colour='blue', position=2, leave=False)
-            metric_iteration=0
+            metric_iteration = 0
             for metric in progress_bar2:
                 progress_bar2.set_description(f'Computing {metric:10} [{metric_iteration + 1}/{len(metrics_list)}]')
                 if metric == 'mmd':
@@ -183,6 +173,22 @@ def compute_metrics(args_params):
     return saved_metrics, metrics_values, saved_experiments_parameters
 
 
+def initializa_metrics_results_structure(metrics_list, ori_data):
+    metrics_results = {}
+    for metric in metrics_list:
+        if metric != 'sdv-diagnostic':
+            metrics_results[metric] = []
+        if metric == 'mmd' or metric == 'dtw' or metric == 'kl' or metric == 'hi' or metric == 'ks' or metric == 'js':
+            for column in range(ori_data.shape[1]):
+                metrics_results[metric + '-' + str(column)] = []
+        if metric == 'sdv-quality':
+            metrics_results[metric + '-column_shapes'] = []
+            metrics_results[metric + '-column_pair_trends'] = []
+        if metric == 'sdv-diagnostic':
+            metrics_results[metric + '-synthesis'] = []
+            metrics_results[metric + '-coverage'] = []
+            metrics_results[metric + '-boundaries'] = []
+    return metrics_results
 
 
 def initialization(args_params):
@@ -192,7 +198,7 @@ def initialization(args_params):
         parameters_file = open(args_params.experiment_dir + '/../parameters.txt', 'r')
     else:
         parameters_file = open(args_params.experiment_dir + '/parameters.txt', 'r')
-    previously_saved_metrics ="no metrics"
+    previously_saved_metrics = "no metrics"
     if args_params.recursive and os.path.isfile(args_params.experiment_dir + '/../metrics.txt'):
         metrics_file = open(args_params.experiment_dir + '/../metrics.txt', 'r')
         previously_saved_metrics = metrics_file.readline()
@@ -216,7 +222,7 @@ def initialization(args_params):
         ori_data = np.loadtxt(args_params.ori_data_filename, delimiter=",", skiprows=1)
         ori_data_df = pd.DataFrame(ori_data, columns=dataset_info['column_config'])
     else:
-        ori_data_df = loadtraces.get_alibaba_2018_trace(stride_seconds = dataset_info['timestamp_frequency_secs'])
+        ori_data_df = loadtraces.get_alibaba_2018_trace(stride_seconds=dataset_info['timestamp_frequency_secs'])
         ori_data = ori_data_df.to_numpy()
 
     return metrics_list, path_to_save_metrics, saved_experiments_parameters, previously_saved_metrics, dataset_info, path_to_save_sdv_figures, ori_data, ori_data_df

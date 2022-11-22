@@ -6,8 +6,11 @@ from matplotlib import cm
 import numpy as np
 import pandas
 from pandas import DataFrame
+from tqdm import tqdm
 
 from utils import get_ori_data_sample, get_dataset_info
+
+from natsort import natsorted
 
 
 def create_figure(ori_column_values_array, generated_column_values, axis, name, path_to_save_metrics):
@@ -105,14 +108,14 @@ def generate_inter_experiment_column_figure(df, filename_param, path, column_con
         axis = [0, df.shape[0], column_config_param['y_axis_min'], column_config_param['y_axis_max']]
     else:
         axis = None
-    plt.rcParams["figure.figsize"] = (16, 9)
+    #plt.rcParams["figure.figsize"] = (18, 3)
     colors = ['#ff0000', '#ff5700', '#ff8200', '#ffa500', '#ffc600', '#fff000', '#e0f500', '#bbf900', '#8efc00',
               '#48ff00', '#006313', '#008251', '#00a08e', '#00bdc9', '#00d8ff', '#3759ff', '#3340d0', '#2a29a4',
               '#1c147a', '#0b0053', '#37009b', '#52009b', '#67009a', '#79009a', '#890199', '#d200ff', '#d200c0',
               '#c2008a', '#a7005f', '#86003e']
     plt.figure()
     #df.plot(color=colors)
-    df.plot(colormap=plt.get_cmap('RdYlGn'))
+    df.plot(colormap=plt.get_cmap('RdYlGn'), figsize=(18, 3))
     if axis is not None:
         plt.axis(axis)
     else:
@@ -133,14 +136,13 @@ def generate_inter_experiment_figures(root_experiment_dir, experiments_dirs, tra
     dataset_info = get_dataset_info(trace_name)
     data_frames = {}
 
-    if 'epoch' in experiments_dirs[0]:
-        experiments_dirs = sorted(experiments_dirs, key=lambda fileName: int(fileName.split('.')[0].split('_')[1]))
+    experiments_dirs = natsorted(experiments_dirs)
 
     for dir in experiments_dirs:
         data_frames[dir] = pandas.read_csv(f'{dir}/generated_data/sample_0.csv',
                                            names=list(dataset_info['column_config'].keys()))
 
-    for column_name in dataset_info['column_config']:
+    for column_name in tqdm(dataset_info['column_config'], desc='Generating inter-experiments figures'):
         plot_dataframe = DataFrame()
         for experiment_name, experiment_dataframe in data_frames.items():
             epoch_name = os.path.basename(os.path.normpath(experiment_name))

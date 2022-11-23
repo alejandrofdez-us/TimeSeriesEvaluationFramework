@@ -7,11 +7,16 @@ from sdmetrics.reports.single_table import QualityReport, DiagnosticReport
 
 from metrics.kl import JSdistanceMultivariate
 
+from tqdm import tqdm
+from functools import partialmethod
+
 
 def compute_sdv_quality_metrics(dataset_info, generated_data_sample_df, n_files_iteration, ori_data_df,
                                 path_to_save_sdv_quality_figures):
+    # silence the tqdm
+    tqdm.__init__ = partialmethod(tqdm.__init__, disable=True)
+
     report = QualityReport()
-    print("\n\n\n")
     report.generate(ori_data_df, generated_data_sample_df, dataset_info['metadata'])
     fig_column_shapes = report.get_visualization(property_name='Column Shapes')
     fig_column_pair_trends = report.get_visualization(property_name='Column Pair Trends')

@@ -2,13 +2,13 @@ import os
 from itertools import cycle
 
 import matplotlib.pyplot as plt
-from matplotlib import cm
+from datacentertracesdatasets import loadtraces
 import numpy as np
 import pandas
 from pandas import DataFrame
 from tqdm import tqdm
 
-from utils import get_ori_data_sample, get_dataset_info
+from utils import get_ori_data_sample
 
 from natsort import natsorted
 
@@ -119,7 +119,7 @@ def generate_inter_experiment_column_figure(df, filename_param, path, column_con
     if axis is not None:
         plt.axis(axis)
     else:
-        plt.xlim([0, len(df.shape[0])])
+        plt.xlim([0, df.shape[0]])
 
     plt.legend(loc='best')
     plt.xlabel('time')
@@ -131,9 +131,9 @@ def generate_inter_experiment_column_figure(df, filename_param, path, column_con
     plt.close()
 
 
-def generate_inter_experiment_figures(root_experiment_dir, experiments_dirs, trace_name):
+def generate_inter_experiment_figures(root_experiment_dir, experiments_dirs, args_params):
     print('generate_inter_experiment_figures')
-    dataset_info = get_dataset_info(trace_name)
+    dataset_info = loadtraces.get_dataset_info(trace_name=args_params.trace, trace_type=args_params.trace_type, stride_seconds=args_params.trace_timestep)
     data_frames = {}
 
     experiments_dirs = natsorted(experiments_dirs)

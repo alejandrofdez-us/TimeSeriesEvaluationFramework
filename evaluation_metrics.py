@@ -18,7 +18,7 @@ from metrics.kl import KLdivergence, JSdistance
 from metrics.metrics import compute_sdv_quality_metrics, compute_sdv_diagnostic_metrics, compute_ks, compute_dtw, \
     compute_cp, compute_cc, compute_hi, compute_js
 from metrics.mmd import mmd_rbf
-from utils import get_dataset_info, split_ori_data_strided, get_most_similar_ori_data_sample, \
+from utils import split_ori_data_strided, get_most_similar_ori_data_sample, \
     extract_experiment_parameters, save_metrics
 
 
@@ -58,7 +58,7 @@ def main(args_params):
 
             print("\nCSVs for all experiments metrics results saved in:\n", experiment_results_file_name)
         if args_params.inter_experiment_figures:
-            generate_inter_experiment_figures(root_dir, experiment_directories, args_params.trace)
+            generate_inter_experiment_figures(root_dir, experiment_directories, args_params)
     else:
         compute_metrics(args_params)
 
@@ -77,7 +77,7 @@ def compute_metrics(args_params):
     total_files = len(fnmatch.filter(os.listdir(args_params.experiment_dir + '/generated_data'), '*.csv'))
     sorted_sample_names = sorted(fnmatch.filter(os.listdir(args_params.experiment_dir + '/generated_data'), '*.csv'),
                                  key=lambda fileName: int(fileName.split('.')[0].split('_')[1]))
-    progress_bar = tqdm(sorted_sample_names, colour='green', position=1)
+    progress_bar = tqdm(sorted_sample_names, colour='green', position=1, leave=False)
     for filename in progress_bar:
         progress_bar.set_description(f'Computing {filename:10} [{n_files_iteration + 1}/{total_files}]')
         f = os.path.join(args_params.experiment_dir + '/generated_data', filename)
@@ -218,13 +218,13 @@ def initialization(args_params):
 
     metrics_list = [metric for metric in args_params.metrics.split(',')]
 
-    dataset_info = get_dataset_info(args_params.trace)
+    dataset_info = loadtraces.get_dataset_info(trace_name=args_params.trace, trace_type=args_params.trace_type, stride_seconds=args_params.trace_timestep)
 
     if (args_params.ori_data_filename):
         ori_data = np.loadtxt(args_params.ori_data_filename, delimiter=",", skiprows=1)
         ori_data_df = pd.DataFrame(ori_data, columns=dataset_info['column_config'])
     else:
-        ori_data_df = loadtraces.get_alibaba_2018_trace(stride_seconds=dataset_info['timestamp_frequency_secs'])
+        ori_data_df = loadtraces.get_trace(args_params.trace, trace_type=args_params.trace_type, stride_seconds=args_params.trace_timestep)
         ori_data = ori_data_df.to_numpy()
 
     return metrics_list, path_to_save_metrics, saved_experiments_parameters, previously_saved_metrics, dataset_info, path_to_save_sdv_figures, ori_data, ori_data_df
@@ -258,6 +258,14 @@ if __name__ == '__main__':
         '--stride_ori_data_windows',
         default='1',
         type=int)
+    parser.add_argument(
+        '--trace_timestep',
+        default='300',
+        type=int)
+    parser.add_argument(
+        '--trace_type',
+        default='machine_usage',
+        type=str)
     parser.add_argument(
         '--inter_experiment_figures',
         default=False,

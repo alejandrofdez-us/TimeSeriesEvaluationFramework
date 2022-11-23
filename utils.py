@@ -186,20 +186,20 @@ def get_dataset_info(trace_name):
         dataset_info = {
             "timestamp_frequency_secs": 300,
             "column_config": {
-                "cpu_total": {
+                "cpu_usage": {
                     "column_index": 0
                 },
-                "mem_total": {
+                "assigned_mem": {
                     "column_index": 1
                 }
             },
             "metadata": {
                 "fields": {
-                    "cpu_total": {
+                    "cpu_usage": {
                         "type": "numerical",
                         "subtype": "float"
                     },
-                    "mem_total": {
+                    "assigned_mem": {
                         "type": "numerical",
                         "subtype": "float"
                     }

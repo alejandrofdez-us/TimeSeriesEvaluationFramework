@@ -245,6 +245,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '--trace',
         default='alibaba2018',
+        choices=['azure_v2', 'google2019', 'alibaba2018'],
         type=str)
     parser.add_argument(
         '--recursive',

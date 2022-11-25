@@ -63,16 +63,22 @@ def save_metrics(avg_results, metrics_results, path_to_save_metrics, saved_exper
     else:
         data_name = 'not_found'
     if 'iteration' in parameters_dict:
-        iteration = parameters_dict['iteration']
+        epoch_value = parameters_dict['iteration']
+        epoch_name = 'iterations'
     elif 'epochs' in parameters_dict:
-        iteration = parameters_dict['epochs']
+        epoch_value = parameters_dict['epochs']
+        epoch_name = 'epochs'
+    elif 'gan_epochs' in parameters_dict:
+        epoch_value = parameters_dict['gan_epochs']
+        epoch_name = 'gan_epochs'
     else:
-        iteration = 'not_found'
+        epoch_value = '_'
+        epoch_name = 'no_epoch_value_found'
+
 
     seq_len = parameters_dict['seq_len']
-    with open(
-            path_to_save_metrics + '/metrics-' + data_name + '-iterations-' + iteration + '-seq_len' + seq_len + '.txt',
-            'w') as f:
+    with open(f'{path_to_save_metrics}/metrics-{data_name}-{epoch_name}-{epoch_value}-seq_len-{seq_len}.txt', 'w') as f:
+
         f.write(saved_experiments_parameters + '\n\n')
         f.write(saved_metrics + '\n\n')
         f.write(repr(avg_results) + '\n')

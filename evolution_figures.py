@@ -34,13 +34,26 @@ def create_figure(ori_column_values_array, generated_column_values, axis, name, 
     plt.ylabel(name)
     ax.legend()
     plt.savefig(path_to_save_metrics + name + '.pdf', format='pdf')
-    plt.close()
+    plt.close('all')
 
 
-def create_usage_evolution(generated_data_sample, ori_data, ori_data_sample, path_to_save_metrics, n_file,
+def generate_figure_from_df(column_config_param, df, n_file, path):
+    plt.rcParams["figure.figsize"] = (18, 3)
+    plt.figure()
+    df.plot()
+    plt.legend(loc='best')
+    plt.xlabel('time')
+    plt.ylabel('y_label')
+    os.makedirs(f'{path}/all-columns/', exist_ok=True)
+    plt.savefig(f'{path}/all-columns/{n_file}-all-columns.pdf')
+    plt.clf()
+    plt.close('all')
+
+def create_usage_evolution(generated_data_sample, generated_data_sample_df, ori_data, ori_data_sample, path_to_save_metrics, n_file,
                            dataset_info):
     seq_len = len(ori_data_sample[:, 0])
     column_configs = dataset_info['column_config'].items()
+    generate_figure_from_df(column_configs, generated_data_sample_df, n_file, path_to_save_metrics)
     for column_name, column_config in column_configs:
         index = column_config['column_index']
         path_to_save_metrics_column = path_to_save_metrics + '/' + column_name + '/'

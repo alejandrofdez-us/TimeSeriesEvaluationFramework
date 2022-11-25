@@ -10,6 +10,7 @@ from datetime import datetime
 import numpy as np
 import pandas as pd
 from datacentertracesdatasets import loadtraces
+from natsort import natsorted
 from tqdm import tqdm
 
 from evolution_figures import create_usage_evolution, generate_inter_experiment_figures
@@ -32,8 +33,10 @@ def main(args_params):
             if 'generated_data' in dirs:
                 experiment_directories.append(subdir)
 
+        experiment_directories = natsorted(experiment_directories)
         if args.metrics:
             is_header_printed = False
+
             progress_bar_general = tqdm(experiment_directories, colour="red", position=0)
             for dir_name in progress_bar_general:
                 args_params.experiment_dir = dir_name
@@ -146,7 +149,7 @@ def compute_metrics(args_params):
                             path_to_save_sdv_figures)
                 if metric == 'evolution_figures':
                     if n_files_iteration % args_params.stride_metrics == 0:
-                        create_usage_evolution(generated_data_sample, ori_data, ori_data_sample,
+                        create_usage_evolution(generated_data_sample, generated_data_sample_df, ori_data, ori_data_sample,
                                                path_to_save_metrics + 'figures/', n_files_iteration, dataset_info)
                 if metric != 'evolution_figures':
                     if metric != 'sdv-diagnostic':

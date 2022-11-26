@@ -9,7 +9,6 @@ from pandas import DataFrame
 from tqdm import tqdm
 
 from utils import get_ori_data_sample
-
 from natsort import natsorted
 
 
@@ -20,7 +19,7 @@ def create_figure(ori_column_values_array, generated_column_values, axis, name, 
     cycol = cycle('grcmk')
 
     for ori_column_values in ori_column_values_array:
-        plt.plot(ori_column_values, c=next(cycol), label="Original_" + str(i), linewidth=1)
+        plt.plot(ori_column_values, c=next(cycol), label=f'Original_i', linewidth=1)
         i += 1
 
     plt.plot(generated_column_values, c="blue", label="Synthetic", linewidth=2)
@@ -29,11 +28,11 @@ def create_figure(ori_column_values_array, generated_column_values, axis, name, 
     else:
         plt.xlim([0, len(ori_column_values_array[0])])
 
-    plt.title(name + ' original vs sythetic')
+    plt.title(f'{name} original vs synthetic')
     plt.xlabel('time')
     plt.ylabel(name)
     ax.legend()
-    plt.savefig(path_to_save_metrics + name + '.pdf', format='pdf')
+    plt.savefig(f'{path_to_save_metrics}{name}.pdf', format='pdf')
     plt.close('all')
 
 
@@ -49,7 +48,9 @@ def generate_figure_from_df(column_config_param, df, sample_filename, path):
     plt.clf()
     plt.close('all')
 
-def create_usage_evolution(generated_data_sample, generated_data_sample_df, ori_data, ori_data_sample, path_to_save_metrics, sample_filename,
+
+def create_usage_evolution(generated_data_sample, generated_data_sample_df, ori_data, ori_data_sample,
+                           path_to_save_metrics, sample_filename,
                            dataset_info):
     seq_len = len(ori_data_sample[:, 0])
     column_configs = dataset_info['column_config'].items()
@@ -65,7 +66,6 @@ def create_usage_evolution(generated_data_sample, generated_data_sample_df, ori_
 
 def generate_figures_by_column(column_number, column_name, generated_data_sample, ori_data, ori_data_sample,
                                path_to_save_metrics, sample_filename, seq_len, timestamp_frequency_secs, column_config):
-    path_to_save_metrics_for_file_name = f'{path_to_save_metrics}/'
     if 'y_axis_min' in column_config and 'y_axis_max' in column_config:
         axis = [0, seq_len, column_config['y_axis_min'], column_config['y_axis_max']]
     else:
@@ -77,9 +77,12 @@ def generate_figures_by_column(column_number, column_name, generated_data_sample
 
     time_delta_minutes = [5, 10, 30, 60]
     for minutes in time_delta_minutes:
-        generate_figures_grouped_by_minutes_various_ori_samples(minutes, column_number, column_name, generated_data_sample,
-                                                                ori_data, path_to_save_metrics, sample_filename, seq_len,
+        generate_figures_grouped_by_minutes_various_ori_samples(minutes, column_number, column_name,
+                                                                generated_data_sample,
+                                                                ori_data, path_to_save_metrics, sample_filename,
+                                                                seq_len,
                                                                 timestamp_frequency_secs, 5)
+
 
 def generate_figures_grouped_by_minutes_various_ori_samples(minutes, column_number, column_name, generated_data_sample,
                                                             ori_data, path_to_save_metrics, sample_filename, seq_len,
@@ -118,7 +121,7 @@ def generate_inter_experiment_column_figure(df, filename_param, path, column_con
               '#1c147a', '#0b0053', '#37009b', '#52009b', '#67009a', '#79009a', '#890199', '#d200ff', '#d200c0',
               '#c2008a', '#a7005f', '#86003e']
     plt.figure()
-    #df.plot(color=colors)
+    # df.plot(color=colors)
     df.plot(colormap=plt.get_cmap('RdYlGn'), figsize=(18, 3))
     if axis is not None:
         plt.axis(axis)
@@ -135,7 +138,8 @@ def generate_inter_experiment_column_figure(df, filename_param, path, column_con
 
 
 def generate_inter_experiment_figures(root_experiment_dir, experiments_dirs, args_params):
-    dataset_info = loadtraces.get_dataset_info(trace_name=args_params.trace, trace_type=args_params.trace_type, stride_seconds=args_params.trace_timestep)
+    dataset_info = loadtraces.get_dataset_info(trace_name=args_params.trace, trace_type=args_params.trace_type,
+                                               stride_seconds=args_params.trace_timestep)
     data_frames = {}
 
     experiments_dirs = natsorted(experiments_dirs)
@@ -149,4 +153,5 @@ def generate_inter_experiment_figures(root_experiment_dir, experiments_dirs, arg
         for experiment_name, experiment_dataframe in data_frames.items():
             epoch_name = os.path.basename(os.path.normpath(experiment_name))
             plot_dataframe[epoch_name] = experiment_dataframe[column_name]
-        generate_inter_experiment_column_figure(plot_dataframe, f'inter_experiment-{column_name}', root_experiment_dir, dataset_info['column_config'][column_name])
+        generate_inter_experiment_column_figure(plot_dataframe, f'inter_experiment-{column_name}', root_experiment_dir,
+                                                dataset_info['column_config'][column_name])

@@ -143,7 +143,7 @@ def compute_metrics(args_params):
                             dataset_info, generated_data_sample_df,
                             sample_filename, ori_data_df,
                             path_to_save_sdv_figures)
-                if metric == 'evolution_figures':
+                if metric == 'evolution_figures' and args_params.only_best_samples_figures > n_files_iteration:
                     create_usage_evolution(generated_data_sample, generated_data_sample_df, ori_data, ori_data_sample,
                                                path_to_save_metrics + 'figures/',
                                                f'rank-{n_files_iteration}-{sample_filename}', dataset_info)
@@ -302,6 +302,10 @@ if __name__ == '__main__':
         '--inter_experiment_figures',
         default=False,
         type=lambda x: bool(distutils.util.strtobool(str(x))))
+    parser.add_argument(
+        '--only_best_samples_figures',
+        default='10',
+        type=int)
 
     args = parser.parse_args()
     main(args)

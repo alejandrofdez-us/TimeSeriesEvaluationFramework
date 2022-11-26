@@ -98,7 +98,7 @@ def compute_metrics(args_params):
                         mmd_rbf(generated_data_sample[:, column].reshape(-1, 1),
                                 ori_data_sample[:, column].reshape(-1, 1)))
             if metric == 'dtw':
-                computed_metric = compute_dtw(generated_data_sample, ori_data_sample)
+                computed_metric = sample_objects['computed_dtw']
                 for column in range(generated_data_sample.shape[1]):
                     metrics_results[metric + '-' + str(column)].append(
                         compute_dtw(generated_data_sample[:, column].reshape(-1, 1),
@@ -131,25 +131,23 @@ def compute_metrics(args_params):
                     metrics_results[metric + '-' + str(column)].append(
                         compute_hi(generated_data_sample[:, column].reshape(-1, 1),
                                    ori_data_sample[:, column].reshape(-1, 1)))
-            if metric == 'sdv-quality':
-                # TODO: refactorizar este computo
-                if n_files_iteration % args_params.stride_metrics == 0:
+            if n_files_iteration % args_params.stride_metrics == 0:
+                if metric == 'sdv-quality':
                     computed_metric, column_shapes, column_pair_trends = compute_sdv_quality_metrics(dataset_info,
                                                                                                      generated_data_sample_df,
                                                                                                      sample_filename,
                                                                                                      ori_data_df,
                                                                                                      path_to_save_sdv_figures)
-            if metric == 'sdv-diagnostic':
-                if n_files_iteration % args_params.stride_metrics == 0:
+                if metric == 'sdv-diagnostic':
                     diagnostic_synthesis, diagnostic_coverage, diagnostic_boundaries = compute_sdv_diagnostic_metrics(
-                        dataset_info, generated_data_sample_df,
-                        sample_filename, ori_data_df,
-                        path_to_save_sdv_figures)
-            if metric == 'evolution_figures':
-                if n_files_iteration % args_params.stride_metrics == 0:
+                            dataset_info, generated_data_sample_df,
+                            sample_filename, ori_data_df,
+                            path_to_save_sdv_figures)
+                if metric == 'evolution_figures':
                     create_usage_evolution(generated_data_sample, generated_data_sample_df, ori_data, ori_data_sample,
-                                           path_to_save_metrics + 'figures/',
-                                           f'rank-{n_files_iteration}-{sample_filename}', dataset_info)
+                                               path_to_save_metrics + 'figures/',
+                                               f'rank-{n_files_iteration}-{sample_filename}', dataset_info)
+
             if metric != 'evolution_figures':
                 if metric != 'sdv-diagnostic':
                     if metric != 'sdv-quality':
@@ -163,6 +161,7 @@ def compute_metrics(args_params):
                     metrics_results[metric + '-synthesis'].append(diagnostic_synthesis)
                     metrics_results[metric + '-coverage'].append(diagnostic_coverage)
                     metrics_results[metric + '-boundaries'].append(diagnostic_boundaries)
+
             metric_iteration += 1
 
         n_files_iteration += 1

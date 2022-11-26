@@ -5,7 +5,7 @@ import scipy
 from dtaidistance import dtw_ndim
 from sdmetrics.reports.single_table import QualityReport, DiagnosticReport
 
-from metrics.kl import JSdistanceMultivariate
+import metrics.kl
 
 from tqdm import tqdm
 from functools import partialmethod
@@ -107,4 +107,4 @@ def compute_hi(generated_data_sample, ori_data):
 
 
 def compute_js(ori_data, generated_data_sample):
-    return JSdistanceMultivariate(ori_data, generated_data_sample)
+    return metrics.kl.JSdistanceMultivariate(ori_data, generated_data_sample)

@@ -7,3 +7,4 @@ datacentertracesdatasets
 scipy
 tqdm
 natsort
+kaleido

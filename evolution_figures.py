@@ -37,7 +37,7 @@ def create_figure(ori_column_values_array, generated_column_values, axis, name, 
     plt.close('all')
 
 
-def generate_figure_from_df(column_config_param, df, n_file, path):
+def generate_figure_from_df(column_config_param, df, sample_filename, path):
     plt.rcParams["figure.figsize"] = (18, 3)
     plt.figure()
     df.plot()
@@ -45,52 +45,44 @@ def generate_figure_from_df(column_config_param, df, n_file, path):
     plt.xlabel('time')
     plt.ylabel('y_label')
     os.makedirs(f'{path}/all-columns/', exist_ok=True)
-    plt.savefig(f'{path}/all-columns/{n_file}-all-columns.pdf')
+    plt.savefig(f'{path}/all-columns/{sample_filename}.pdf')
     plt.clf()
     plt.close('all')
 
-def create_usage_evolution(generated_data_sample, generated_data_sample_df, ori_data, ori_data_sample, path_to_save_metrics, n_file,
+def create_usage_evolution(generated_data_sample, generated_data_sample_df, ori_data, ori_data_sample, path_to_save_metrics, sample_filename,
                            dataset_info):
     seq_len = len(ori_data_sample[:, 0])
     column_configs = dataset_info['column_config'].items()
-    generate_figure_from_df(column_configs, generated_data_sample_df, n_file, path_to_save_metrics)
+    generate_figure_from_df(column_configs, generated_data_sample_df, sample_filename, path_to_save_metrics)
     for column_name, column_config in column_configs:
         index = column_config['column_index']
         path_to_save_metrics_column = path_to_save_metrics + '/' + column_name + '/'
         os.makedirs(path_to_save_metrics_column, exist_ok=True)
         generate_figures_by_column(index, column_name, generated_data_sample, ori_data, ori_data_sample,
-                                   path_to_save_metrics_column, n_file, seq_len,
+                                   path_to_save_metrics_column, sample_filename, seq_len,
                                    dataset_info['timestamp_frequency_secs'], column_config)
 
 
 def generate_figures_by_column(column_number, column_name, generated_data_sample, ori_data, ori_data_sample,
-                               path_to_save_metrics, n_file, seq_len, timestamp_frequency_secs, column_config):
-    path_to_save_metrics_for_file_number = path_to_save_metrics + str(n_file) + '-'
-    if ("y_axis_min" in column_config and "y_axis_max" in column_config):
+                               path_to_save_metrics, sample_filename, seq_len, timestamp_frequency_secs, column_config):
+    path_to_save_metrics_for_file_name = f'{path_to_save_metrics}/'
+    if 'y_axis_min' in column_config and 'y_axis_max' in column_config:
         axis = [0, seq_len, column_config['y_axis_min'], column_config['y_axis_max']]
     else:
         axis = None
 
     create_figure(ori_column_values_array=[ori_data_sample[:, column_number]],
                   generated_column_values=generated_data_sample[:, column_number], axis=axis,
-                  name=column_name + '_usage', path_to_save_metrics=path_to_save_metrics_for_file_number)
+                  name=f'{column_name}_{sample_filename}', path_to_save_metrics=path_to_save_metrics)
 
-    generate_figures_grouped_by_minutes_various_ori_samples(5, column_number, column_name, generated_data_sample,
-                                                            ori_data, path_to_save_metrics_for_file_number, seq_len,
-                                                            timestamp_frequency_secs, 5)
-    generate_figures_grouped_by_minutes_various_ori_samples(10, column_number, column_name, generated_data_sample,
-                                                            ori_data, path_to_save_metrics_for_file_number, seq_len,
-                                                            timestamp_frequency_secs, 5)
-    generate_figures_grouped_by_minutes_various_ori_samples(30, column_number, column_name, generated_data_sample,
-                                                            ori_data, path_to_save_metrics_for_file_number, seq_len,
-                                                            timestamp_frequency_secs, 5)
-    generate_figures_grouped_by_minutes_various_ori_samples(60, column_number, column_name, generated_data_sample,
-                                                            ori_data, path_to_save_metrics_for_file_number, seq_len,
-                                                            timestamp_frequency_secs, 5)
-
+    time_delta_minutes = [5, 10, 30, 60]
+    for minutes in time_delta_minutes:
+        generate_figures_grouped_by_minutes_various_ori_samples(minutes, column_number, column_name, generated_data_sample,
+                                                                ori_data, path_to_save_metrics, sample_filename, seq_len,
+                                                                timestamp_frequency_secs, 5)
 
 def generate_figures_grouped_by_minutes_various_ori_samples(minutes, column_number, column_name, generated_data_sample,
-                                                            ori_data, path_to_save_metrics, seq_len,
+                                                            ori_data, path_to_save_metrics, sample_filename, seq_len,
                                                             timestamp_frequency_secs, n_ori_samples=1):
     delta_ori_column_array = [
         compute_grouped_delta_from_sample(column_number, minutes, get_ori_data_sample(seq_len, ori_data), seq_len,
@@ -104,7 +96,7 @@ def generate_figures_grouped_by_minutes_various_ori_samples(minutes, column_numb
     min_y_value = min(np.amin(delta_ori_column_array), np.amin(delta_gen_column))
     create_figure(ori_column_values_array=delta_ori_column_array, generated_column_values=delta_gen_column,
                   axis=[0, seq_len // (minutes / (timestamp_frequency_secs / 60)), min_y_value, max_y_value],
-                  name=column_name + '_usage_delta_' + str(round(minutes, 2)) + 'min',
+                  name=f'{column_name}_usage_delta_{round(minutes, 2)}min-{sample_filename}',
                   path_to_save_metrics=path_to_save_metrics)
 
 
@@ -121,7 +113,6 @@ def generate_inter_experiment_column_figure(df, filename_param, path, column_con
         axis = [0, df.shape[0], column_config_param['y_axis_min'], column_config_param['y_axis_max']]
     else:
         axis = None
-    #plt.rcParams["figure.figsize"] = (18, 3)
     colors = ['#ff0000', '#ff5700', '#ff8200', '#ffa500', '#ffc600', '#fff000', '#e0f500', '#bbf900', '#8efc00',
               '#48ff00', '#006313', '#008251', '#00a08e', '#00bdc9', '#00d8ff', '#3759ff', '#3340d0', '#2a29a4',
               '#1c147a', '#0b0053', '#37009b', '#52009b', '#67009a', '#79009a', '#890199', '#d200ff', '#d200c0',
@@ -139,13 +130,11 @@ def generate_inter_experiment_column_figure(df, filename_param, path, column_con
     plt.ylabel('y_label')
     os.makedirs(f'{path}inter_experiment_figures/', exist_ok=True)
     plt.savefig(f'{path}inter_experiment_figures/{filename_param}.pdf')
-    print(f'Saved figure at: {path}/figures/{filename_param}.pdf')
     plt.clf()
-    plt.close()
+    plt.close('all')
 
 
 def generate_inter_experiment_figures(root_experiment_dir, experiments_dirs, args_params):
-    print('generate_inter_experiment_figures')
     dataset_info = loadtraces.get_dataset_info(trace_name=args_params.trace, trace_type=args_params.trace_type, stride_seconds=args_params.trace_timestep)
     data_frames = {}
 

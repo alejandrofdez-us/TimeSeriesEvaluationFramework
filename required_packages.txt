@@ -1,0 +1,8 @@
+numpy
+pandas
+matplotlib
+sdmetrics
+dtaidistance
+datacentertracesdatasets
+scipy
+tqdm

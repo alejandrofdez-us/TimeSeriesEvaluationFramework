@@ -19,7 +19,6 @@ def get_ori_data_sample(seq_len, ori_data):
 def get_most_similar_ori_data_sample(ori_data_windows_numpy, generated_data_sample):
     minimum_dtw = float('inf')
     most_similar_sample = []
-    #most_similar_sample = [(dtw_ndim.distance_fast(ori_data_sample, generated_data_sample),ori_data_sample) for ori_data_sample in ori_data_windows_numpy].min()[1]
     progress_bar_search = tqdm(ori_data_windows_numpy, desc='Searching minimum dtw distance from original data', colour='yellow', position=2, leave=False)
     for ori_data_sample in progress_bar_search:
         current_distance = dtw_ndim.distance_fast(ori_data_sample, generated_data_sample)
@@ -27,7 +26,7 @@ def get_most_similar_ori_data_sample(ori_data_windows_numpy, generated_data_samp
             minimum_dtw = current_distance
             most_similar_sample = ori_data_sample
 
-    return most_similar_sample
+    return most_similar_sample, minimum_dtw
 
 def split_ori_data_strided(ori_data_df, seq_len, stride):
     start_sequence_range = list(range(0, ori_data_df.shape[0] - seq_len, stride))

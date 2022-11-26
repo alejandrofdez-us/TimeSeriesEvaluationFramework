@@ -6,3 +6,4 @@ dtaidistance
 datacentertracesdatasets
 scipy
 tqdm
+natsort

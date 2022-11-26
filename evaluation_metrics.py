@@ -199,6 +199,8 @@ def initialization(args_params):
     path_to_save_sdv_figures = path_to_save_metrics + 'figures/sdv/'
     if args_params.recursive and os.path.isfile(args_params.experiment_dir + '/../parameters.txt'):
         parameters_file = open(args_params.experiment_dir + '/../parameters.txt', 'r')
+    elif args_params.recursive and os.path.isfile(args_params.experiment_dir + '/../../parameters.txt'):
+        parameters_file = open(args_params.experiment_dir + '/../../parameters.txt', 'r')
     else:
         parameters_file = open(args_params.experiment_dir + '/parameters.txt', 'r')
     previously_saved_metrics = "no metrics"

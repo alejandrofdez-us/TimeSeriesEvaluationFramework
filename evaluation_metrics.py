@@ -26,8 +26,7 @@ from utils import split_ori_data_strided, get_most_similar_ori_data_sample, \
 def main(args_params):
     if args_params.recursive:
         root_dir = args_params.experiment_dir + '/'
-        experiment_results_file_name = root_dir + 'experiments_metrics-' + datetime.now().strftime(
-            "%j-%H-%M-%S") + '.csv'
+        experiment_results_file_name = f'{root_dir}experiments_metrics-{os.path.basename(os.path.normpath(root_dir))}-{datetime.now().strftime("%j-%H-%M-%S")}.csv'
         experiment_directories = []
         for subdir, dirs, files in os.walk(root_dir):
             if 'generated_data' in dirs:

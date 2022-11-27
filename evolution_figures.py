@@ -40,6 +40,7 @@ def generate_figure_from_df(column_config_param, df, sample_filename, path):
     plt.rcParams["figure.figsize"] = (18, 3)
     plt.figure()
     df.plot()
+    plt.xlim([0, df.shape[0]])
     plt.legend(loc='best')
     plt.xlabel('time')
     plt.ylabel('y_label')

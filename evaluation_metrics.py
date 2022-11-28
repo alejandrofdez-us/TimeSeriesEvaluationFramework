@@ -42,7 +42,6 @@ def main(args_params):
                 try:
                     progress_bar_general.set_description(
                         "Computing metrics for directory " + os.path.basename(os.path.normpath(dir_name)))
-                    # print("Computing metrics for directory ", dir_name)
                     saved_metrics, metrics_values, saved_experiment_parameters = compute_metrics(args_params)
                     parameters_keys, parameters_values, _ = extract_experiment_parameters(saved_experiment_parameters)
                     if not is_header_printed:

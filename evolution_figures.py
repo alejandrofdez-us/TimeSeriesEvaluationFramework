@@ -11,7 +11,6 @@ from tqdm import tqdm
 from utils import get_ori_data_sample
 from natsort import natsorted
 
-
 def create_figure(ori_column_values_array, generated_column_values, axis, name, path_to_save_metrics):
     plt.rcParams["figure.figsize"] = (18, 3)
     f, ax = plt.subplots(1)
@@ -19,7 +18,7 @@ def create_figure(ori_column_values_array, generated_column_values, axis, name, 
     cycol = cycle('grcmk')
 
     for ori_column_values in ori_column_values_array:
-        plt.plot(ori_column_values, c=next(cycol), label=f'Original_i', linewidth=1)
+        plt.plot(ori_column_values, c=next(cycol), label=f'Original_{i}', linewidth=1)
         i += 1
 
     plt.plot(generated_column_values, c="blue", label="Synthetic", linewidth=2)

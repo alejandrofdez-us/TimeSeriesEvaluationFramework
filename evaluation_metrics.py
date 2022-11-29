@@ -63,9 +63,8 @@ def main(args_params):
     else:
         compute_metrics(args_params)
 
-#TODO: eliminar parametro path_to_save_sdv
 def compute_metrics(args_params):
-    metrics_list, path_to_save_metrics, saved_experiments_parameters, saved_metrics, dataset_info, path_to_save_sdv_figures, ori_data, ori_data_df = initialization(
+    metrics_list, path_to_save_metrics, saved_experiments_parameters, saved_metrics, dataset_info, ori_data, ori_data_df = initialization(
         args_params)
 
     _, _, parameters_dict = extract_experiment_parameters(saved_experiments_parameters)
@@ -133,12 +132,12 @@ def compute_metrics(args_params):
                                                                                                      generated_data_sample_df,
                                                                                                      sample_filename,
                                                                                                      ori_data_df,
-                                                                                                     path_to_save_sdv_figures)
+                                                                                                     f'{path_to_save_metrics}figures/sdv')
                 if metric == 'sdv-diagnostic':
                     diagnostic_synthesis, diagnostic_coverage, diagnostic_boundaries = compute_sdv_diagnostic_metrics(
                             dataset_info, generated_data_sample_df,
                             sample_filename, ori_data_df,
-                            path_to_save_sdv_figures)
+                            f'{path_to_save_metrics}figures/sdv')
                 if metric == 'evolution_figures' and args_params.only_best_samples_figures > n_files_iteration:
                     create_usage_evolution(generated_data_sample, generated_data_sample_df, ori_data, ori_data_sample,
                                                path_to_save_metrics + 'figures/',
@@ -171,9 +170,7 @@ def compute_metrics(args_params):
 
 
 def load_dtw_sorted_samples_objects(args_params, dataset_info, ori_data_df):
-    #TODO: Usar natsort
-    sorted_sample_names = sorted(fnmatch.filter(os.listdir(args_params.experiment_dir + '/generated_data'), '*.csv'),
-                                 key=lambda fileName: int(fileName.split('.')[0].split('_')[1]))
+    sorted_sample_names = natsorted(fnmatch.filter(os.listdir(args_params.experiment_dir + '/generated_data'), '*.csv'))
     generated_samples_dict = {}
     progress_bar_dtw = tqdm(sorted_sample_names, colour='yellow', position=1, leave=False)
 
@@ -261,7 +258,7 @@ def initialization(args_params):
                                            stride_seconds=args_params.trace_timestep)
         ori_data = ori_data_df.to_numpy()
 
-    return metrics_list, path_to_save_metrics, saved_experiments_parameters, previously_saved_metrics, dataset_info, path_to_save_sdv_figures, ori_data, ori_data_df
+    return metrics_list, path_to_save_metrics, saved_experiments_parameters, previously_saved_metrics, dataset_info, ori_data, ori_data_df
 
 
 if __name__ == '__main__':

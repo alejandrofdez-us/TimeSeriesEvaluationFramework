@@ -63,19 +63,17 @@ def main(args_params):
     else:
         compute_metrics(args_params)
 
-
+#TODO: eliminar parametro path_to_save_sdv
 def compute_metrics(args_params):
     metrics_list, path_to_save_metrics, saved_experiments_parameters, saved_metrics, dataset_info, path_to_save_sdv_figures, ori_data, ori_data_df = initialization(
         args_params)
 
     _, _, parameters_dict = extract_experiment_parameters(saved_experiments_parameters)
-    # TODO: Seguramente se puede sacar este objeto a load_dtw_sorted_samples_objects
-    ori_data_windows_numpy = split_ori_data_strided(ori_data_df, int(parameters_dict['seq_len']),
-                                                    args_params.stride_ori_data_windows)
+
     avg_results = {}
     metrics_results = initializa_metrics_results_structure(metrics_list, ori_data)
 
-    sorted_generated_samples_dict = load_dtw_sorted_samples_objects(args_params, dataset_info, ori_data_windows_numpy)
+    sorted_generated_samples_dict = load_dtw_sorted_samples_objects(args_params, dataset_info, ori_data_df)
     progress_bar_samples = tqdm(sorted_generated_samples_dict.items(), colour='green', position=1, leave=False)
     n_files_iteration = 0
     for sample_filename, sample_objects in progress_bar_samples:
@@ -172,12 +170,14 @@ def compute_metrics(args_params):
     return saved_metrics, metrics_values, saved_experiments_parameters
 
 
-def load_dtw_sorted_samples_objects(args_params, dataset_info, ori_data_windows_numpy):
+def load_dtw_sorted_samples_objects(args_params, dataset_info, ori_data_df):
+    #TODO: Usar natsort
     sorted_sample_names = sorted(fnmatch.filter(os.listdir(args_params.experiment_dir + '/generated_data'), '*.csv'),
                                  key=lambda fileName: int(fileName.split('.')[0].split('_')[1]))
     generated_samples_dict = {}
     progress_bar_dtw = tqdm(sorted_sample_names, colour='yellow', position=1, leave=False)
 
+    ori_data_windows_numpy = None
     for filename in progress_bar_dtw:
         progress_bar_dtw.set_description(
             f'Searching best dtw ori_data_sample {filename:10}')
@@ -186,6 +186,11 @@ def load_dtw_sorted_samples_objects(args_params, dataset_info, ori_data_windows_
             generated_data_sample = np.loadtxt(f, delimiter=",")
             generated_data_sample_df = pd.DataFrame(generated_data_sample,
                                                     columns=dataset_info['column_config'])
+
+            if ori_data_windows_numpy is None:
+                ori_data_windows_numpy = split_ori_data_strided(ori_data_df, generated_data_sample.shape[0],
+                                                                args_params.stride_ori_data_windows)
+
             ori_data_sample, computed_dtw = get_most_similar_ori_data_sample(ori_data_windows_numpy,
                                                                              generated_data_sample)
             generated_samples_dict[filename] = {}

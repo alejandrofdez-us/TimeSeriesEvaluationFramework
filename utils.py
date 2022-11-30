@@ -29,8 +29,12 @@ def get_most_similar_ori_data_sample(ori_data_windows_numpy, generated_data_samp
     return most_similar_sample, minimum_dtw
 
 def split_ori_data_strided(ori_data_df, seq_len, stride):
-    start_sequence_range = list(range(0, ori_data_df.shape[0] - seq_len, stride))
-    ori_data_windows_numpy = np.array([ori_data_df[start_index:start_index+seq_len] for start_index in start_sequence_range])
+    assert seq_len <= ori_data_df.shape[0], 'seq_len cannot be greater than the original dataset length'
+    if seq_len == ori_data_df.shape[0]:
+        ori_data_windows_numpy = np.array([ori_data_df])
+    else:
+        start_sequence_range = list(range(0, ori_data_df.shape[0] - seq_len, stride))
+        ori_data_windows_numpy = np.array([ori_data_df[start_index:start_index+seq_len] for start_index in start_sequence_range])
     return ori_data_windows_numpy
 
 def normalize_start_time_to_zero(sample):

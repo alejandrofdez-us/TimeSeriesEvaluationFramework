@@ -77,8 +77,6 @@ Theory, 2008.
     n, d = x.shape
     m, dy = y.shape
 
-    print("x.shape", x.shape)
-    print("y.shape", y.shape)
     assert (d == dy)
 
     # Build a KD tree representation of the samples and find the nearest neighbour

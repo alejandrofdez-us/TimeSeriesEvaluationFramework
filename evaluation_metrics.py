@@ -1,4 +1,5 @@
 import argparse
+import copy
 import distutils
 from distutils import util
 import fnmatch
@@ -13,6 +14,8 @@ from datacentertracesdatasets import loadtraces
 from natsort import natsorted
 from tqdm import tqdm
 import multiprocessing
+import itertools
+
 
 
 from evolution_figures import create_usage_evolution, generate_inter_experiment_figures
@@ -24,6 +27,8 @@ from metrics.mmd import mmd_rbf
 from utils import split_ori_data_strided, get_most_similar_ori_data_sample, \
     extract_experiment_parameters, save_metrics
 
+MAX_WORKERS = 4
+CHUNK_SIZE = 1
 
 def main(args_params):
     if args_params.recursive:
@@ -41,38 +46,45 @@ def main(args_params):
             manager = multiprocessing.Manager()
             return_dict = manager.dict()
             jobs = []
-            progress_bar_general = tqdm(experiment_directories, colour="red", position=0)
-            for dir_name in progress_bar_general:
+            #progress_bar_general = tqdm(experiment_directories, colour="red", position=0)
+            #for dir_name in progress_bar_general:
+            args_params_array = []
+            for dir_name in experiment_directories:
                 args_params.experiment_dir = dir_name
-                try:
-                    progress_bar_general.set_description(
-                        "Computing metrics for directory " + os.path.basename(os.path.normpath(dir_name)))
-                    p = multiprocessing.Process(target=compute_metrics, args=(args_params, return_dict))
-                    jobs.append(p)
-                    p.start()
-                except Exception as e:
-                    print('Error computing experiment dir:', args_params.experiment_dir)
-                    print(e)
-                    traceback.print_exc()
-            for proc in jobs:
-                proc.join()
+                args_params_array.append(copy.deepcopy(args_params))
 
-            for saved_metrics, metrics_values, saved_experiment_parameters in return_dict.values():
-                parameters_keys, parameters_values, _ = extract_experiment_parameters(saved_experiment_parameters)
-                if not is_header_printed:
-                    with open(experiment_results_file_name, 'w') as f:
-                        f.write('experiment_dir_name;' + parameters_keys + saved_metrics + '\n')
-                    is_header_printed = True
 
-                with open(experiment_results_file_name, 'a') as f:
-                    f.write(dir_name + ';' + parameters_values + metrics_values + '\n')
+
+            try:
+                with multiprocessing.Pool(processes=MAX_WORKERS) as pool:
+                    results = tqdm(
+                        pool.imap_unordered(compute_metrics, args_params_array, chunksize=CHUNK_SIZE),
+                        total=len(args_params_array),
+                    )
+                    for saved_metrics, metrics_values, saved_experiment_parameters in results:
+                        parameters_keys, parameters_values, _ = extract_experiment_parameters(
+                            saved_experiment_parameters)
+                        if not is_header_printed:
+                            with open(experiment_results_file_name, 'w') as f:
+                                f.write('experiment_dir_name;' + parameters_keys + saved_metrics + '\n')
+                            is_header_printed = True
+
+                        with open(experiment_results_file_name, 'a') as f:
+                            f.write(dir_name + ';' + parameters_values + metrics_values + '\n')
+
+            except Exception as e:
+                print('Error computing experiment dir:', args_params.experiment_dir)
+                print(e)
+                traceback.print_exc()
+
+
             print("\nCSVs for all experiments metrics results saved in:\n", experiment_results_file_name)
         if args_params.inter_experiment_figures:
             generate_inter_experiment_figures(root_dir, experiment_directories, args_params)
     else:
         compute_metrics(args_params)
 
-def compute_metrics(args_params, return_dict):
+def compute_metrics(args_params):
     metrics_list, path_to_save_metrics, saved_experiments_parameters, saved_metrics, dataset_info, ori_data, ori_data_df = initialization(
         args_params)
 
@@ -176,8 +188,8 @@ def compute_metrics(args_params, return_dict):
     saved_metrics, metrics_values, = save_metrics(avg_results, metrics_results, path_to_save_metrics,
                                                   saved_experiments_parameters, saved_metrics)
     print("computed metrics for experiment",args_params.experiment_dir)
-    return_dict[args_params.experiment_dir] = (saved_metrics, metrics_values, saved_experiments_parameters)
-    return return_dict
+    #return_dict[args_params.experiment_dir] = (saved_metrics, metrics_values, saved_experiments_parameters)
+    return saved_metrics, metrics_values, saved_experiments_parameters
 
 
 def load_dtw_sorted_samples_objects(args_params, dataset_info, ori_data_df):

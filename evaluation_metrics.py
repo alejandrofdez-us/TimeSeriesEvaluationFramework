@@ -14,7 +14,6 @@ from datacentertracesdatasets import loadtraces
 from natsort import natsorted
 from tqdm import tqdm
 import multiprocessing
-import itertools
 
 
 

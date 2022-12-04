@@ -14,6 +14,7 @@ from datacentertracesdatasets import loadtraces
 from natsort import natsorted
 from tqdm import tqdm
 import multiprocessing
+from pathlib import Path
 
 
 
@@ -65,7 +66,7 @@ def main(args_params):
 
                         with open(experiment_results_file_name, 'a') as f:
                             f.write(experiment_dir_name + ';' + parameters_values + metrics_values + '\n')
-                        results_progress_bar.set_description(f'Saved metrics of {experiment_dir_name}')
+                        results_progress_bar.set_description(f'Saved metrics of {Path(*Path(experiment_dir_name).parts[-2:])}')
             except Exception as e:
                 print('Error computing experiment dir:', args_params.experiment_dir)
                 print(e)

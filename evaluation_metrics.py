@@ -53,15 +53,13 @@ def main(args_params):
                 args_params.experiment_dir = dir_name
                 args_params_array.append(copy.deepcopy(args_params))
 
-
-
             try:
                 with multiprocessing.Pool(processes=MAX_WORKERS) as pool:
                     results = tqdm(
                         pool.imap_unordered(compute_metrics, args_params_array, chunksize=CHUNK_SIZE),
                         total=len(args_params_array),
                     )
-                    for saved_metrics, metrics_values, saved_experiment_parameters in results:
+                    for saved_metrics, metrics_values, saved_experiment_parameters, experiment_dir_name in results:
                         parameters_keys, parameters_values, _ = extract_experiment_parameters(
                             saved_experiment_parameters)
                         if not is_header_printed:
@@ -70,7 +68,7 @@ def main(args_params):
                             is_header_printed = True
 
                         with open(experiment_results_file_name, 'a') as f:
-                            f.write(dir_name + ';' + parameters_values + metrics_values + '\n')
+                            f.write(experiment_dir_name + ';' + parameters_values + metrics_values + '\n')
 
             except Exception as e:
                 print('Error computing experiment dir:', args_params.experiment_dir)
@@ -187,9 +185,8 @@ def compute_metrics(args_params):
             avg_results[metric] = statistics.mean(metrics_results[metric])
     saved_metrics, metrics_values, = save_metrics(avg_results, metrics_results, path_to_save_metrics,
                                                   saved_experiments_parameters, saved_metrics)
-    print("computed metrics for experiment",args_params.experiment_dir)
     #return_dict[args_params.experiment_dir] = (saved_metrics, metrics_values, saved_experiments_parameters)
-    return saved_metrics, metrics_values, saved_experiments_parameters
+    return saved_metrics, metrics_values, saved_experiments_parameters, args_params.experiment_dir
 
 
 def load_dtw_sorted_samples_objects(args_params, dataset_info, ori_data_df):

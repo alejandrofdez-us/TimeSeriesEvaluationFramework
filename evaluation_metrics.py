@@ -27,8 +27,10 @@ from metrics.mmd import mmd_rbf
 from utils import split_ori_data_strided, get_most_similar_ori_data_sample, \
     extract_experiment_parameters, save_metrics
 
-MAX_WORKERS = 4
-CHUNK_SIZE = 1
+from concurrent.futures import ProcessPoolExecutor
+
+MAX_WORKERS = int(ProcessPoolExecutor()._max_workers/2)
+CHUNK_SIZE = 5
 
 def main(args_params):
     if args_params.recursive:
@@ -42,12 +44,6 @@ def main(args_params):
         experiment_directories = natsorted(experiment_directories)
         if args.metrics:
             is_header_printed = False
-
-            manager = multiprocessing.Manager()
-            return_dict = manager.dict()
-            jobs = []
-            #progress_bar_general = tqdm(experiment_directories, colour="red", position=0)
-            #for dir_name in progress_bar_general:
             args_params_array = []
             for dir_name in experiment_directories:
                 args_params.experiment_dir = dir_name
@@ -55,11 +51,12 @@ def main(args_params):
 
             try:
                 with multiprocessing.Pool(processes=MAX_WORKERS) as pool:
-                    results = tqdm(
+                    results_progress_bar = tqdm(
                         pool.imap_unordered(compute_metrics, args_params_array, chunksize=CHUNK_SIZE),
                         total=len(args_params_array),
+                        desc='Computing metrics'
                     )
-                    for saved_metrics, metrics_values, saved_experiment_parameters, experiment_dir_name in results:
+                    for saved_metrics, metrics_values, saved_experiment_parameters, experiment_dir_name in results_progress_bar:
                         parameters_keys, parameters_values, _ = extract_experiment_parameters(
                             saved_experiment_parameters)
                         if not is_header_printed:
@@ -69,12 +66,11 @@ def main(args_params):
 
                         with open(experiment_results_file_name, 'a') as f:
                             f.write(experiment_dir_name + ';' + parameters_values + metrics_values + '\n')
-
+                        results_progress_bar.set_description(f'Saved metrics of {experiment_dir_name}')
             except Exception as e:
                 print('Error computing experiment dir:', args_params.experiment_dir)
                 print(e)
                 traceback.print_exc()
-
 
             print("\nCSVs for all experiments metrics results saved in:\n", experiment_results_file_name)
         if args_params.inter_experiment_figures:
@@ -92,19 +88,15 @@ def compute_metrics(args_params):
     metrics_results = initializa_metrics_results_structure(metrics_list, ori_data)
 
     sorted_generated_samples_dict = load_dtw_sorted_samples_objects(args_params, dataset_info, ori_data_df)
-    #progress_bar_samples = tqdm(sorted_generated_samples_dict.items(), colour='green', position=1, leave=False)
     n_files_iteration = 0
     for sample_filename, sample_objects in sorted_generated_samples_dict.items():
-        #progress_bar_samples.set_description(f'Computing {sample_filename:10}')
         generated_data_sample = sample_objects['generated_data_sample']
         generated_data_sample_df = sample_objects['generated_data_sample_df']
         ori_data_sample = sample_objects['ori_data_sample']
 
         computed_metric = 0
-        #progress_bar2 = tqdm(metrics_list, colour='blue', position=2, leave=False)
         metric_iteration = 0
         for metric in metrics_list:
-            #progress_bar2.set_description(f'Computing {metric:10} [{metric_iteration + 1}/{len(metrics_list)}]')
             if metric == 'mmd':
                 computed_metric = mmd_rbf(X=ori_data_sample, Y=generated_data_sample)
                 for column in range(generated_data_sample.shape[1]):
@@ -185,18 +177,15 @@ def compute_metrics(args_params):
             avg_results[metric] = statistics.mean(metrics_results[metric])
     saved_metrics, metrics_values, = save_metrics(avg_results, metrics_results, path_to_save_metrics,
                                                   saved_experiments_parameters, saved_metrics)
-    #return_dict[args_params.experiment_dir] = (saved_metrics, metrics_values, saved_experiments_parameters)
     return saved_metrics, metrics_values, saved_experiments_parameters, args_params.experiment_dir
 
 
 def load_dtw_sorted_samples_objects(args_params, dataset_info, ori_data_df):
     sorted_sample_names = natsorted(fnmatch.filter(os.listdir(args_params.experiment_dir + '/generated_data'), '*.csv'))
     generated_samples_dict = {}
-    #progress_bar_dtw = tqdm(sorted_sample_names, colour='yellow', position=1, leave=False)
 
     ori_data_windows_numpy = None
     for filename in sorted_sample_names:
-       # progress_bar_dtw.set_description(f'Searching best dtw ori_data_sample {filename:10}')
         f = os.path.join(args_params.experiment_dir + '/generated_data', filename)
         if os.path.isfile(f):
             generated_data_sample = np.loadtxt(f, delimiter=",")

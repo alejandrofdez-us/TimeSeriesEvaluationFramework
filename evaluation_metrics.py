@@ -25,27 +25,41 @@ from metrics.metrics import compute_sdv_quality_metrics, compute_sdv_diagnostic_
     compute_cp, compute_cc, compute_hi, compute_js
 from metrics.mmd import mmd_rbf
 from utils import split_ori_data_strided, get_most_similar_ori_data_sample, \
-    extract_experiment_parameters, save_metrics
+    extract_experiment_parameters, save_metrics, print_csv_result_row, print_csv_header, \
+    print_previously_computed_experiments_metrics
 
 from concurrent.futures import ProcessPoolExecutor
 
 MAX_WORKERS = int(ProcessPoolExecutor()._max_workers/2)
 CHUNK_SIZE = 1
 
+
+
+
 def main(args_params):
     if args_params.recursive:
         root_dir = args_params.experiment_dir + '/'
         experiment_results_file_name = f'{root_dir}experiments_metrics-{os.path.basename(os.path.normpath(root_dir))}-{datetime.now().strftime("%j-%H-%M-%S")}.csv'
-        experiment_directories = []
+        experiment_directories_to_be_computed = []
+        experiment_directories_previously_computed = []
         for subdir, dirs, files in os.walk(root_dir):
             if 'generated_data' in dirs:
-                experiment_directories.append(subdir)
+                if args_params.recompute_metrics:
+                    experiment_directories_to_be_computed.append(subdir)
+                else:
+                    if not 'evaluation_metrics' in dirs:
+                        experiment_directories_to_be_computed.append(subdir)
+                    elif 'evaluation_metrics' in dirs:
+                        experiment_directories_previously_computed.append(subdir)
+        if (experiment_directories_previously_computed):
+            print(f'Found previous metrics computations for {len(experiment_directories_previously_computed)} experiments. Skipping.')
 
-        experiment_directories = natsorted(experiment_directories)
+        experiment_directories_to_be_computed = natsorted(experiment_directories_to_be_computed)
+        experiment_directories_previously_computed = natsorted(experiment_directories_previously_computed)
         if args.metrics:
             is_header_printed = False
             args_params_array = []
-            for dir_name in experiment_directories:
+            for dir_name in experiment_directories_to_be_computed:
                 args_params.experiment_dir = dir_name
                 args_params_array.append(copy.deepcopy(args_params))
 
@@ -60,12 +74,12 @@ def main(args_params):
                         parameters_keys, parameters_values, _ = extract_experiment_parameters(
                             saved_experiment_parameters)
                         if not is_header_printed:
-                            with open(experiment_results_file_name, 'w') as f:
-                                f.write('experiment_dir_name;' + parameters_keys + saved_metrics + '\n')
+                            print_csv_header(experiment_results_file_name, parameters_keys, saved_metrics)
+                            print_previously_computed_experiments_metrics(experiment_directories_previously_computed,experiment_results_file_name)
                             is_header_printed = True
 
-                        with open(experiment_results_file_name, 'a') as f:
-                            f.write(experiment_dir_name + ';' + parameters_values + metrics_values + '\n')
+                        print_csv_result_row(experiment_dir_name, experiment_results_file_name, metrics_values,
+                                             parameters_values)
                         results_progress_bar.set_description(f'Saved metrics of {Path(*Path(experiment_dir_name).parts[-3:])}')
             except Exception as e:
                 print('Error computing experiment dir:', args_params.experiment_dir)
@@ -73,10 +87,11 @@ def main(args_params):
                 traceback.print_exc()
 
             print("\nCSVs for all experiments metrics results saved in:\n", experiment_results_file_name)
-        if args_params.inter_experiment_figures:
-            generate_inter_experiment_figures(root_dir, experiment_directories, args_params)
+        if args_params.inter_experiment_figures and experiment_directories_to_be_computed:
+            generate_inter_experiment_figures(root_dir, experiment_directories_to_be_computed, args_params)
     else:
         compute_metrics(args_params)
+
 
 def compute_metrics(args_params):
     metrics_list, path_to_save_metrics, saved_experiments_parameters, saved_metrics, dataset_info, ori_data, ori_data_df = initialization(
@@ -312,6 +327,10 @@ if __name__ == '__main__':
         type=str)
     parser.add_argument(
         '--inter_experiment_figures',
+        default=False,
+        type=lambda x: bool(distutils.util.strtobool(str(x))))
+    parser.add_argument(
+        '--recompute_metrics',
         default=False,
         type=lambda x: bool(distutils.util.strtobool(str(x))))
     parser.add_argument(

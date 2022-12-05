@@ -1,3 +1,4 @@
+import os
 import random
 import re
 
@@ -56,39 +57,24 @@ def extract_experiment_parameters(saved_experiment_parameters):
     return parameters_keys, parameters_values, saved_experiment_parameters_dict
 
 
-def save_metrics(avg_results, metrics_results, path_to_save_metrics, saved_experiments_parameters, saved_metrics):
-    _, _, parameters_dict = extract_experiment_parameters(saved_experiments_parameters)
-    if 'data_name' in parameters_dict:
-        data_name = parameters_dict['data_name']
-    elif 'trace' in parameters_dict:
-        data_name = parameters_dict['trace']
-    else:
-        data_name = 'not_found'
-    if 'iteration' in parameters_dict:
-        epoch_value = parameters_dict['iteration']
-        epoch_name = 'iterations'
-    elif 'epochs' in parameters_dict:
-        epoch_value = parameters_dict['epochs']
-        epoch_name = 'epochs'
-    elif 'gan_epochs' in parameters_dict:
-        epoch_value = parameters_dict['gan_epochs']
-        epoch_name = 'gan_epochs'
-    else:
-        epoch_value = '_'
-        epoch_name = 'no_epoch_value_found'
+def save_metrics(avg_results, metrics_results, path_to_save_metrics, saved_experiment_parameters, saved_metrics):
+    path_to_save_metrics = os.path.dirname(os.path.dirname(path_to_save_metrics))
 
-
-    seq_len = parameters_dict['seq_len']
-    with open(f'{path_to_save_metrics}/metrics-{data_name}-{epoch_name}-{epoch_value}-seq_len-{seq_len}.txt', 'w') as f:
-
-        f.write(saved_experiments_parameters + '\n\n')
+    with open(f'{path_to_save_metrics}/time-series-framework-metrics.txt', 'w') as f:
+        f.write(saved_experiment_parameters + '\n\n')
         f.write(saved_metrics + '\n\n')
         f.write(repr(avg_results) + '\n')
         computed_metrics, metrics_values = results_for_excel(avg_results)
         f.write(
             'Results of the following metrics: ' + computed_metrics + ' in spanish locale Excel format:' + '\n' + metrics_values + '\n')
         f.write(repr(metrics_results))
-    #print("Metrics saved in file", f.name)
+
+    experiment_results_csv_filename = f'{path_to_save_metrics}/time-series-framework-metrics.csv'
+    parameters_keys, parameters_values, _ = extract_experiment_parameters(saved_experiment_parameters)
+    print_csv_header(experiment_results_csv_filename, parameters_keys, computed_metrics)
+    print_csv_result_row(path_to_save_metrics, experiment_results_csv_filename, metrics_values,
+                         parameters_values)
+
     return computed_metrics, metrics_values
 
 
@@ -100,3 +86,25 @@ def results_for_excel(avg_results):
         metrics_values += str(avg_result).replace('.', ',') + ';'
 
     return computed_metrics, metrics_values
+
+
+def print_csv_result_row(experiment_dir_name, experiment_results_file_name, metrics_values, parameters_values):
+    with open(experiment_results_file_name, 'a') as f:
+        f.write(experiment_dir_name + ';' + parameters_values + metrics_values + '\n')
+
+
+def print_csv_header(experiment_results_file_name, parameters_keys, saved_metrics):
+    with open(experiment_results_file_name, 'w') as f:
+        f.write('experiment_dir_name;' + parameters_keys + saved_metrics + '\n')
+
+
+def print_previously_computed_experiments_metrics(experiment_directories_previously_computed,
+                                                  experiment_results_file_name):
+    with open(experiment_results_file_name, 'a') as composed_results_file:
+        for dir_name in experiment_directories_previously_computed:
+            try:
+                with open(f'{dir_name}/time-series-framework-metrics.csv', 'r') as previously_computed_metrics:
+                    results_row = previously_computed_metrics.readlines()[1]
+                    composed_results_file.write(results_row)
+            except Exception as e:
+                print(f'Previous csv result could not be retrieved from {dir_name}/time-series-framework-metrics.csv. Details: {e}')

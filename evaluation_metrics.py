@@ -30,7 +30,7 @@ from utils import split_ori_data_strided, get_most_similar_ori_data_sample, \
 from concurrent.futures import ProcessPoolExecutor
 
 MAX_WORKERS = int(ProcessPoolExecutor()._max_workers/2)
-CHUNK_SIZE = 5
+CHUNK_SIZE = 1
 
 def main(args_params):
     if args_params.recursive:

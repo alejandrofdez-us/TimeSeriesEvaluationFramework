@@ -51,7 +51,7 @@ def generate_figure_from_df(column_config_param, df, sample_filename, path):
 
 def create_usage_evolution(generated_data_sample, generated_data_sample_df, ori_data, ori_data_sample,
                            path_to_save_metrics, sample_filename,
-                           dataset_info):
+                           dataset_info, generate_deltas):
     seq_len = len(ori_data_sample[:, 0])
     column_configs = dataset_info['column_config'].items()
     generate_figure_from_df(column_configs, generated_data_sample_df, sample_filename, path_to_save_metrics)
@@ -61,11 +61,11 @@ def create_usage_evolution(generated_data_sample, generated_data_sample_df, ori_
         os.makedirs(path_to_save_metrics_column, exist_ok=True)
         generate_figures_by_column(index, column_name, generated_data_sample, ori_data, ori_data_sample,
                                    path_to_save_metrics_column, sample_filename, seq_len,
-                                   dataset_info['timestamp_frequency_secs'], column_config)
+                                   dataset_info['timestamp_frequency_secs'], column_config, generate_deltas)
 
 
 def generate_figures_by_column(column_number, column_name, generated_data_sample, ori_data, ori_data_sample,
-                               path_to_save_metrics, sample_filename, seq_len, timestamp_frequency_secs, column_config):
+                               path_to_save_metrics, sample_filename, seq_len, timestamp_frequency_secs, column_config, generate_deltas):
     if 'y_axis_min' in column_config and 'y_axis_max' in column_config:
         axis = [0, seq_len, column_config['y_axis_min'], column_config['y_axis_max']]
     else:
@@ -75,13 +75,14 @@ def generate_figures_by_column(column_number, column_name, generated_data_sample
                   generated_column_values=generated_data_sample[:, column_number], axis=axis,
                   name=f'{column_name}_{sample_filename}', path_to_save_metrics=path_to_save_metrics)
 
-    time_delta_minutes = [5, 10, 30, 60]
-    for minutes in time_delta_minutes:
-        generate_figures_grouped_by_minutes_various_ori_samples(minutes, column_number, column_name,
-                                                                generated_data_sample,
-                                                                ori_data, path_to_save_metrics, sample_filename,
-                                                                seq_len,
-                                                                timestamp_frequency_secs, 5)
+    if generate_deltas == True:
+        time_delta_minutes = [5, 10, 30, 60]
+        for minutes in time_delta_minutes:
+            generate_figures_grouped_by_minutes_various_ori_samples(minutes, column_number, column_name,
+                                                                    generated_data_sample,
+                                                                    ori_data, path_to_save_metrics, sample_filename,
+                                                                    seq_len,
+                                                                    timestamp_frequency_secs, 5)
 
 
 def generate_figures_grouped_by_minutes_various_ori_samples(minutes, column_number, column_name, generated_data_sample,

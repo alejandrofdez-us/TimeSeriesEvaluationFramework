@@ -152,7 +152,7 @@ def compute_metrics(args_params):
                 if metric == 'evolution_figures' and args_params.only_best_samples_figures > n_files_iteration:
                     create_usage_evolution(generated_data_sample, generated_data_sample_df, ori_data, ori_data_sample,
                                                path_to_save_metrics + 'figures/',
-                                               f'rank-{n_files_iteration}-{sample_filename}', dataset_info)
+                                               f'rank-{n_files_iteration}-{sample_filename}', dataset_info, args_params.generate_deltas)
 
             if metric != 'evolution_figures':
                 if metric != 'sdv-diagnostic':
@@ -288,6 +288,10 @@ if __name__ == '__main__':
         type=str)
     parser.add_argument(
         '--recursive',
+        default=False,
+        type=lambda x: bool(distutils.util.strtobool(str(x))))
+    parser.add_argument(
+        '--generate_deltas',
         default=False,
         type=lambda x: bool(distutils.util.strtobool(str(x))))
     parser.add_argument(

@@ -35,11 +35,13 @@ def create_figure(ori_column_values_array, generated_column_values, axis, name, 
     plt.close('all')
 
 
-def generate_figure_from_df(column_config_param, df, sample_filename, path):
+def generate_figure_from_df(column_config_param, generated_data_sample_df, ori_data_sample, sample_filename, path):
+    ori_data_sample_df = pandas.DataFrame(ori_data_sample, columns = [f'{column_name}_original' for column_name in generated_data_sample_df.columns])
     plt.rcParams["figure.figsize"] = (18, 3)
     plt.figure()
-    df.plot()
-    plt.xlim([0, df.shape[0]])
+    ax=generated_data_sample_df.plot()
+    ori_data_sample_df.plot(ax=ax, style='--', color='black')
+    plt.xlim([0, generated_data_sample_df.shape[0]])
     plt.legend(loc='best')
     plt.xlabel('time')
     plt.ylabel('y_label')
@@ -54,7 +56,7 @@ def create_usage_evolution(generated_data_sample, generated_data_sample_df, ori_
                            dataset_info, generate_deltas):
     seq_len = len(ori_data_sample[:, 0])
     column_configs = dataset_info['column_config'].items()
-    generate_figure_from_df(column_configs, generated_data_sample_df, sample_filename, path_to_save_metrics)
+    generate_figure_from_df(column_configs, generated_data_sample_df, ori_data_sample, sample_filename, path_to_save_metrics)
     for column_name, column_config in column_configs:
         index = column_config['column_index']
         path_to_save_metrics_column = path_to_save_metrics + '/' + column_name + '/'

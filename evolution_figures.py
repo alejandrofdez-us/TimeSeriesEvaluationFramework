@@ -40,7 +40,7 @@ def generate_figure_from_df(column_config_param, generated_data_sample_df, ori_d
     plt.rcParams["figure.figsize"] = (18, 3)
     plt.figure()
     ax=generated_data_sample_df.plot()
-    ori_data_sample_df.plot(ax=ax, style='--', color='black')
+    ori_data_sample_df.plot(ax=ax, style='--', color='darkgrey')
     plt.xlim([0, generated_data_sample_df.shape[0]])
     plt.legend(loc='best')
     plt.xlabel('time')

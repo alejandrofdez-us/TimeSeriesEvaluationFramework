@@ -58,11 +58,10 @@ def generate_figure_from_df(column_config_param, generated_data_sample_df, ori_d
     plt.close('all')
 
 
-def generate_dtw_figure(generated_data_sample_column, ori_data_sample_column, path_to_save_metrics, sample_filename):
+def generate_dtw_figure(generated_data_sample_column, ori_data_sample_column, column_name, path_to_save_metrics, sample_filename):
     path = dtw.warping_path(ori_data_sample_column, generated_data_sample_column )
-    dtw_visualisation.plot_warping(ori_data_sample_column, generated_data_sample_column, path, filename=f'{path_to_save_metrics}dtw_warping-{sample_filename}.pdf')
+    dtw_visualisation.plot_warping(ori_data_sample_column, generated_data_sample_column, path, filename=f'{path_to_save_metrics}{column_name}-dtw_warping-{sample_filename}.pdf')
     pass
-
 
 def create_usage_evolution(generated_data_sample, generated_data_sample_df, ori_data, ori_data_sample,
                            path_to_save_metrics, sample_filename,
@@ -77,7 +76,7 @@ def create_usage_evolution(generated_data_sample, generated_data_sample_df, ori_
         generate_figures_by_column(index, column_name, generated_data_sample, ori_data, ori_data_sample,
                                    path_to_save_metrics_column, sample_filename, seq_len,
                                    dataset_info['timestamp_frequency_secs'], column_config, generate_deltas)
-        generate_dtw_figure(generated_data_sample[:,index], ori_data_sample[:,index], path_to_save_metrics_column, sample_filename)
+        generate_dtw_figure(generated_data_sample[:,index], ori_data_sample[:,index], column_name, path_to_save_metrics_column, sample_filename)
 
 
 def generate_figures_by_column(column_number, column_name, generated_data_sample, ori_data, ori_data_sample,

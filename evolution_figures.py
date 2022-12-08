@@ -2,6 +2,7 @@ import os
 from itertools import cycle
 
 import matplotlib.pyplot as plt
+import numpy
 from datacentertracesdatasets import loadtraces
 import numpy as np
 import pandas
@@ -10,6 +11,12 @@ from tqdm import tqdm
 
 from utils import get_ori_data_sample
 from natsort import natsorted
+
+from dtaidistance import dtw_ndim
+from dtaidistance import dtw_visualisation
+from dtaidistance import dtw
+
+
 
 def create_figure(ori_column_values_array, generated_column_values, axis, name, path_to_save_metrics):
     plt.rcParams["figure.figsize"] = (18, 3)
@@ -51,6 +58,12 @@ def generate_figure_from_df(column_config_param, generated_data_sample_df, ori_d
     plt.close('all')
 
 
+def generate_dtw_figure(generated_data_sample_column, ori_data_sample_column, path_to_save_metrics, sample_filename):
+    path = dtw.warping_path(ori_data_sample_column, generated_data_sample_column )
+    dtw_visualisation.plot_warping(ori_data_sample_column, generated_data_sample_column, path, filename=f'{path_to_save_metrics}dtw_warping-{sample_filename}.pdf')
+    pass
+
+
 def create_usage_evolution(generated_data_sample, generated_data_sample_df, ori_data, ori_data_sample,
                            path_to_save_metrics, sample_filename,
                            dataset_info, generate_deltas):
@@ -64,6 +77,7 @@ def create_usage_evolution(generated_data_sample, generated_data_sample_df, ori_
         generate_figures_by_column(index, column_name, generated_data_sample, ori_data, ori_data_sample,
                                    path_to_save_metrics_column, sample_filename, seq_len,
                                    dataset_info['timestamp_frequency_secs'], column_config, generate_deltas)
+        generate_dtw_figure(generated_data_sample[:,index], ori_data_sample[:,index], path_to_save_metrics_column, sample_filename)
 
 
 def generate_figures_by_column(column_number, column_name, generated_data_sample, ori_data, ori_data_sample,

@@ -9,6 +9,7 @@ import pandas
 from pandas import DataFrame
 from tqdm import tqdm
 
+from metrics.visualization_metrics import visualization
 from utils import get_ori_data_sample
 from natsort import natsorted
 
@@ -171,3 +172,40 @@ def generate_inter_experiment_figures(root_experiment_dir, experiments_dirs, arg
             plot_dataframe[epoch_name] = experiment_dataframe[column_name]
         generate_inter_experiment_column_figure(plot_dataframe, f'inter_experiment-{column_name}', root_experiment_dir,
                                                 dataset_info['column_config'][column_name])
+
+
+def preprocess_dataset_for_tsne_pca(ori_data, seq_len):
+    temp_data = []
+    # Cut data by sequence length
+    for i in range(0, len(ori_data) - seq_len + 1):
+        _x = ori_data[i:i + seq_len]
+        temp_data.append(_x)
+
+    # Mix the datasets (to make it similar to i.i.d)
+    idx = np.random.permutation(len(temp_data))
+    data = []
+    for i in range(len(temp_data)):
+        data.append(temp_data[idx[i]])
+
+    return data
+
+
+def generate_tsne_pca_figures(args_param, directory_name, metrics_list, ori_data):
+    generated_data = []
+    n_samples = 0
+    seq_len = 0
+    for filename in os.listdir(args_param.experiment_dir + '/generated_data'):
+        f = os.path.join(args_param.experiment_dir + '/generated_data', filename)
+        if os.path.isfile(f):  # checking if it is a file
+            n_samples = n_samples + 1
+            generated_data_sample = np.loadtxt(f, delimiter=",")
+            seq_len = len(generated_data_sample)
+            generated_data.append(generated_data_sample)
+
+    ori_data_for_visualization = preprocess_dataset_for_tsne_pca(ori_data, seq_len)
+    if "tsne" in metrics_list:
+        visualization(ori_data=ori_data_for_visualization, generated_data=generated_data, analysis='tsne',
+                      n_samples=n_samples, path_for_saving_images=directory_name)
+    if "pca" in metrics_list:
+        visualization(ori_data=ori_data_for_visualization, generated_data=generated_data, analysis='pca',
+                      n_samples=n_samples, path_for_saving_images=directory_name)

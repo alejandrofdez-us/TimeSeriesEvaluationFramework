@@ -18,7 +18,7 @@ from pathlib import Path
 
 
 
-from evolution_figures import create_usage_evolution, generate_inter_experiment_figures
+from evolution_figures import create_usage_evolution, generate_inter_experiment_figures, generate_tsne_pca_figures
 from metrics.kl import KLDivergenceUnivariate
 from metrics.kl import KLdivergence, JSdistance
 from metrics.metrics import compute_sdv_quality_metrics, compute_sdv_diagnostic_metrics, compute_ks, compute_dtw, \
@@ -98,6 +98,11 @@ def compute_metrics(args_params):
         args_params)
 
     _, _, parameters_dict = extract_experiment_parameters(saved_experiments_parameters)
+
+    if "tsne" in metrics_list or "pca" in metrics_list:
+        generate_tsne_pca_figures(args_params, f'{path_to_save_metrics}/figures/', metrics_list, ori_data)
+        metrics_list.remove("tsne")
+        metrics_list.remove("pca")
 
     avg_results = {}
     metrics_results = initializa_metrics_results_structure(metrics_list, ori_data)
@@ -264,8 +269,10 @@ def initialization(args_params):
     os.makedirs(path_to_save_sdv_figures, exist_ok=True)
 
     if args_params.metrics == 'all':
-        args_params.metrics = 'js,mmd,dtw,kl,ks,cc,cp,hi,evolution_figures,sdv-quality,sdv-diagnostic'
+        args_params.metrics = 'js,mmd,dtw,kl,ks,cc,cp,hi,evolution_figures,tsne,pca,sdv-quality,sdv-diagnostic'
     elif args_params.metrics == 'all-no-sdv':
+        args_params.metrics = 'js,mmd,dtw,kl,ks,cc,cp,hi,evolution_figures,tsne,pca'
+    elif args_params.metrics == 'all-no-sdv-no-tsne-pca':
         args_params.metrics = 'js,mmd,dtw,kl,ks,cc,cp,hi,evolution_figures'
 
     metrics_list = [metric for metric in args_params.metrics.split(',')]
@@ -273,7 +280,7 @@ def initialization(args_params):
     dataset_info = loadtraces.get_dataset_info(trace_name=args_params.trace, trace_type=args_params.trace_type,
                                                stride_seconds=args_params.trace_timestep)
 
-    if (args_params.ori_data_filename):
+    if args_params.ori_data_filename:
         ori_data = np.loadtxt(args_params.ori_data_filename, delimiter=",", skiprows=1)
         ori_data_df = pd.DataFrame(ori_data, columns=dataset_info['column_config'])
     else:

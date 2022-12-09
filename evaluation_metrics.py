@@ -47,9 +47,9 @@ def main(args_params):
                 if args_params.recompute_metrics:
                     experiment_directories_to_be_computed.append(subdir)
                 else:
-                    if not 'evaluation_metrics' in dirs:
+                    if not 'evaluation_metrics_figures' in dirs:
                         experiment_directories_to_be_computed.append(subdir)
-                    elif 'evaluation_metrics' in dirs:
+                    elif 'evaluation_metrics_figures' in dirs:
                         experiment_directories_previously_computed.append(subdir)
         if (experiment_directories_previously_computed):
             print(f'Found previous metrics computations for {len(experiment_directories_previously_computed)} experiments. Skipping.')
@@ -100,7 +100,7 @@ def compute_metrics(args_params):
     _, _, parameters_dict = extract_experiment_parameters(saved_experiments_parameters)
 
     if "tsne" in metrics_list or "pca" in metrics_list:
-        generate_tsne_pca_figures(args_params, f'{path_to_save_metrics}/figures/', metrics_list, ori_data)
+        generate_tsne_pca_figures(args_params, f'{path_to_save_metrics}/', metrics_list, ori_data)
         metrics_list.remove("tsne")
         metrics_list.remove("pca")
 
@@ -163,15 +163,15 @@ def compute_metrics(args_params):
                                                                                                      generated_data_sample_df,
                                                                                                      sample_filename,
                                                                                                      ori_data_df,
-                                                                                                     f'{path_to_save_metrics}figures/sdv')
+                                                                                                     f'{path_to_save_metrics}/sdv')
                 if metric == 'sdv-diagnostic':
                     diagnostic_synthesis, diagnostic_coverage, diagnostic_boundaries = compute_sdv_diagnostic_metrics(
                             dataset_info, generated_data_sample_df,
                             sample_filename, ori_data_df,
-                            f'{path_to_save_metrics}figures/sdv')
+                            f'{path_to_save_metrics}/sdv')
                 if metric == 'evolution_figures' and args_params.only_best_samples_figures > n_files_iteration:
                     create_usage_evolution(generated_data_sample, generated_data_sample_df, ori_data, ori_data_sample,
-                                               path_to_save_metrics + 'figures/',
+                                               path_to_save_metrics,
                                                f'rank-{n_files_iteration}-{sample_filename}', dataset_info, args_params.generate_deltas)
 
             if metric != 'evolution_figures':
@@ -247,8 +247,8 @@ def initializa_metrics_results_structure(metrics_list, ori_data):
 
 
 def initialization(args_params):
-    path_to_save_metrics = args_params.experiment_dir + "/evaluation_metrics/"
-    path_to_save_sdv_figures = path_to_save_metrics + 'figures/sdv/'
+    path_to_save_metrics = args_params.experiment_dir + "/evaluation_metrics_figures/"
+    path_to_save_sdv_figures = path_to_save_metrics + 'sdv/'
     if args_params.recursive and os.path.isfile(args_params.experiment_dir + '/../parameters.txt'):
         parameters_file = open(args_params.experiment_dir + '/../parameters.txt', 'r')
     elif args_params.recursive and os.path.isfile(args_params.experiment_dir + '/../../parameters.txt'):
@@ -264,9 +264,7 @@ def initialization(args_params):
         previously_saved_metrics = metrics_file.readline()
 
     saved_experiments_parameters = parameters_file.readline()
-    os.makedirs(path_to_save_metrics, exist_ok=True)
-    os.makedirs(path_to_save_metrics + '/figures/', exist_ok=True)
-    os.makedirs(path_to_save_sdv_figures, exist_ok=True)
+
 
     if args_params.metrics == 'all':
         args_params.metrics = 'js,mmd,dtw,kl,ks,cc,cp,hi,evolution_figures,tsne,pca,sdv-quality,sdv-diagnostic'
@@ -276,6 +274,10 @@ def initialization(args_params):
         args_params.metrics = 'js,mmd,dtw,kl,ks,cc,cp,hi,evolution_figures'
 
     metrics_list = [metric for metric in args_params.metrics.split(',')]
+    if 'evolution_figures' in metrics_list or 'tsne' in metrics_list or 'pca' in metrics_list:
+        os.makedirs(path_to_save_metrics, exist_ok=True)
+    if 'sdv-quality' in metrics_list or 'sdv-diagnostic' in metrics_list:
+        os.makedirs(path_to_save_sdv_figures, exist_ok=True)
 
     dataset_info = loadtraces.get_dataset_info(trace_name=args_params.trace, trace_type=args_params.trace_type,
                                                stride_seconds=args_params.trace_timestep)

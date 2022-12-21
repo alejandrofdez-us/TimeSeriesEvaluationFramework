@@ -87,19 +87,30 @@ def visualization(ori_data, generated_data, analysis, path_for_saving_images, n_
 
         # TSNE analysis
         perplexity = 40
+        #FIX perplexity when very few samples
         if n_samples < 40:
             perplexity = n_samples
-        tsne_300 = TSNE(n_components=2, verbose=0, perplexity=perplexity, n_iter=300)
-        tsne_results_300 = tsne_300.fit_transform(prep_data_final)
-        tsne_ploting(anal_sample_no, colors, path_for_saving_images, tsne_results_300, 'iter-300')
 
-        tsne_1000 = TSNE(n_components=2, verbose=0, perplexity=perplexity, n_iter=1000)
-        tsne_results_1000 = tsne_1000.fit_transform(prep_data_final)
-        tsne_ploting(anal_sample_no, colors, path_for_saving_images, tsne_results_1000, 'iter-1000')
+        compute_tsne(anal_sample_no, colors, path_for_saving_images, perplexity, prep_data_final, 300, 'iter_300-perplexity_40')
+        compute_tsne(anal_sample_no, colors, path_for_saving_images, perplexity, prep_data_final, 1000, 'iter_1000-perplexity_40')
 
-        tsne_5000 = TSNE(n_components=2, verbose=0, perplexity=perplexity, n_iter=5000)
-        tsne_results_5000 = tsne_5000.fit_transform(prep_data_final)
-        tsne_ploting(anal_sample_no, colors, path_for_saving_images, tsne_results_5000, 'iter-5000')
+        perplexity = 10
+        compute_tsne(anal_sample_no, colors, path_for_saving_images, perplexity, prep_data_final, 300,
+                     'iter_300-perplexity_10')
+        compute_tsne(anal_sample_no, colors, path_for_saving_images, perplexity, prep_data_final, 1000,
+                     'iter_1000-perplexity_10')
+
+        perplexity = 5
+        compute_tsne(anal_sample_no, colors, path_for_saving_images, perplexity, prep_data_final, 300,
+                     'iter_300-perplexity_5')
+        compute_tsne(anal_sample_no, colors, path_for_saving_images, perplexity, prep_data_final, 1000,
+                     'iter_1000-perplexity_5')
+
+
+def compute_tsne(anal_sample_no, colors, path_for_saving_images, perplexity, prep_data_final, iterations, filename):
+    tsne_300 = TSNE(n_components=2, verbose=0, perplexity=perplexity, n_iter=iterations)
+    tsne_results_300 = tsne_300.fit_transform(prep_data_final)
+    tsne_ploting(anal_sample_no, colors, path_for_saving_images, tsne_results_300, filename)
 
 
 def tsne_ploting(anal_sample_no, colors, path_for_saving_images, tsne_results, filename):

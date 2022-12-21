@@ -85,24 +85,31 @@ def visualization(ori_data, generated_data, analysis, path_for_saving_images, n_
         # Do t-SNE Analysis together
         prep_data_final = np.concatenate((prep_data, prep_data_hat), axis=0)
 
-        # TSNE anlaysis
+        # TSNE analysis
         perplexity = 40
         if n_samples < 40:
             perplexity = n_samples
-        tsne = TSNE(n_components=2, verbose=0, perplexity=perplexity, n_iter=300)
-        tsne_results = tsne.fit_transform(prep_data_final)
+        tsne_300 = TSNE(n_components=2, verbose=0, perplexity=perplexity, n_iter=300)
+        tsne_results_300 = tsne_300.fit_transform(prep_data_final)
+        tsne_ploting(anal_sample_no, colors, path_for_saving_images, tsne_results_300, 'iter-300')
 
-        # Plotting
-        f, ax = plt.subplots(1)
+        tsne_1000 = TSNE(n_components=2, verbose=0, perplexity=perplexity, n_iter=1000)
+        tsne_results_1000 = tsne_1000.fit_transform(prep_data_final)
+        tsne_ploting(anal_sample_no, colors, path_for_saving_images, tsne_results_1000, 'iter-1000')
 
-        plt.scatter(tsne_results[:anal_sample_no, 0], tsne_results[:anal_sample_no, 1],
-                    c=colors[:anal_sample_no], alpha=0.2, label="Original")
-        plt.scatter(tsne_results[anal_sample_no:, 0], tsne_results[anal_sample_no:, 1],
-                    c=colors[anal_sample_no:], alpha=0.2, label="Synthetic")
+        tsne_5000 = TSNE(n_components=2, verbose=0, perplexity=perplexity, n_iter=5000)
+        tsne_results_5000 = tsne_5000.fit_transform(prep_data_final)
+        tsne_ploting(anal_sample_no, colors, path_for_saving_images, tsne_results_5000, 'iter-5000')
 
-        ax.legend()
 
-        plt.title('t-SNE plot')
-        plt.xlabel('x-tsne')
-        plt.ylabel('y_tsne')
-        plt.savefig(path_for_saving_images + '/t-SNE.png')
+def tsne_ploting(anal_sample_no, colors, path_for_saving_images, tsne_results, filename):
+    f, ax = plt.subplots(1)
+    plt.scatter(tsne_results[:anal_sample_no, 0], tsne_results[:anal_sample_no, 1],
+                c=colors[:anal_sample_no], alpha=0.2, label="Original")
+    plt.scatter(tsne_results[anal_sample_no:, 0], tsne_results[anal_sample_no:, 1],
+                c=colors[anal_sample_no:], alpha=0.2, label="Synthetic")
+    ax.legend()
+    plt.title(f't-SNE plot {filename}')
+    plt.xlabel('x-tsne')
+    plt.ylabel('y_tsne')
+    plt.savefig(f'{path_for_saving_images}/t-SNE-{filename}.png')

@@ -8,3 +8,4 @@ scipy
 tqdm
 natsort
 kaleido
+scikit-learn

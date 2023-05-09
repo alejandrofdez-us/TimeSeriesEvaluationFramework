@@ -2,7 +2,6 @@ import os
 from itertools import cycle
 
 import matplotlib.pyplot as plt
-import numpy
 from datacentertracesdatasets import loadtraces
 import numpy as np
 import pandas
@@ -15,7 +14,6 @@ from natsort import natsorted
 
 from dtaidistance import dtw_visualisation
 from dtaidistance import dtw
-
 
 
 def create_figure(ori_column_values_array, generated_column_values, axis, name, path_to_save_metrics):
@@ -43,10 +41,11 @@ def create_figure(ori_column_values_array, generated_column_values, axis, name, 
 
 
 def generate_figure_from_df(column_config_param, generated_data_sample_df, ori_data_sample, sample_filename, path):
-    ori_data_sample_df = pandas.DataFrame(ori_data_sample, columns = [f'{column_name}_original' for column_name in generated_data_sample_df.columns])
+    ori_data_sample_df = pandas.DataFrame(ori_data_sample, columns=[f'{column_name}_original' for column_name in
+                                                                    generated_data_sample_df.columns])
     plt.rcParams["figure.figsize"] = (18, 3)
     plt.figure()
-    ax=generated_data_sample_df.plot()
+    ax = generated_data_sample_df.plot()
     ori_data_sample_df.plot(ax=ax, style='--', color='darkgrey')
     plt.xlim([0, generated_data_sample_df.shape[0]])
     plt.legend(loc='best')
@@ -58,17 +57,21 @@ def generate_figure_from_df(column_config_param, generated_data_sample_df, ori_d
     plt.close('all')
 
 
-def generate_dtw_figure(generated_data_sample_column, ori_data_sample_column, column_name, path_to_save_metrics, sample_filename):
-    path = dtw.warping_path(ori_data_sample_column, generated_data_sample_column )
-    dtw_visualisation.plot_warping(ori_data_sample_column, generated_data_sample_column, path, filename=f'{path_to_save_metrics}{column_name}-dtw_warping-{sample_filename}.pdf')
+def generate_dtw_figure(generated_data_sample_column, ori_data_sample_column, column_name, path_to_save_metrics,
+                        sample_filename):
+    path = dtw.warping_path(ori_data_sample_column, generated_data_sample_column)
+    dtw_visualisation.plot_warping(ori_data_sample_column, generated_data_sample_column, path,
+                                   filename=f'{path_to_save_metrics}{column_name}-dtw_warping-{sample_filename}.pdf')
     pass
+
 
 def create_usage_evolution(generated_data_sample, generated_data_sample_df, ori_data, ori_data_sample,
                            path_to_save_metrics, sample_filename,
                            dataset_info, generate_deltas):
     seq_len = len(ori_data_sample[:, 0])
     column_configs = dataset_info['column_config'].items()
-    generate_figure_from_df(column_configs, generated_data_sample_df, ori_data_sample, sample_filename, path_to_save_metrics)
+    generate_figure_from_df(column_configs, generated_data_sample_df, ori_data_sample, sample_filename,
+                            path_to_save_metrics)
     for column_name, column_config in column_configs:
         index = column_config['column_index']
         path_to_save_metrics_column = path_to_save_metrics + '/' + column_name + '/'
@@ -76,11 +79,13 @@ def create_usage_evolution(generated_data_sample, generated_data_sample_df, ori_
         generate_figures_by_column(index, column_name, generated_data_sample, ori_data, ori_data_sample,
                                    path_to_save_metrics_column, sample_filename, seq_len,
                                    dataset_info['timestamp_frequency_secs'], column_config, generate_deltas)
-        generate_dtw_figure(generated_data_sample[:,index], ori_data_sample[:,index], column_name, path_to_save_metrics_column, sample_filename)
+        generate_dtw_figure(generated_data_sample[:, index], ori_data_sample[:, index], column_name,
+                            path_to_save_metrics_column, sample_filename)
 
 
 def generate_figures_by_column(column_number, column_name, generated_data_sample, ori_data, ori_data_sample,
-                               path_to_save_metrics, sample_filename, seq_len, timestamp_frequency_secs, column_config, generate_deltas):
+                               path_to_save_metrics, sample_filename, seq_len, timestamp_frequency_secs, column_config,
+                               generate_deltas):
     if 'y_axis_min' in column_config and 'y_axis_max' in column_config:
         axis = [0, seq_len, column_config['y_axis_min'], column_config['y_axis_max']]
     else:
@@ -160,9 +165,9 @@ def generate_inter_experiment_figures(root_experiment_dir, experiments_dirs, arg
 
     experiments_dirs = natsorted(experiments_dirs)
 
-    for dir in experiments_dirs:
-        data_frames[dir] = pandas.read_csv(f'{dir}/generated_data/sample_0.csv',
-                                           names=list(dataset_info['column_config'].keys()))
+    for directory in experiments_dirs:
+        data_frames[directory] = pandas.read_csv(f'{directory}/generated_data/sample_0.csv',
+                                                 names=list(dataset_info['column_config'].keys()))
 
     for column_name in tqdm(dataset_info['column_config'], desc='Generating inter-experiments figures'):
         plot_dataframe = DataFrame()
@@ -189,6 +194,7 @@ def preprocess_dataset_for_tsne_pca(ori_data, seq_len):
     return data
 
 
+# TODO: Divide in two separate functions, one for generating tsne and other for generating pca
 def generate_tsne_pca_figures(args_param, directory_name, metrics_list, ori_data):
     generated_data = []
     n_samples = 0

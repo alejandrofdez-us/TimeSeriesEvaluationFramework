@@ -16,11 +16,10 @@ from tqdm import tqdm
 import multiprocessing
 from pathlib import Path
 
-
-
 from evolution_figures import create_usage_evolution, generate_inter_experiment_figures, generate_tsne_pca_figures
-from metrics.kl import KLDivergenceUnivariate
-from metrics.kl import KLdivergence, JSdistance
+from metrics.js import js_distance
+from metrics.kl import kl_divergence_univariate
+from metrics.kl import kl_divergence
 from metrics.metrics import compute_sdv_quality_metrics, compute_sdv_diagnostic_metrics, compute_ks, compute_dtw, \
     compute_cp, compute_cc, compute_hi, compute_js
 from metrics.mmd import mmd_rbf
@@ -30,10 +29,8 @@ from utils import split_ori_data_strided, get_most_similar_ori_data_sample, \
 
 from concurrent.futures import ProcessPoolExecutor
 
-MAX_WORKERS = int(ProcessPoolExecutor()._max_workers/2)
+MAX_WORKERS = int(ProcessPoolExecutor()._max_workers / 2)
 CHUNK_SIZE = 1
-
-
 
 
 def main(args_params):
@@ -51,8 +48,9 @@ def main(args_params):
                         experiment_directories_to_be_computed.append(subdir)
                     elif 'evaluation_metrics_figures' in dirs:
                         experiment_directories_previously_computed.append(subdir)
-        if (experiment_directories_previously_computed):
-            print(f'Found previous metrics computations for {len(experiment_directories_previously_computed)} experiments. Skipping.')
+        if experiment_directories_previously_computed:
+            print(
+                f'Found previous metrics computations for {len(experiment_directories_previously_computed)} experiments. Skipping.')
 
         experiment_directories_to_be_computed = natsorted(experiment_directories_to_be_computed)
         experiment_directories_previously_computed = natsorted(experiment_directories_previously_computed)
@@ -75,12 +73,14 @@ def main(args_params):
                             saved_experiment_parameters)
                         if not is_header_printed:
                             print_csv_header(experiment_results_file_name, parameters_keys, saved_metrics)
-                            print_previously_computed_experiments_metrics(experiment_directories_previously_computed,experiment_results_file_name)
+                            print_previously_computed_experiments_metrics(experiment_directories_previously_computed,
+                                                                          experiment_results_file_name)
                             is_header_printed = True
 
                         print_csv_result_row(experiment_dir_name, experiment_results_file_name, metrics_values,
                                              parameters_values)
-                        results_progress_bar.set_description(f'Saved metrics of {Path(*Path(experiment_dir_name).parts[-3:])}')
+                        results_progress_bar.set_description(
+                            f'Saved metrics of {Path(*Path(experiment_dir_name).parts[-3:])}')
             except Exception as e:
                 print('Error computing experiment dir:', args_params.experiment_dir)
                 print(e)
@@ -130,16 +130,16 @@ def compute_metrics(args_params):
                         compute_dtw(generated_data_sample[:, column].reshape(-1, 1),
                                     ori_data_sample[:, column].reshape(-1, 1)))
             if metric == 'kl':
-                computed_metric = KLdivergence(ori_data_sample, generated_data_sample)
+                computed_metric = kl_divergence(ori_data_sample, generated_data_sample)
                 for column in range(generated_data_sample.shape[1]):
                     metrics_results[metric + '-' + str(column)].append(
-                        KLDivergenceUnivariate(ori_data_sample[:, column].reshape(-1, 1),
+                        kl_divergence_univariate(ori_data_sample[:, column].reshape(-1, 1),
                                                generated_data_sample[:, column].reshape(-1, 1))[0])
             if metric == 'js':
                 computed_metric = compute_js(ori_data_sample, generated_data_sample)
                 for column in range(generated_data_sample.shape[1]):
                     metrics_results[metric + '-' + str(column)].append(
-                        JSdistance(ori_data_sample[:, column].reshape(-1, 1),
+                        js_distance(ori_data_sample[:, column].reshape(-1, 1),
                                    generated_data_sample[:, column].reshape(-1, 1)))
             if metric == 'ks':
                 computed_metric = compute_ks(generated_data_sample, ori_data_sample)
@@ -166,13 +166,14 @@ def compute_metrics(args_params):
                                                                                                      f'{path_to_save_metrics}/sdv')
                 if metric == 'sdv-diagnostic':
                     diagnostic_synthesis, diagnostic_coverage, diagnostic_boundaries = compute_sdv_diagnostic_metrics(
-                            dataset_info, generated_data_sample_df,
-                            sample_filename, ori_data_df,
-                            f'{path_to_save_metrics}/sdv')
+                        dataset_info, generated_data_sample_df,
+                        sample_filename, ori_data_df,
+                        f'{path_to_save_metrics}/sdv')
                 if metric == 'evolution_figures' and args_params.only_best_samples_figures > n_files_iteration:
                     create_usage_evolution(generated_data_sample, generated_data_sample_df, ori_data, ori_data_sample,
-                                               path_to_save_metrics,
-                                               f'rank-{n_files_iteration}-{sample_filename}', dataset_info, args_params.generate_deltas)
+                                           path_to_save_metrics,
+                                           f'rank-{n_files_iteration}-{sample_filename}', dataset_info,
+                                           args_params.generate_deltas)
 
             if metric != 'evolution_figures':
                 if metric != 'sdv-diagnostic':
@@ -264,7 +265,6 @@ def initialization(args_params):
         previously_saved_metrics = metrics_file.readline()
 
     saved_experiments_parameters = parameters_file.readline()
-
 
     if args_params.metrics == 'all':
         args_params.metrics = 'js,mmd,dtw,kl,ks,cc,cp,hi,evolution_figures,tsne,pca,sdv-quality,sdv-diagnostic'

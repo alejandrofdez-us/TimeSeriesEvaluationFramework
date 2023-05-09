@@ -2,10 +2,9 @@
 import sys
 
 import numpy as np
-import math
 
 
-def KLDivergenceUnivariate(array_1, array_2, range_values=None, num_bins=10):
+def kl_divergence_univariate(array_1, array_2, range_values=None, num_bins=10):
     # smoothing implementes as per https://www.cs.bgu.ac.il/~elhadad/nlp09/KL.html
     # pc = eps*|SU-SP|/|SP| and qc = eps*|SU-SQ|/|SQ|.
     # eps=0.0001
@@ -33,19 +32,7 @@ def KLDivergenceUnivariate(array_1, array_2, range_values=None, num_bins=10):
     return KL_p_m, KL_q_m
 
 
-def JSdistance(array_1, array_2, num_bins=100):
-    KL_p_m, KL_q_m = KLDivergenceUnivariate(array_1, array_2, num_bins=num_bins)
-    JS_p_q = (KL_p_m + KL_q_m) / 2
-    return JS_p_q
-
-
-def JSdistanceMultivariate(array_1, array_2):
-    kl_diverenge_1 = KLdivergence(array_1, array_2)
-    kl_diverenge_2 = KLdivergence(array_2, array_1)
-    return (kl_diverenge_1 + kl_diverenge_2) / 2
-
-
-def KLdivergence(x, y):
+def kl_divergence(x, y):
     """Compute the Kullback-Leibler divergence between two multivariate samples.
 
   Parameters

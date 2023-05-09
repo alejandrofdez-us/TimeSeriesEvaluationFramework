@@ -5,6 +5,7 @@ import re
 from dtaidistance import dtw_ndim
 import numpy as np
 
+
 def get_ori_data_sample(seq_len, ori_data):
     if len(ori_data) > seq_len:
         ori_data_sample_start = random.randrange(0, len(ori_data) - seq_len)
@@ -111,4 +112,5 @@ def print_previously_computed_experiments_metrics(experiment_directories_previou
                     composed_results_file.write(results_row)
             except Exception as e:
                 print(
-                    f'Previous csv result could not be retrieved from {dir_name}/time-series-framework-metrics.csv. Details: {e}')
+                    f'Previous csv result could not be retrieved from {dir_name}/time-series-framework-metrics.csv. '
+                    f'Details: {e}')

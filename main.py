@@ -13,6 +13,7 @@ def main(time_series1, time_series2, metrics):
     # TODO: Pensar si computar las métricas comparando columna a columna y no su version multivariate
     # TODO: Pensar como  guardar los resultados (consola o fichero y formato csv? json? html? varios?), pedirle al
     #  usuario nombre de fichero resultante y que por defecto sea algo así como results.csv
+    # TODO: ver si hay alguna manera de empaquetarlo para que no necesite instalar los requirements.txt
 
 
 if __name__ == '__main__':

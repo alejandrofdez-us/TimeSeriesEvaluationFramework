@@ -4,8 +4,6 @@ import re
 
 from dtaidistance import dtw_ndim
 import numpy as np
-from tqdm import tqdm
-
 
 def get_ori_data_sample(seq_len, ori_data):
     if len(ori_data) > seq_len:

@@ -13,7 +13,6 @@ from metrics.visualization_metrics import visualization
 from utils import get_ori_data_sample
 from natsort import natsorted
 
-from dtaidistance import dtw_ndim
 from dtaidistance import dtw_visualisation
 from dtaidistance import dtw
 

@@ -10,12 +10,13 @@ from tqdm import tqdm
 def get_ori_data_sample(seq_len, ori_data):
     if len(ori_data) > seq_len:
         ori_data_sample_start = random.randrange(0, len(ori_data) - seq_len)
-    else: # seq_len is the full ori_data_length
+    else:  # seq_len is the full ori_data_length
         ori_data_sample_start = 0
 
     ori_data_sample_end = ori_data_sample_start + seq_len
     ori_data_sample = ori_data[ori_data_sample_start:ori_data_sample_end]
     return ori_data_sample
+
 
 def get_most_similar_ori_data_sample(ori_data_windows_numpy, generated_data_sample):
     minimum_dtw = float('inf')
@@ -25,8 +26,8 @@ def get_most_similar_ori_data_sample(ori_data_windows_numpy, generated_data_samp
         if current_distance < minimum_dtw:
             minimum_dtw = current_distance
             most_similar_sample = ori_data_sample
-
     return most_similar_sample, minimum_dtw
+
 
 def split_ori_data_strided(ori_data_df, seq_len, stride):
     assert seq_len <= ori_data_df.shape[0], 'seq_len cannot be greater than the original dataset length'
@@ -34,8 +35,10 @@ def split_ori_data_strided(ori_data_df, seq_len, stride):
         ori_data_windows_numpy = np.array([ori_data_df])
     else:
         start_sequence_range = list(range(0, ori_data_df.shape[0] - seq_len, stride))
-        ori_data_windows_numpy = np.array([ori_data_df[start_index:start_index+seq_len] for start_index in start_sequence_range])
+        ori_data_windows_numpy = np.array(
+            [ori_data_df[start_index:start_index + seq_len] for start_index in start_sequence_range])
     return ori_data_windows_numpy
+
 
 def normalize_start_time_to_zero(sample):
     timestamp_column = sample[:, 0]
@@ -47,7 +50,9 @@ def normalize_start_time_to_zero(sample):
 
 def extract_experiment_parameters(saved_experiment_parameters):
     saved_experiment_parameters_dict = dict(
-        item.split("=") for item in re.split(', (?![^\[]*\])', saved_experiment_parameters.replace('Namespace(', '').replace('Parameters(', '').replace(')', '').replace('\n', '')))
+        item.split("=") for item in re.split(', (?![^\[]*\])',
+                                             saved_experiment_parameters.replace('Namespace(', '').replace(
+                                                 'Parameters(', '').replace(')', '').replace('\n', '')))
     parameters_values = ''
     parameters_keys = ''
     for parameter_value in saved_experiment_parameters_dict.values():
@@ -81,7 +86,7 @@ def save_metrics(avg_results, metrics_results, path_to_save_metrics, saved_exper
 def results_for_excel(avg_results):
     metrics_values = ''
     computed_metrics = ''
-    for metric_name,avg_result in avg_results.items():
+    for metric_name, avg_result in avg_results.items():
         computed_metrics += metric_name + ';'
         metrics_values += str(avg_result).replace('.', ',') + ';'
 
@@ -107,4 +112,5 @@ def print_previously_computed_experiments_metrics(experiment_directories_previou
                     results_row = previously_computed_metrics.readlines()[1]
                     composed_results_file.write(results_row)
             except Exception as e:
-                print(f'Previous csv result could not be retrieved from {dir_name}/time-series-framework-metrics.csv. Details: {e}')
+                print(
+                    f'Previous csv result could not be retrieved from {dir_name}/time-series-framework-metrics.csv. Details: {e}')

@@ -13,7 +13,7 @@ from functools import partialmethod
 
 def compute_sdv_quality_metrics(dataset_info, generated_data_sample_df, n_files_iteration, ori_data_df,
                                 path_to_save_sdv_quality_figures):
-    # silence the tqdm
+    # trying to silence the tqdm.
     tqdm.__init__ = partialmethod(tqdm.__init__, disable=True)
 
     report = QualityReport()

@@ -1,3 +1,4 @@
+from plots.dtw import generate_dtw_figures
 from metrics.cc import cc
 from metrics.cp import cp
 from metrics.dtw import compute_dtw
@@ -37,6 +38,7 @@ def get_metrics_functions():
     }
     return metric_functions
 
+
 # def get_metrics_functions_by_columns ():
 #     metric_functions = {
 #         'mmd': lambda ts_1, ts_2: mmd_rbf(ts_1, ts_2),
@@ -49,3 +51,24 @@ def get_metrics_functions():
 #         'hi': lambda ts_1, ts_2: compute_hi(ts_1, ts_2)
 #     }
 #     return metric_functions
+
+def generate_figures(time_series_1, time_series_2, figures_to_be_generated):
+    generated_figures = {}
+    for figure_to_be_generated in figures_to_be_generated:
+        generated_figures[figure_to_be_generated] = generate_figure(time_series_1, time_series_2,
+                                                                    figure_to_be_generated)
+
+    return generated_figures
+
+
+def generate_figure(time_series_1, time_series_2, figure_to_be_generated):
+    figure_function = get_figures_functions()
+    generated_figures = figure_function[figure_to_be_generated](time_series_1, time_series_2)
+    return generated_figures
+
+
+def get_figures_functions():
+    figures_functions = {
+        'dtw': lambda ts_1, ts_2: generate_dtw_figures(ts_1, ts_2)
+    }
+    return figures_functions

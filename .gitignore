@@ -130,3 +130,5 @@ dmypy.json
 
 experiments/
 /tests/
+*.pdf
+.vscode

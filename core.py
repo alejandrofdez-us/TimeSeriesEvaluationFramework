@@ -7,6 +7,21 @@ from metrics.js import js_distance_multivariate
 from metrics.kl import kl_divergence
 from metrics.ks import ks
 from metrics.mmd import mmd_rbf
+import numpy as np
+
+
+def csv_has_header(filename):
+    # TODO: ver si tiene header o no comprobando si en la primera fila hay algun valor númerico (por ejemplo cadenas mezcladas con números, en ese caso NO es fila de cabecera)
+    np_array = np.loadtxt(filename, delimiter=",", max_rows=1)
+
+    return False
+
+
+def load_ts_from_csv(filename, has_header=None):
+    if has_header is None:
+        has_header = csv_has_header(filename)
+    skiprows = 1 if has_header else 0
+    return np.loadtxt(filename, delimiter=",", skiprows=skiprows)
 
 
 def compute_metrics(time_series_1, time_series_2, metrics_to_be_computed):

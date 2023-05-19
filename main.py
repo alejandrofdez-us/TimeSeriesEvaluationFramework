@@ -1,16 +1,13 @@
 import argparse
-import numpy as np
-from core import compute_metrics, generate_figures
-from dtaidistance import dtw
+import distutils
+from core import compute_metrics, generate_figures, load_ts_from_csv
 
 
 def main(arguments):
-    dtw.try_import_c()
-    ts1 = np.loadtxt(arguments.time_series_1_filename, delimiter=",", skiprows=1)
-    ts2 = np.loadtxt(arguments.time_series_2_filename, delimiter=",", skiprows=1)
+    ts1 = load_ts_from_csv(arguments.time_series_1_filename, arguments.header)
+    ts2 = load_ts_from_csv(arguments.time_series_2_filename, arguments.header)
 
     try:
-        # DONE ✓ TODO: Comprobar que ambas series temporales tienen el mismo número de variables (columnas)
         if ts1.shape[1] != ts2.shape[1]:
             raise ValueError("Both time series must have the same number of columns.")
 
@@ -21,8 +18,8 @@ def main(arguments):
             figures = generate_figures(ts1, ts2, arguments.figures)
         save_figures(figures)
 
-    except Exception as e:
-        print("Error: ", e)
+    except Exception as error:
+        print("Error: ", error)
 
     # TODO: Incorporar las figuras de manera parecida a como hemos hecho con las métricas númericas
     # TODO: Pensar si computar las métricas comparando columna a columna y no su version multivariate
@@ -74,9 +71,17 @@ if __name__ == "__main__":
         "-f",
         "--figures",
         nargs="+",
-        help="<Required> Include figure names to be generated as a list separated by spaces.",
+        help="<Optional> Include figure names to be generated as a list separated by spaces.",
         choices=["tsne", "pca", "dtw", "evolution", "deltas"],
         required=False,
+    )
+
+    parser.add_argument(
+        "-head",
+        "--header",
+        help="<Optional> If the time-series include a header row.",
+        required=False,
+        type=lambda x: bool(distutils.util.strtobool(str(x))),
     )
 
     args = parser.parse_args()

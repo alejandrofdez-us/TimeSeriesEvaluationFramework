@@ -1,24 +1,31 @@
+import os
 import argparse
-import distutils
 from core import compute_metrics, generate_figures, load_ts_from_csv
 
 
 def main(arguments):
-    ts1 = load_ts_from_csv(arguments.time_series_1_filename, arguments.header)
-    ts2 = load_ts_from_csv(arguments.time_series_2_filename, arguments.header)
-
     try:
+        ts1, header_ts1 = load_ts_from_csv(
+            arguments.time_series_1_filename, arguments.header
+        )
+        ts2, header_ts2 = load_ts_from_csv(
+            arguments.time_series_2_filename, arguments.header
+        )
+
         if ts1.shape[1] != ts2.shape[1]:
             raise ValueError("Both time series must have the same number of columns.")
+
+        elif header_ts1 != header_ts2:
+            raise ValueError("Both time series must have the same header column names.")
 
         computed_metrics = compute_metrics(ts1, ts2, arguments.metrics)
         print(computed_metrics)
 
         if arguments.figures:
-            figures = generate_figures(ts1, ts2, arguments.figures)
+            figures = generate_figures(ts1, ts2, header_ts1, arguments.figures)
         save_figures(figures)
 
-    except Exception as error:
+    except ValueError as error:
         print("Error: ", error)
 
     # TODO: Incorporar las figuras de manera parecida a como hemos hecho con las métricas númericas
@@ -26,19 +33,22 @@ def main(arguments):
     # TODO: Pensar como  guardar los resultados (consola o fichero y formato csv? json? html? varios?), pedirle al
     #  usuario nombre de fichero resultante y que por defecto sea algo así como results.csv
     # ? TODO: ver si hay alguna manera de empaquetarlo para que no necesite instalar los requirements.txt -> Que necesitamos empaquetar?
+    # Deberiamos especificar el path de guardado de las figuras?
 
 
-def save_figures(figures_dict, path="/figures"):
+def save_figures(figures_dict, path="figures"):
     for figure_name, figures in figures_dict.items():
-        # DONE ? TODO: Comprobar si en cada clave del diccionario tenemos un array de figuras (por ejemplo dtw) o bien una única figura (PCA) -> nos llega un array con una figura?
-        if isinstance(figures, list):
-            i = 0
-            for figure in figures:
-                figure[0].savefig(f"{i}-{figure_name}.pdf", format="pdf")
-                i = i + 1
+        i = 0
+        for figure in figures:
+            figure_label = figure[0].axes[0].get_title()
+            file_label = i if figure_label == "" else figure_label
+            os.makedirs(f"{path}/{figure_name}", exist_ok=True)
 
-        else:
-            figure.savefig(f"{i}-{figure_name}.pdf", format="pdf")
+            figure[0].savefig(
+                f"{path}/{figure_name}/{file_label}.pdf",
+                format="pdf",
+            )
+            i = i + 1
 
 
 if __name__ == "__main__":
@@ -79,9 +89,9 @@ if __name__ == "__main__":
     parser.add_argument(
         "-head",
         "--header",
-        help="<Optional> If the time-series include a header row.",
+        help="<Optional> If the time-series includes a header row.",
         required=False,
-        type=lambda x: bool(distutils.util.strtobool(str(x))),
+        action="store_true",
     )
 
     args = parser.parse_args()

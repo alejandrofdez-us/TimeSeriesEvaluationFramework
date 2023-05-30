@@ -60,7 +60,8 @@ def visualization(ori_data, generated_data, analysis, path_for_saving_images, n_
 
     if analysis == 'pca':
         # PCA Analysis
-        pca = PCA(n_components=2)
+        pca = PCA(
+            n_components=2)  # TODO: Felipe, cuando lances esto mira a ver si esto es el número de componentes final al que llevar cada dataset.
         pca.fit(prep_data)
         pca_results = pca.transform(prep_data)
         pca_hat_results = pca.transform(prep_data_hat)
@@ -75,7 +76,7 @@ def visualization(ori_data, generated_data, analysis, path_for_saving_images, n_
         ax.legend()
         plt.title('PCA plot')
         plt.xlabel('x-pca')
-        plt.ylabel('y_pca')
+        plt.ylabel('y_pca')  # TODO: guión alto o bajo en ambos labels
         plt.savefig(path_for_saving_images + '/PCA.png')
 
 
@@ -87,12 +88,14 @@ def visualization(ori_data, generated_data, analysis, path_for_saving_images, n_
 
         # TSNE analysis
         perplexity = 40
-        #FIX perplexity when very few samples
+        # FIX perplexity when very few samples
         if n_samples < 40:
             perplexity = n_samples
 
-        compute_tsne(anal_sample_no, colors, path_for_saving_images, perplexity, prep_data_final, 300, 'iter_300-perplexity_40')
-        compute_tsne(anal_sample_no, colors, path_for_saving_images, perplexity, prep_data_final, 1000, 'iter_1000-perplexity_40')
+        compute_tsne(anal_sample_no, colors, path_for_saving_images, perplexity, prep_data_final, 300,
+                     'iter_300-perplexity_40')
+        compute_tsne(anal_sample_no, colors, path_for_saving_images, perplexity, prep_data_final, 1000,
+                     'iter_1000-perplexity_40')
 
         perplexity = 10
         compute_tsne(anal_sample_no, colors, path_for_saving_images, perplexity, prep_data_final, 300,

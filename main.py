@@ -41,19 +41,20 @@ def save_figures(figures_dict, path="figures"):
         i = 0
         for figure in figures:
             figure_label = figure[0].axes[0].get_title()
-            file_label = i if figure_label == "" else figure_label
+            file_label = i if figure_label == "" else figure_label  # TODO:  si no tiene cabecera llamarlo column-0, column-1, etc. f"column-{i}"
             os.makedirs(f"{path}/{figure_name}", exist_ok=True)
 
             figure[0].savefig(
                 f"{path}/{figure_name}/{file_label}.pdf",
                 format="pdf",
             )
-            i = i + 1
+            i = i + 1  # TODO: intentar "ocultar" el contador
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         usage="python main.py -ts1 path_to_file_1 -ts2 path_to_file_2 --metrics js mmd... [--figures] tsne pca..."
+        # TODO: Actualizar este tip, indicando que --header sin valor a continuación se entiende como true.
     )
     parser.add_argument(
         "-ts1",

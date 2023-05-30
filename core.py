@@ -17,7 +17,14 @@ def csv_has_header(filename, ts_delimiter, has_header):
             filename, delimiter=ts_delimiter, names=has_header, max_rows=1
         ).dtype.names
         for column in header:
-            if any(char.isdigit() for char in str(column)):
+            if any(char.isdigit() for char in
+                   str(column)):
+                # TODO: las cabeceras podrían aceptar algún dígito en cada nombre de columna, lo que tendríamos que superisar es que creamos estar leyendo una cabecera que en realidad no lo es, sino que son valores. Lo que no parece admisible  es que una columna sea sólo un valor númerico.
+                # status, 222, value2, color
+                # online, 123, 99.9, green
+                # offline, 444, 887,9, blue
+                # idle,  6677, 77.8, black
+
                 raise ValueError("Header must not contain numbers.")
 
     else:
@@ -29,7 +36,8 @@ def csv_has_header(filename, ts_delimiter, has_header):
 
 def detect_line_delimiter(filename):
     with open(filename, "r", newline="") as file:
-        ts_delimiter = csv.Sniffer().sniff(file.read(1024)).delimiter
+        ts_delimiter = csv.Sniffer().sniff(file.read(
+            1024)).delimiter  # TODO: Podríamos eliminar este valor? No me gusta mucho tener valores en código sin una justificación.
 
     return ts_delimiter
 
@@ -109,7 +117,7 @@ def generate_figure(time_series_1, time_series_2, header, figure_to_be_generated
     return generated_figures
 
 
-def get_figures_functions():
+def get_figures_functions():  # TODO: cuando las funciones
     figures_functions = {
         "dtw": lambda ts_1, ts_2, header: generate_dtw_figures(ts_1, ts_2, header)
     }

@@ -60,8 +60,7 @@ def visualization(ori_data, generated_data, analysis, path_for_saving_images, n_
 
     if analysis == 'pca':
         # PCA Analysis
-        pca = PCA(
-            n_components=2)  # TODO: Felipe, cuando lances esto mira a ver si esto es el número de componentes final al que llevar cada dataset.
+        pca = PCA(n_components=2)
         pca.fit(prep_data)
         pca_results = pca.transform(prep_data)
         pca_hat_results = pca.transform(prep_data_hat)
@@ -75,8 +74,8 @@ def visualization(ori_data, generated_data, analysis, path_for_saving_images, n_
 
         ax.legend()
         plt.title('PCA plot')
-        plt.xlabel('x-pca')
-        plt.ylabel('y_pca')  # TODO: guión alto o bajo en ambos labels
+        plt.xlabel('x_pca')
+        plt.ylabel('y_pca')
         plt.savefig(path_for_saving_images + '/PCA.png')
 
 

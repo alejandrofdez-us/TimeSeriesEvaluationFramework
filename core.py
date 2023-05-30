@@ -9,35 +9,32 @@ from metrics.ks import ks
 from metrics.mmd import mmd_rbf
 import numpy as np
 import csv
+import re
 
 
 def csv_has_header(filename, ts_delimiter, has_header):
     if has_header:
-        header = np.genfromtxt(
-            filename, delimiter=ts_delimiter, names=has_header, max_rows=1
-        ).dtype.names
-        for column in header:
-            if any(char.isdigit() for char in
-                   str(column)):
-                # TODO: las cabeceras podrían aceptar algún dígito en cada nombre de columna, lo que tendríamos que superisar es que creamos estar leyendo una cabecera que en realidad no lo es, sino que son valores. Lo que no parece admisible  es que una columna sea sólo un valor númerico.
-                # status, 222, value2, color
-                # online, 123, 99.9, green
-                # offline, 444, 887,9, blue
-                # idle,  6677, 77.8, black
+        header = np.genfromtxt(filename, delimiter=ts_delimiter, names=has_header, max_rows=1, dtype=str).dtype.names
 
-                raise ValueError("Header must not contain numbers.")
+        if header_has_numeric(header):
+            raise ValueError("Header must not contain numeric values.")
 
     else:
         header = np.loadtxt(filename, delimiter=ts_delimiter, max_rows=1)
-        header = ["" for _ in range(len(header))]
+        header = ["column-"+str(i) for i in range(len(header))]
 
     return header
 
+def header_has_numeric(header):
+    pattern = r'^[-+]?\d*\.?\d+$'
+    for column in header:
+        if re.match(pattern, column):
+            return True
+    return False
 
 def detect_line_delimiter(filename):
     with open(filename, "r", newline="") as file:
-        ts_delimiter = csv.Sniffer().sniff(file.read(
-            1024)).delimiter  # TODO: Podríamos eliminar este valor? No me gusta mucho tener valores en código sin una justificación.
+        ts_delimiter = csv.Sniffer().sniff(file.readline()).delimiter
 
     return ts_delimiter
 

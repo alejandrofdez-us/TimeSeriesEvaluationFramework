@@ -5,10 +5,10 @@ from core import compute_metrics, generate_figures, load_ts_from_csv
 
 def main(arguments):
     try:
-        ts1, header_ts1 = load_ts_from_csv(
+        ts1, header_ts1, ts_delimiter = load_ts_from_csv(
             arguments.time_series_1_filename, arguments.header
         )
-        ts2, header_ts2 = load_ts_from_csv(
+        ts2, header_ts2, _ = load_ts_from_csv(
             arguments.time_series_2_filename, arguments.header
         )
 
@@ -22,7 +22,7 @@ def main(arguments):
         print(computed_metrics)
 
         if arguments.figures:
-            figures = generate_figures(ts1, ts2, header_ts1, arguments.figures)
+            figures = generate_figures(ts1, ts2, header_ts1, arguments.figures, ts_delimiter)
         save_figures(figures)
 
     except ValueError as error:
@@ -33,7 +33,6 @@ def main(arguments):
     # TODO: Pensar como  guardar los resultados (consola o fichero y formato csv? json? html? varios?), pedirle al
     #  usuario nombre de fichero resultante y que por defecto sea algo así como results.csv
     # ? TODO: ver si hay alguna manera de empaquetarlo para que no necesite instalar los requirements.txt -> Que necesitamos empaquetar?
-    # Deberiamos especificar el path de guardado de las figuras?
 
 
 def save_figures(figures_dict, path="figures"):

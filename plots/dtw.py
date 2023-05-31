@@ -8,17 +8,17 @@ def generate_dtw_figure(time_series_1_column, time_series_2_column, column):
         time_series_1_column, time_series_2_column, path
     )
 
-    figure[0].axes[0].set_title(column)
+    figure[0].axes[0].set_title(f"DTW plot {column}")
 
     return figure
 
 
-def generate_dtw_figures(time_series_1, time_series_2, header):
+def generate_dtw_figures(args):
     figures = []
-    for column, index in zip(header, range(len(header))):
+    for column, index in zip(args["header"], range(len(args["header"]))):
         figures.append(
             generate_dtw_figure(
-                time_series_1[:, index], time_series_2[:, index], column
+                args["ts1"][:, index], args["ts2"][:, index], column
             )
         )
     return figures

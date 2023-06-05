@@ -28,7 +28,7 @@ def generate_figures_grouped_by_minutes_various_ori_samples(minutes, column_numb
     max_y_value = max(np.amax(delta_ori_column_array), np.amax(delta_gen_column))
     min_y_value = min(np.amin(delta_ori_column_array), np.amin(delta_gen_column))
     return create_figure(ori_column_values_array=delta_ori_column_array, generated_column_values=delta_gen_column, column_name=column_name,
-                  axis=[0, seq_len // (minutes / (timestamp_frequency_secs / 60)), min_y_value, max_y_value])
+                  axis=[0, seq_len // (minutes / (timestamp_frequency_secs / 60)), min_y_value, max_y_value], minutes=minutes)
     
 def compute_grouped_delta_from_sample(column_number, minutes, data_sample, seq_len, timestamp_frequency_secs):
     sample_column = data_sample[:, column_number]
@@ -37,7 +37,7 @@ def compute_grouped_delta_from_sample(column_number, minutes, data_sample, seq_l
     delta_sample_column = -np.diff(sample_column_mean)
     return delta_sample_column
 
-def create_figure(ori_column_values_array, generated_column_values, column_name, axis):
+def create_figure(ori_column_values_array, generated_column_values, column_name, axis, minutes):
     plt.rcParams["figure.figsize"] = (18, 3)
     fig, ax = plt.subplots(1)
     i = 1
@@ -53,7 +53,7 @@ def create_figure(ori_column_values_array, generated_column_values, column_name,
     else:
         plt.xlim([0, len(ori_column_values_array[0])])
 
-    plt.title(f'{column_name} original vs synthetic')
+    plt.title(f'{column_name} original vs synthetic deltas (grouped by {minutes} minutes)')
     plt.xlabel('time')
     plt.ylabel(column_name)
     ax.legend()

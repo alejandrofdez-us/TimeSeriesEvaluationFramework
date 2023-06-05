@@ -12,11 +12,13 @@ import re
 
 from plots.tsne_pca_preprocess import tsne_pca_preprocess
 from plots.deltas_preprocess import deltas_preprocess
+from plots.evolution_preprocess import evolution_preprocess
 
 from plots.dtw import generate_dtw_figures
 from plots.tsne import generate_tsne_figures
 from plots.pca import generate_pca_figures
 from plots.deltas import generate_deltas_figures
+from plots.evolution import generate_evolution_figures
 
 
 def csv_has_header(filename, ts_delimiter, has_header):
@@ -88,30 +90,19 @@ def get_metrics_functions():
     }
     return metric_functions
 
-
-# def get_metrics_functions_by_columns ():
-#     metric_functions = {
-#         'mmd': lambda ts_1, ts_2: mmd_rbf(ts_1, ts_2),
-#         'dtw': lambda ts_1, ts_2: compute_dtw(ts_1, ts_2),
-#         'kl': lambda ts_1, ts_2: kl_divergence_univariate(ts_1, ts_2)[0],
-#         'js': lambda ts_1, ts_2: JSdistance(ts_1, ts_2),
-#         'ks': lambda ts_1, ts_2: compute_ks(ts_1, ts_2),
-#         'cc': lambda ts_1, ts_2: compute_cc(ts_1, ts_2),
-#         'cp': lambda ts_1, ts_2: compute_cp(ts_1, ts_2),
-#         'hi': lambda ts_1, ts_2: compute_hi(ts_1, ts_2)
-#     }
-#     return metric_functions
-
-
 def generate_figures(time_series_1, time_series_2, header, figures_to_be_generated, ts_delimiter):
     generated_figures = {}
     args = {"ts1" : time_series_1, "ts2" : time_series_2, "header" : header, "ts_delimiter" : ts_delimiter}
+    #Make ts_delimiter not necessary
 
     if "tsne" in figures_to_be_generated or "pca" in figures_to_be_generated:
         args.update(tsne_pca_preprocess(time_series_1, time_series_2))
 
     if "deltas" in figures_to_be_generated:
         args.update(deltas_preprocess(time_series_1))
+    
+    if "evolution" in figures_to_be_generated:
+        args.update(evolution_preprocess(time_series_1, time_series_2, header))
 
     for figure_to_be_generated in figures_to_be_generated:
         generated_figures[figure_to_be_generated] = generate_figure(
@@ -127,11 +118,12 @@ def generate_figure(args, figure_to_be_generated):
     return generated_figures
 
 
-def get_figures_functions():  # TODO: cuando las funciones
+def get_figures_functions():
     figures_functions = {
         "dtw": lambda args: generate_dtw_figures(args),
         "tsne": lambda args: generate_tsne_figures(args),
         # "pca": lambda args: generate_pca_figures(args), will raise exception for only one sample
         "deltas": lambda args: generate_deltas_figures(args),
+        "evolution": lambda args: generate_evolution_figures(args)
     }
     return figures_functions

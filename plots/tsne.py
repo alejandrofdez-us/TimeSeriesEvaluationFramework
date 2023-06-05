@@ -52,7 +52,7 @@ def tsne_ploting(anal_sample_no, colors, tsne_results, filename):
                 c=colors[anal_sample_no:], alpha=0.2, label="Synthetic")
     ax.legend()
     plt.title(f't-SNE plot {filename}')
-    plt.xlabel('x-tsne')
+    plt.xlabel('x_tsne')
     plt.ylabel('y_tsne')
 
     return fig, ax

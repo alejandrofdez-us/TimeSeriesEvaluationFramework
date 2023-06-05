@@ -1,5 +1,3 @@
-from plots.dataset_preprocess import tsne_pca_preprocess
-from plots.dtw import generate_dtw_figures
 from metrics.cc import cc
 from metrics.cp import cp
 from metrics.dtw import compute_dtw
@@ -11,9 +9,14 @@ from metrics.mmd import mmd_rbf
 import numpy as np
 import csv
 import re
-from plots.pca import generate_pca_figures
 
+from plots.tsne_pca_preprocess import tsne_pca_preprocess
+from plots.deltas_preprocess import deltas_preprocess
+
+from plots.dtw import generate_dtw_figures
 from plots.tsne import generate_tsne_figures
+from plots.pca import generate_pca_figures
+from plots.deltas import generate_deltas_figures
 
 
 def csv_has_header(filename, ts_delimiter, has_header):
@@ -107,6 +110,9 @@ def generate_figures(time_series_1, time_series_2, header, figures_to_be_generat
     if "tsne" in figures_to_be_generated or "pca" in figures_to_be_generated:
         args.update(tsne_pca_preprocess(time_series_1, time_series_2))
 
+    if "deltas" in figures_to_be_generated:
+        args.update(deltas_preprocess(time_series_1))
+
     for figure_to_be_generated in figures_to_be_generated:
         generated_figures[figure_to_be_generated] = generate_figure(
             args, figure_to_be_generated
@@ -126,5 +132,6 @@ def get_figures_functions():  # TODO: cuando las funciones
         "dtw": lambda args: generate_dtw_figures(args),
         "tsne": lambda args: generate_tsne_figures(args),
         # "pca": lambda args: generate_pca_figures(args), will raise exception for only one sample
+        "deltas": lambda args: generate_deltas_figures(args),
     }
     return figures_functions

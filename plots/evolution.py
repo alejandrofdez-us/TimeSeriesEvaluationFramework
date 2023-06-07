@@ -9,8 +9,7 @@ def generate_evolution_figures(args):
     
     plot_array.append(generate_figure_from_df(args["ori_data_sample"], args["generated_data_sample_df"]))
     for index, column in enumerate(args["header"]):
-        plot_array.append(generate_figures_by_column(index, column, args["ori_data_sample"], args["generated_data_sample"], 
-                                                     args["seq_len"]))
+        plot_array.append(generate_figures_by_column(index, column, args["ori_data_sample"], args["generated_data_sample"]))
         
     return plot_array
 
@@ -32,17 +31,14 @@ def generate_figure_from_df(ori_data_sample, generated_data_sample_df):
 
     return plot_tuple
 
-def generate_figures_by_column(column_number, column_name, ori_data_sample, generated_data_sample, seq_len):
+def generate_figures_by_column(column_number, column_name, ori_data_sample, generated_data_sample):
 
-    max_y_value = max(np.amax(ori_data_sample), np.amax(generated_data_sample))
-    min_y_value = min(np.amin(ori_data_sample), np.amin(generated_data_sample))
-    axis = [0, seq_len, min_y_value, max_y_value]
 
     return create_figure(ori_column_values_array=[ori_data_sample[:, column_number]],
-                  generated_column_values=generated_data_sample[:, column_number], column_name=column_name, axis=axis)
+                  generated_column_values=generated_data_sample[:, column_number], column_name=column_name)
     
 
-def create_figure(ori_column_values_array, generated_column_values, column_name, axis):
+def create_figure(ori_column_values_array, generated_column_values, column_name, axis=None):
     plt.rcParams["figure.figsize"] = (18, 3)
     fig, ax = plt.subplots(1)
     i = 1

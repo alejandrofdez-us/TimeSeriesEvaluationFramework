@@ -9,10 +9,7 @@ from metrics.mmd import mmd_rbf
 import numpy as np
 import csv
 import re
-
-from plots.tsne_pca_preprocess import tsne_pca_preprocess
-from plots.deltas_preprocess import deltas_preprocess
-from plots.evolution_preprocess import evolution_preprocess
+from plots.helper import update_figures_arguments
 
 from plots.dtw import generate_dtw_figures
 from plots.tsne import generate_tsne_figures
@@ -92,17 +89,7 @@ def get_metrics_functions():
 
 def generate_figures(time_series_1, time_series_2, header, figures_to_be_generated, ts_delimiter):
     generated_figures = {}
-    args = {"ts1" : time_series_1, "ts2" : time_series_2, "header" : header, "ts_delimiter" : ts_delimiter}
-    #Make ts_delimiter not necessary
-
-    if "tsne" in figures_to_be_generated or "pca" in figures_to_be_generated:
-        args.update(tsne_pca_preprocess(time_series_1, time_series_2))
-
-    if "deltas" in figures_to_be_generated:
-        args.update(deltas_preprocess(time_series_1))
-    
-    if "evolution" in figures_to_be_generated:
-        args.update(evolution_preprocess(time_series_1, time_series_2, header))
+    args = update_figures_arguments(time_series_1, time_series_2, header, figures_to_be_generated, ts_delimiter)
 
     for figure_to_be_generated in figures_to_be_generated:
         generated_figures[figure_to_be_generated] = generate_figure(
@@ -122,7 +109,7 @@ def get_figures_functions():
     figures_functions = {
         "dtw": lambda args: generate_dtw_figures(args),
         "tsne": lambda args: generate_tsne_figures(args),
-        # "pca": lambda args: generate_pca_figures(args), will raise exception for only one sample
+        # "pca": lambda args: generate_pca_figures(args), will raise exception for only one sample -> hacer assert
         "deltas": lambda args: generate_deltas_figures(args),
         "evolution": lambda args: generate_evolution_figures(args)
     }

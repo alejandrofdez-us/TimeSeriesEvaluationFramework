@@ -7,7 +7,10 @@ def generate_deltas_figures(args):
 
     plot_array = []
     for index, column in enumerate(args["header"]):
-        time_delta_minutes = [5, 10, 30, 60]
+        time_delta_minutes = [5, 10, 30, 60] 
+        # TODO:METER UN NUEVO ARGUMENTO QUE SEA TS_FREQ_SECS CON VALOR POR DEFECTO A 1
+        # TODO:EL TIME DELTA MINUTES TIENE QUE SER COMPUTADO A PARTIR DE LO ANTERIOR (MULTIPLICAR FRECUENCIE POR 2,5,10 ES DECIR 5 MINUTOS SERIAN 10,25,50)
+        
         for minutes in time_delta_minutes:
             plot_array.append(generate_figures_grouped_by_minutes_various_ori_samples(minutes, index, column, args["ts1"], args["ts2"], 
                                                                     args["seq_len"], args["timestamp_frequency_secs"], args["n_ori_samples"]))

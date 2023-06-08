@@ -87,9 +87,9 @@ def get_metrics_functions():
     }
     return metric_functions
 
-def generate_figures(time_series_1, time_series_2, header, figures_to_be_generated, ts_delimiter):
+def generate_figures(time_series_1, time_series_2, header, figures_to_be_generated, ts_freq_secs):
     generated_figures = {}
-    args = update_figures_arguments(time_series_1, time_series_2, header, figures_to_be_generated, ts_delimiter)
+    args = update_figures_arguments(time_series_1, time_series_2, header, figures_to_be_generated, ts_freq_secs)
 
     for figure_to_be_generated in figures_to_be_generated:
         generated_figures[figure_to_be_generated] = generate_figure(
@@ -109,7 +109,7 @@ def get_figures_functions():
     figures_functions = {
         "dtw": lambda args: generate_dtw_figures(args),
         "tsne": lambda args: generate_tsne_figures(args),
-        # "pca": lambda args: generate_pca_figures(args), will raise exception for only one sample -> hacer assert
+        "pca": lambda args: generate_pca_figures(args),
         "deltas": lambda args: generate_deltas_figures(args),
         "evolution": lambda args: generate_evolution_figures(args)
     }

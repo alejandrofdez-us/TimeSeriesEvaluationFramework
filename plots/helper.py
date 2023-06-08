@@ -1,24 +1,23 @@
 import numpy as np
 import pandas as pd
 
-def update_figures_arguments(time_series_1, time_series_2, header, figures_to_be_generated, ts_delimiter):
-    args = {"ts1" : time_series_1, "ts2" : time_series_2, "header" : header, "ts_delimiter" : ts_delimiter}
-    #Make ts_delimiter not necessary
+def update_figures_arguments(time_series_1, time_series_2, header, figures_to_be_generated, ts_freq_secs):
+    args = {"ts1" : time_series_1, "ts2" : time_series_2, "header" : header}
 
     if "tsne" in figures_to_be_generated or "pca" in figures_to_be_generated:
         args.update(tsne_pca_preprocess(time_series_1, time_series_2))
 
     if "deltas" in figures_to_be_generated:
-        args.update(deltas_preprocess(time_series_1))
+        args.update(deltas_preprocess(time_series_1, ts_freq_secs))
     
     if "evolution" in figures_to_be_generated:
         args.update(evolution_preprocess(time_series_1, time_series_2, header))
+
     return args
 
-def deltas_preprocess(ts1):
+def deltas_preprocess(ts1, ts_freq_secs):
 
-    args = {"seq_len" : len(ts1[:, 0]), "timestamp_frequency_secs" : 300, "n_ori_samples" : 1}
-    #timestamp_frequency_secs = 300 => TS necesita checks para funcionar en np splits
+    args = {"seq_len" : len(ts1[:, 0]), "timestamp_frequency_secs" : ts_freq_secs, "n_ori_samples" : 1}
 
     return args
 

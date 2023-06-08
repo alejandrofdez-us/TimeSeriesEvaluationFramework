@@ -20,9 +20,10 @@ def generate_figure_from_df(ori_data_sample, generated_data_sample_df):
     fig, ax = plt.subplots(1)
 
     ori_data_sample_df.plot(ax=ax, style='--', color='darkgrey')
+    generated_data_sample_df.plot(ax=ax, color='grey')
     plt.xlim([0, generated_data_sample_df.shape[0]])
 
-    plt.title("original columns")
+    plt.title("all_columns")
     plt.legend(loc='best')
     plt.xlabel('time')
     plt.ylabel('y_label')
@@ -45,16 +46,16 @@ def create_figure(ori_column_values_array, generated_column_values, column_name,
     cycol = cycle('grcmk')
 
     for ori_column_values in ori_column_values_array:
-        plt.plot(ori_column_values, c=next(cycol), label=f'Original_{i}', linewidth=1)
+        plt.plot(ori_column_values, c=next(cycol), label=f'Time Series 1', linewidth=1)
         i += 1
 
-    plt.plot(generated_column_values, c="blue", label="Synthetic", linewidth=2)
+    plt.plot(generated_column_values, c="blue", label="Time Series 2", linewidth=2)
     if axis is not None:
         plt.axis(axis)
     else:
         plt.xlim([0, len(ori_column_values_array[0])])
 
-    plt.title(f'{column_name} original vs synthetic')
+    plt.title(f'{column_name}_Time_Series_1_vs_Time_Series_2')
     plt.xlabel('time')
     plt.ylabel(column_name)
     ax.legend()

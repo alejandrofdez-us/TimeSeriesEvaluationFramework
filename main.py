@@ -22,7 +22,7 @@ def main(arguments):
         print(computed_metrics)
 
         if arguments.figures:
-            figures = generate_figures(ts1, ts2, header_ts1, arguments.figures, ts_delimiter)
+            figures = generate_figures(ts1, ts2, header_ts1, arguments.figures, arguments.timestamp_frequency_seconds)
         save_figures(figures)
 
     except ValueError as error:
@@ -49,7 +49,7 @@ def save_figures(figures_dict, path="figures"):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        usage="python main.py -ts1 path_to_file_1 -ts2 path_to_file_2 --metrics js mmd... [--figures] tsne pca... [--header]"
+        usage="python main.py -ts1 path_to_file_1 -ts2 path_to_file_2 --metrics js mmd... [--figures] tsne pca... [--header] [--timestamp_frequency_seconds] 300"
     )
     parser.add_argument(
         "-ts1",
@@ -88,6 +88,14 @@ if __name__ == "__main__":
         help="<Optional> If the time-series includes a header row.",
         required=False,
         action="store_true",
+    )
+
+    parser.add_argument(
+        "-ts_freq_secs",
+        "--timestamp_frequency_seconds",
+        help="<Optional> Include the frequency in seconds in which samples were taken.",
+        required=False,
+        type=int,
     )
 
     args = parser.parse_args()

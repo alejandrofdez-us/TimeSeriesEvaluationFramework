@@ -8,7 +8,7 @@ def generate_dtw_figure(time_series_1_column, time_series_2_column, column):
         time_series_1_column, time_series_2_column, path
     )
 
-    figure[0].axes[0].set_title(f"DTW plot {column}")
+    figure[0].axes[0].set_title(f"DTW_{column}")
 
     return figure
 

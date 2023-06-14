@@ -19,7 +19,7 @@ Note: Use Post-hoc RNN to predict one-step ahead (last feature)
 import tensorflow as tf
 import numpy as np
 from sklearn.metrics import mean_absolute_error
-from utils import extract_time
+from helper import extract_time
 
  
 def predictive_score_metrics (ori_data, generated_data, internal_iterations=5000):

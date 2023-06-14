@@ -47,9 +47,9 @@ def compute_tsne(anal_sample_no, colors, perplexity, prep_data_final, iterations
 def tsne_ploting(anal_sample_no, colors, tsne_results, filename):
     fig, ax = plt.subplots(1)
     plt.scatter(tsne_results[:anal_sample_no, 0], tsne_results[:anal_sample_no, 1],
-                c=colors[:anal_sample_no], alpha=0.2, label="Time Series 1")
+                c=colors[:anal_sample_no], alpha=0.2, label="TS_1")
     plt.scatter(tsne_results[anal_sample_no:, 0], tsne_results[anal_sample_no:, 1],
-                c=colors[anal_sample_no:], alpha=0.2, label="Time Series 2")
+                c=colors[anal_sample_no:], alpha=0.2, label="TS_2")
     ax.legend()
     plt.title(f't_SNE_{filename}')
     plt.xlabel('x_tsne')

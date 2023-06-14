@@ -6,52 +6,14 @@ from metrics.js import js_distance_multivariate
 from metrics.kl import kl_divergence
 from metrics.ks import ks
 from metrics.mmd import mmd_rbf
-import numpy as np
-import csv
-import re
-from plots.helper import update_figures_arguments
+
+from helper import update_figures_arguments
 
 from plots.dtw import generate_dtw_figures
 from plots.tsne import generate_tsne_figures
 from plots.pca import generate_pca_figures
 from plots.deltas import generate_deltas_figures
 from plots.evolution import generate_evolution_figures
-
-
-def csv_has_header(filename, ts_delimiter, has_header):
-    if has_header:
-        header = np.genfromtxt(filename, delimiter=ts_delimiter, names=has_header, max_rows=1, dtype=str).dtype.names
-
-        if header_has_numeric(header):
-            raise ValueError("Header must not contain numeric values.")
-
-    else:
-        header = np.loadtxt(filename, delimiter=ts_delimiter, max_rows=1)
-        header = ["column-"+str(i) for i in range(len(header))]
-
-    return header
-
-def header_has_numeric(header):
-    pattern = r'^[-+]?\d*\.?\d+$'
-    for column in header:
-        if re.match(pattern, column):
-            return True
-    return False
-
-def detect_line_delimiter(filename):
-    with open(filename, "r", newline="") as file:
-        ts_delimiter = csv.Sniffer().sniff(file.readline()).delimiter
-
-    return ts_delimiter
-
-
-def load_ts_from_csv(filename, has_header=None):
-    ts_delimiter = detect_line_delimiter(filename)
-
-    header = csv_has_header(filename, ts_delimiter, has_header)
-    skiprows = 1 if has_header else 0
-
-    return np.loadtxt(filename, delimiter=ts_delimiter, skiprows=skiprows), header, ts_delimiter
 
 
 def compute_metrics(time_series_1, time_series_2, metrics_to_be_computed):

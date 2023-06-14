@@ -1,6 +1,7 @@
 import os
 import argparse
-from core import compute_metrics, generate_figures, load_ts_from_csv
+from core import compute_metrics, generate_figures
+from helper import load_ts_from_csv
 
 
 def main(arguments):
@@ -49,7 +50,7 @@ def save_figures(figures_dict, path="figures"):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        usage="python main.py -ts1 path_to_file_1 -ts2 path_to_file_2 --metrics js mmd... [--figures] tsne pca... [--header] [--timestamp_frequency_seconds] 300"
+        usage="python main.py -ts1 path_to_file_1 -ts2 path_to_file_2 --metrics js mmd... [--figures] tsne pca... [--header] [--timestamp_frequency_seconds] 300 [--stride] 2"
     )
     parser.add_argument(
         "-ts1",
@@ -95,6 +96,16 @@ if __name__ == "__main__":
         "--timestamp_frequency_seconds",
         help="<Optional> Include the frequency in seconds in which samples were taken.",
         required=False,
+        default=1,
+        type=int,
+    )
+
+    parser.add_argument(
+        "-strd",
+        "--stride",
+        help="<Optional> Include the stride to be used in moving windows over samples.",
+        required=False,
+        default=1,
         type=int,
     )
 

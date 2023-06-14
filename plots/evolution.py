@@ -14,13 +14,17 @@ def generate_evolution_figures(args):
     return plot_array
 
 def generate_figure_from_df(ori_data_sample, generated_data_sample_df):
-    ori_data_sample_df = pandas.DataFrame(ori_data_sample, columns=[f'{column_name}_original' for column_name in
+    ori_data_sample_df = pandas.DataFrame(ori_data_sample, columns=[f'{column_name}_TS_1' for column_name in
                                                                     generated_data_sample_df.columns])
     plt.rcParams["figure.figsize"] = (18, 3)
     fig, ax = plt.subplots(1)
 
-    ori_data_sample_df.plot(ax=ax, style='--', color='darkgrey')
-    generated_data_sample_df.plot(ax=ax, color='grey')
+    ori_data_sample_df.plot(ax=ax, color='darkgrey')
+
+    new_column_names = {col: col + "_TS_2" for col in generated_data_sample_df.columns}
+    generated_data_sample_df = generated_data_sample_df.rename(columns=new_column_names)
+    generated_data_sample_df.plot(ax=ax, style='--')
+
     plt.xlim([0, generated_data_sample_df.shape[0]])
 
     plt.title("all_columns")
@@ -46,16 +50,16 @@ def create_figure(ori_column_values_array, generated_column_values, column_name,
     cycol = cycle('grcmk')
 
     for ori_column_values in ori_column_values_array:
-        plt.plot(ori_column_values, c=next(cycol), label=f'Time Series 1', linewidth=1)
+        plt.plot(ori_column_values, c=next(cycol), label=f'TS_1', linewidth=1)
         i += 1
 
-    plt.plot(generated_column_values, c="blue", label="Time Series 2", linewidth=2)
+    plt.plot(generated_column_values, c="blue", label="TS_2", linewidth=2)
     if axis is not None:
         plt.axis(axis)
     else:
         plt.xlim([0, len(ori_column_values_array[0])])
 
-    plt.title(f'{column_name}_Time_Series_1_vs_Time_Series_2')
+    plt.title(f'{column_name}_TS_1_vs_TS_2')
     plt.xlabel('time')
     plt.ylabel(column_name)
     ax.legend()

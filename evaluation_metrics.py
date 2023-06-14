@@ -23,7 +23,7 @@ from metrics.kl import kl_divergence
 from metrics.metrics import compute_sdv_quality_metrics, compute_sdv_diagnostic_metrics, compute_ks, compute_dtw, \
     compute_cp, compute_cc, compute_hi, compute_js
 from metrics.mmd import mmd_rbf
-from utils import split_ori_data_strided, get_most_similar_ori_data_sample, \
+from helper import split_ori_data_strided, get_most_similar_ori_data_sample, \
     extract_experiment_parameters, save_metrics, print_csv_result_row, print_csv_header, \
     print_previously_computed_experiments_metrics
 

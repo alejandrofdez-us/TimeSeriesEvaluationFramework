@@ -3,6 +3,13 @@ import sys
 
 import numpy as np
 
+def kl (X,Y):
+    metric_result = f"Multivariate: {kl_divergence(X,Y)}"
+
+    for column in range(Y.shape[1]):
+        metric_result = metric_result + f" Column {column}: {kl_divergence_univariate(Y[:, column].reshape(-1, 1), X[:, column].reshape(-1, 1))}"
+
+    return metric_result
 
 def kl_divergence_univariate(array_1, array_2, range_values=None, num_bins=10):
     # smoothing implementes as per https://www.cs.bgu.ac.il/~elhadad/nlp09/KL.html

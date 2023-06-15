@@ -24,7 +24,7 @@ def main(arguments):
 
         if arguments.figures:
             figures = generate_figures(ts1, ts2, header_ts1, arguments.figures, arguments.timestamp_frequency_seconds)
-        save_figures(figures)
+            save_figures(figures)
 
     except ValueError as error:
         print("Error: ", error)

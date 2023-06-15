@@ -1,7 +1,14 @@
 import numpy as np
 
+def hi (X,Y):
+    metric_result = f"Multivariate: {compute_hi(X,Y)}"
 
-def hi(generated_data_sample, ori_data):
+    for column in range(Y.shape[1]):
+        metric_result = metric_result + f" Column {column}: {compute_hi(Y[:, column].reshape(-1, 1), X[:, column].reshape(-1, 1))}"
+
+    return metric_result
+
+def compute_hi(generated_data_sample, ori_data):
     # normalized_ori_data_sample = normalize_start_time_to_zero(ori_data)
     # normalized_generated_data_sample = normalize_start_time_to_zero(generated_data_sample)
     histogram_diff_matrix = []

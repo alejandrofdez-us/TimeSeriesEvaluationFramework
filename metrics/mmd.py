@@ -24,8 +24,15 @@ def mmd_linear(X, Y):
     delta = X.mean(0) - Y.mean(0)
     return delta.dot(delta.T)
 
+def mmd_rbf (X,Y):
+    metric_result = f"Multivariate: {mmd_calculate_rbf(X,Y)}"
 
-def mmd_rbf(X, Y, gamma=1.0):
+    for column in range(Y.shape[1]):
+        metric_result = metric_result + f" Column {column}: {mmd_calculate_rbf(Y[:, column].reshape(-1, 1), X[:, column].reshape(-1, 1))}"
+
+    return metric_result
+
+def mmd_calculate_rbf(X, Y, gamma=1.0):
     """MMD using rbf (gaussian) kernel (i.e., k(x,y) = exp(-gamma * ||x-y||^2 / 2))
 
     Arguments:

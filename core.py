@@ -1,9 +1,9 @@
 from metrics.cc import cc
 from metrics.cp import cp
-from metrics.dtw import compute_dtw
+from metrics.dtw import dtw
 from metrics.hi import hi
-from metrics.js import js_distance_multivariate
-from metrics.kl import kl_divergence
+from metrics.js import js
+from metrics.kl import kl
 from metrics.ks import ks
 from metrics.mmd import mmd_rbf
 
@@ -39,9 +39,9 @@ def compute_metric(time_series_1, time_series_2, metric_to_be_computed):
 def get_metrics_functions():
     metric_functions = {
         "mmd": lambda ts_1, ts_2: mmd_rbf(ts_1, ts_2),
-        "dtw": lambda ts_1, ts_2: compute_dtw(ts_1, ts_2),
-        "kl": lambda ts_1, ts_2: kl_divergence(ts_1, ts_2),
-        "js": lambda ts_1, ts_2: js_distance_multivariate(ts_1, ts_2),
+        "dtw": lambda ts_1, ts_2: dtw(ts_1, ts_2),
+        "kl": lambda ts_1, ts_2: kl(ts_1, ts_2),
+        "js": lambda ts_1, ts_2: js(ts_1, ts_2),
         "ks": lambda ts_1, ts_2: ks(ts_1, ts_2),
         "cc": lambda ts_1, ts_2: cc(ts_1, ts_2),
         "cp": lambda ts_1, ts_2: cp(ts_1, ts_2),

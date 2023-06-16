@@ -37,10 +37,9 @@ class MetricFactory(metaclass=Singleton):
 
 
     def __create_metric(self, metric_name):
-        metric_name_lower = metric_name.lower()
 
-        if metric_name_lower in self.metric_classes.keys():
-            metric_class = self.metric_classes[metric_name_lower]
+        if metric_name in self.metric_classes.keys():
+            metric_class = self.metric_classes[metric_name]
             return metric_class()
         else:
             raise ValueError('Invalid metric name')
@@ -51,10 +50,10 @@ class MetricFactory(metaclass=Singleton):
 
         for name, obj in modules.items():
             if inspect.ismodule(obj):
-                if hasattr(obj, name.upper()):
-                    instance = getattr(obj, name.upper())
+                if hasattr(obj, name.capitalize()):
+                    instance = getattr(obj, name.capitalize())
                     if issubclass(instance, Metric):
-                        metric_classes[name.lower()] = instance
+                        metric_classes[name] = instance
         return metric_classes
     
     def __find_classes_in_folder(self, folder_path):

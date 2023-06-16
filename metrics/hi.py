@@ -2,7 +2,7 @@ import numpy as np
 
 from metrics.metric import Metric
 
-class HI(Metric):
+class Hi(Metric):
     def compute(self, ts1, ts2):
         metric_result = {"Multivariate": self.__compute_hi(ts1, ts2)}
 

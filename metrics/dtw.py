@@ -2,7 +2,7 @@ import numpy as np
 from dtaidistance import dtw_ndim
 from metrics.metric import Metric
 
-class DTW(Metric):
+class Dtw(Metric):
     def compute(self, ts1, ts2):
     
         metric_result = {"Multivariate": self.__compute_dtw(ts1, ts2)}

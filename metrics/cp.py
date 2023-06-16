@@ -2,7 +2,7 @@ import numpy as np
 
 from metrics.metric import Metric
 
-class CP(Metric):
+class Cp(Metric):
     def compute(self, ts1, ts2):
         self.ts1 = ts1
         self.ts2 = ts2

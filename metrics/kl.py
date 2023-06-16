@@ -5,7 +5,7 @@ import numpy as np
 
 from metrics.metric import Metric
 
-class KL(Metric):
+class Kl(Metric):
     def compute (self, ts1, ts2):
       metric_result = {"Multivariate": self.__kl_divergence(ts1, ts2)}
 

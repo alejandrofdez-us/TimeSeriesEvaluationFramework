@@ -3,7 +3,7 @@ import statistics
 
 from metrics.metric import Metric
 
-class KS(Metric):
+class Ks(Metric):
     def compute(self, ts1, ts2):
         metric_result = {"Multivariate": self.__compute_ks(ts1, ts2)}
 

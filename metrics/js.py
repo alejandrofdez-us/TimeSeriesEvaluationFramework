@@ -2,7 +2,7 @@ from metrics.metric import Metric
 import numpy as np
 import sys
 
-class JS(Metric):
+class Js(Metric):
     def compute(self, ts1, ts2):
         metric_result = {"Multivariate": self.__js_distance_multivariate(ts1,ts2)}
 

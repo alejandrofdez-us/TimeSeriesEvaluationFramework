@@ -1,19 +1,22 @@
 import numpy as np
 from dtaidistance import dtw_ndim
+from metrics.metric import Metric
 
-def dtw(generated_data_sample, ori_data_sample):
-    metric_result = f"Multivariate: {compute_dtw(ori_data_sample, generated_data_sample)}"
+class DTW(Metric):
+    def compute(self, ts1, ts2):
+    
+        metric_result = f"Multivariate: {self.__compute_dtw(ts1, ts2)}"
 
-    for column in range(generated_data_sample.shape[1]):
-        metric_result = metric_result + f" Column {column}: {compute_dtw(generated_data_sample[:, column].reshape(-1, 1), ori_data_sample[:, column].reshape(-1, 1))}"
+        for column in range(ts2.shape[1]):
+            metric_result = metric_result + f" Column {column}: {self.__compute_dtw(ts1[:, column].reshape(-1, 1), ts2[:, column].reshape(-1, 1))}"
 
-    return metric_result
+        return metric_result
 
-def compute_dtw(generated_data_sample, ori_data_sample):
-    sample_length = len(generated_data_sample)
-    processed_generated_data_sample = np.insert(generated_data_sample, 0, np.ones(sample_length, dtype=int), axis=1)
-    processed_generated_data_sample = np.insert(processed_generated_data_sample, 0, range(sample_length), axis=1)
-    processed_ori_data_sample = np.insert(ori_data_sample, 0, np.ones(sample_length, dtype=int), axis=1)
-    processed_ori_data_sample = np.insert(processed_ori_data_sample, 0, range(sample_length), axis=1)
+    def __compute_dtw(self, ts1, ts2):
+        sample_length = len(ts2)
+        processed_ts2 = np.insert(ts2, 0, np.ones(sample_length, dtype=int), axis=1)
+        processed_ts2 = np.insert(processed_ts2, 0, range(sample_length), axis=1)
+        processed_ts1 = np.insert(ts1, 0, np.ones(sample_length, dtype=int), axis=1)
+        processed_ts1 = np.insert(processed_ts1, 0, range(sample_length), axis=1)
 
-    return dtw_ndim.distance_fast(processed_generated_data_sample, processed_ori_data_sample)
+        return dtw_ndim.distance_fast(processed_ts2, processed_ts1)

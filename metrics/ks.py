@@ -1,16 +1,31 @@
 import scipy
 import statistics
 
-def ks (X,Y):
-    metric_result = f"Multivariate: {compute_ks(X,Y)}"
+from metrics.metric import Metric
 
-    for column in range(Y.shape[1]):
-        metric_result = metric_result + f" Column {column}: {compute_ks(Y[:, column].reshape(-1, 1), X[:, column].reshape(-1, 1))}"
+class KS(Metric):
+    def compute(self, ts1, ts2):
+        metric_result = f"Multivariate: {self.__compute_ks(ts1,ts2)}"
 
-    return metric_result
+        for column in range(ts2.shape[1]):
+            metric_result = metric_result + f" Column {column}: {self.__compute_ks(ts1[:, column].reshape(-1, 1), ts2[:, column].reshape(-1, 1))}"
 
-def compute_ks(generated_data_sample, ori_data_sample):
-    column_indexes = range(generated_data_sample.shape[1])
-    return statistics.mean(
-        [scipy.stats.ks_2samp(generated_data_sample[:, column_index], ori_data_sample[:, column_index])[0] for
-         column_index in column_indexes])
+        return metric_result
+
+    def __compute_ks(self, ts1, ts2):
+        column_indexes = range(ts2.shape[1])
+        return statistics.mean(
+            [scipy.stats.ks_2samp(ts2[:, column_index], ts1[:, column_index])[0] for
+            column_index in column_indexes])
+
+# TODO: Las métricas deberían devolver un objeto JSON que pudiera ser procesado de manera automática y qué se hace con estos resultados será responsabilidad de la herramienta de consola u otras herramientas que puedan usar el core.
+# TODO: Ejemplo de JSON:
+# {'ks':{
+#     'multivariate': XX.YY,
+#     'univariate': [
+#         {'column_0': ZZ.WW},
+#         {'column_1': UU.II},
+#         {'column_N': QQ.WW}
+#     ]
+# }}∫
+

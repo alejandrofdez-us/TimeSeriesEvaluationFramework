@@ -148,6 +148,8 @@ def get_most_similar_ori_data_sample(ori_data_windows_numpy, generated_data_samp
     minimum_dtw = float('inf')
     most_similar_sample = []
     for ori_data_sample in ori_data_windows_numpy:
+        # TODO: Preguntamos por el parametro que define la metrica a usar para calcular la ventana mas parecida: mmd, dtw por defecto, ks, cc...
+        # TODO: Definimos un argumento opcional para la metrica a usar
         current_distance = dtw_ndim.distance_fast(ori_data_sample, generated_data_sample)
         if current_distance < minimum_dtw:
             minimum_dtw = current_distance

@@ -1,72 +1,36 @@
 # Compute MMD (maximum mean discrepancy) using numpy and scikit-learn.
 
-import numpy as np
 from sklearn import metrics
 
-
-def mmd_linear(X, Y):
-    """MMD using linear kernel (i.e., k(x,y) = <x,y>)
-    Note that this is not the original linear MMD, only the reformulated and faster version.
-    The original version is:
-        def mmd_linear(X, Y):
-            XX = np.dot(X, X.T)
-            YY = np.dot(Y, Y.T)
-            XY = np.dot(X, Y.T)
-            return XX.mean() + YY.mean() - 2 * XY.mean()
-
-    Arguments:
-        X {[n_sample1, dim]} -- [X matrix]
-        Y {[n_sample2, dim]} -- [Y matrix]
-
-    Returns:
-        [scalar] -- [MMD value]
-    """
-    delta = X.mean(0) - Y.mean(0)
-    return delta.dot(delta.T)
-
-def mmd_rbf (X,Y):
-    metric_result = f"Multivariate: {mmd_calculate_rbf(X,Y)}"
-
-    for column in range(Y.shape[1]):
-        metric_result = metric_result + f" Column {column}: {mmd_calculate_rbf(Y[:, column].reshape(-1, 1), X[:, column].reshape(-1, 1))}"
-
-    return metric_result
-
-def mmd_calculate_rbf(X, Y, gamma=1.0):
-    """MMD using rbf (gaussian) kernel (i.e., k(x,y) = exp(-gamma * ||x-y||^2 / 2))
-
-    Arguments:
-        X {[n_sample1, dim]} -- [X matrix]
-        Y {[n_sample2, dim]} -- [Y matrix]
-
-    Keyword Arguments:
-        gamma {float} -- [kernel parameter] (default: {1.0})
-
-    Returns:
-        [scalar] -- [MMD value]
-    """
-    XX = metrics.pairwise.rbf_kernel(X, X, gamma)
-    YY = metrics.pairwise.rbf_kernel(Y, Y, gamma)
-    XY = metrics.pairwise.rbf_kernel(X, Y, gamma)
-    return XX.mean() + YY.mean() - 2 * XY.mean()
+from metrics.metric import Metric
 
 
-def mmd_poly(X, Y, degree=2, gamma=1, coef0=0):
-    """MMD using polynomial kernel (i.e., k(x,y) = (gamma <X, Y> + coef0)^degree)
+class MMD(Metric):
 
-    Arguments:
-        X {[n_sample1, dim]} -- [X matrix]
-        Y {[n_sample2, dim]} -- [Y matrix]
+    def compute(self, ts1, ts2):
+        metric_result = f"Multivariate: {self.mmd_calculate_rbf(ts1,ts2)}"
 
-    Keyword Arguments:
-        degree {int} -- [degree] (default: {2})
-        gamma {int} -- [gamma] (default: {1})
-        coef0 {int} -- [constant item] (default: {0})
+        for column in range(ts2.shape[1]):
+            metric_result = metric_result + f" Column {column}: {self.mmd_calculate_rbf(ts1[:, column].reshape(-1, 1), ts2[:, column].reshape(-1, 1))}"
+        
+        return metric_result
+    
 
-    Returns:
-        [scalar] -- [MMD value]
-    """
-    XX = metrics.pairwise.polynomial_kernel(X, X, degree, gamma, coef0)
-    YY = metrics.pairwise.polynomial_kernel(Y, Y, degree, gamma, coef0)
-    XY = metrics.pairwise.polynomial_kernel(X, Y, degree, gamma, coef0)
-    return XX.mean() + YY.mean() - 2 * XY.mean()
+    def mmd_calculate_rbf(self, X, Y, gamma=1.0):
+        """MMD using rbf (gaussian) kernel (i.e., k(x,y) = exp(-gamma * ||x-y||^2 / 2))
+
+        Arguments:
+            X {[n_sample1, dim]} -- [X matrix]
+            Y {[n_sample2, dim]} -- [Y matrix]
+
+        Keyword Arguments:
+            gamma {float} -- [kernel parameter] (default: {1.0})
+
+        Returns:
+            [scalar] -- [MMD value]
+        """
+        XX = metrics.pairwise.rbf_kernel(X, X, gamma)
+        YY = metrics.pairwise.rbf_kernel(Y, Y, gamma)
+        XY = metrics.pairwise.rbf_kernel(X, Y, gamma)
+        return XX.mean() + YY.mean() - 2 * XY.mean()
+

@@ -1,27 +1,30 @@
 import numpy as np
 
-def hi (X,Y):
-    metric_result = f"Multivariate: {compute_hi(X,Y)}"
+from metrics.metric import Metric
 
-    for column in range(Y.shape[1]):
-        metric_result = metric_result + f" Column {column}: {compute_hi(Y[:, column].reshape(-1, 1), X[:, column].reshape(-1, 1))}"
+class HI(Metric):
+    def compute(self, ts1, ts2):
+        metric_result = f"Multivariate: {self.__compute_hi(ts1, ts2)}"
 
-    return metric_result
+        for column in range(ts2.shape[1]):
+            metric_result = metric_result + f" Column {column}: {self.__compute_hi(ts1[:, column].reshape(-1, 1), ts2[:, column].reshape(-1, 1))}"
 
-def compute_hi(generated_data_sample, ori_data):
-    # normalized_ori_data_sample = normalize_start_time_to_zero(ori_data)
-    # normalized_generated_data_sample = normalize_start_time_to_zero(generated_data_sample)
-    histogram_diff_matrix = []
-    for column in range(0, ori_data.shape[1]):
-        ori_data_column_values = ori_data[:, column]
-        ori_histogram, ori_bin_edges = np.histogram(ori_data_column_values)
-        generated_data_column_values = generated_data_sample[:, column]
-        generated_histogram, generated_bin_edges = np.histogram(generated_data_column_values)
-        column_histogram_diff = ori_histogram - generated_histogram
-        histogram_diff_matrix.append(column_histogram_diff)
-    histogram_diff_matrix = np.asmatrix(histogram_diff_matrix)
-    l1_norms_histogram_diff = np.apply_along_axis(np.linalg.norm, 1, histogram_diff_matrix)
+        return metric_result
 
-    l1_norms_histogram_diff_avg = l1_norms_histogram_diff.mean()
+    def __compute_hi(self, ts1, ts2):
+        # normalized_ts1_sample = normalize_start_time_to_zero(ts1)
+        # normalized_ts2 = normalize_start_time_to_zero(ts2)
+        histogram_diff_matrix = []
+        for column in range(0, ts1.shape[1]):
+            ts1_column_values = ts1[:, column]
+            ori_histogram, ori_bin_edges = np.histogram(ts1_column_values)
+            generated_data_column_values = ts2[:, column]
+            generated_histogram, generated_bin_edges = np.histogram(generated_data_column_values)
+            column_histogram_diff = ori_histogram - generated_histogram
+            histogram_diff_matrix.append(column_histogram_diff)
+        histogram_diff_matrix = np.asmatrix(histogram_diff_matrix)
+        l1_norms_histogram_diff = np.apply_along_axis(np.linalg.norm, 1, histogram_diff_matrix)
 
-    return l1_norms_histogram_diff_avg
+        l1_norms_histogram_diff_avg = l1_norms_histogram_diff.mean()
+
+        return l1_norms_histogram_diff_avg

@@ -7,7 +7,7 @@ class CC(Metric):
         self.ts1 = ts1
         self.ts2 = ts2
 
-        metric_result = f"Multivariate: {self.__cc()}"
+        metric_result = {"Multivariate": self.__cc()}
 
         return metric_result
 

@@ -20,7 +20,10 @@ def main(arguments):
             raise ValueError("Both time series must have the same header column names.")
 
         computed_metrics = compute_metrics(ts1, ts2, arguments.metrics)
-        print(computed_metrics)
+
+        os.makedirs("results/metrics", exist_ok=True)
+        with open("results/metrics/results.json", "w") as file:
+            file.write(computed_metrics)
 
         if arguments.figures:
             figures = generate_figures(ts1, ts2, header_ts1, arguments.figures, arguments.timestamp_frequency_seconds)
@@ -36,7 +39,7 @@ def main(arguments):
     # ? TODO: ver si hay alguna manera de empaquetarlo para que no necesite instalar los requirements.txt -> Que necesitamos empaquetar?
 
 
-def save_figures(figures_dict, path="figures"):
+def save_figures(figures_dict, path="results/figures"):
     for figure_name, figures in figures_dict.items():
         for figure in figures:
             figure_label = figure[0].axes[0].get_title()

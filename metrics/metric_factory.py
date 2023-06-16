@@ -1,7 +1,9 @@
 import inspect
-from metrics.metric import Metric
 import importlib
 import os
+import json
+
+from metrics.metric import Metric
 
 class Singleton(type):
     _instances = {}
@@ -28,6 +30,8 @@ class MetricFactory(metaclass=Singleton):
             computed_metrics[metric_to_be_computed] = metric.compute(
                 self.ts1, self.ts2
             )
+
+        computed_metrics = json.dumps(computed_metrics, indent=4)
 
         return computed_metrics
 

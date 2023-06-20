@@ -23,12 +23,12 @@ class MetricFactory(metaclass=Singleton):
         curr_modules = self.__find_classes_in_folder(folder_path)
         self.metric_classes = self.__get_metric_classes(curr_modules)
 
-    def get_metrics_json(self):
+    def get_metrics_json(self, computed_chosen_metric):
         computed_metrics = {}
         for metric_to_be_computed in self.metrics_to_be_computed:
             metric = self.__create_metric(metric_to_be_computed)    
             computed_metrics[metric_to_be_computed] = metric.compute(
-                self.ts1, self.ts2
+                self.ts1, self.ts2, computed_chosen_metric
             )
 
         computed_metrics = json.dumps(computed_metrics, indent=4)

@@ -6,13 +6,19 @@ import numpy as np
 from metrics.metric import Metric
 
 class Kl(Metric):
-    def compute (self, ts1, ts2):
-      metric_result = {"Multivariate": self.__kl_divergence(ts1, ts2)}
+    def compute (self, ts1, ts2, computed_chosen_metric):
+      if computed_chosen_metric[0] == "kl":
+        metric_result = {"Multivariate": computed_chosen_metric[1]}
+      else:
+        metric_result = {"Multivariate": self.__kl_divergence(ts1, ts2)}
 
       for column in range(ts2.shape[1]):
           metric_result.update({f"Column {column}": self.__kl_divergence_univariate(ts1[:, column].reshape(-1, 1), ts2[:, column].reshape(-1, 1))})
 
       return metric_result
+    
+    def compute_distance(self, ts1, ts2):
+       return self.__kl_divergence(ts1, ts2)
 
     def __kl_divergence_univariate(self, array_1, array_2, range_values=None, num_bins=10):
         # smoothing implementes as per https://www.cs.bgu.ac.il/~elhadad/nlp09/KL.html

@@ -3,9 +3,9 @@ from plots.plot_factory import PlotFactory
 
 from helper import update_figures_arguments
 
-def compute_metrics(time_series_1, time_series_2, metrics_to_be_computed):
+def compute_metrics(time_series_1, time_series_2, metrics_to_be_computed, computed_chosen_metric):
     factory = MetricFactory(metrics_to_be_computed, time_series_1, time_series_2)
-    computed_metrics = factory.get_metrics_json()
+    computed_metrics = factory.get_metrics_json(computed_chosen_metric)
 
     return computed_metrics
 

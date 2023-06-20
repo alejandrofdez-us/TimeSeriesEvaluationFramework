@@ -1,25 +1,27 @@
 import os
 import argparse
 from core import compute_metrics, generate_figures
-from helper import load_ts_from_csv
+from helper import load_ts_from_csv, preprocess_ts
 
 
 def main(arguments):
     try:
-        ts1, header_ts1, ts_delimiter = load_ts_from_csv(
+        ts1, header_ts1, _ = load_ts_from_csv(
             arguments.time_series_1_filename, arguments.header
         )
         ts2, header_ts2, _ = load_ts_from_csv(
             arguments.time_series_2_filename, arguments.header
         )
 
-        if ts1.shape[1] != ts2.shape[1]:
-            raise ValueError("Both time series must have the same number of columns.")
+        ts1, computed_chosen_metric = preprocess_ts(ts1, ts2, arguments.stride, arguments.splitting_metric)
 
-        elif header_ts1 != header_ts2:
+        if ts1.shape[1] < ts2.shape[1]:
+            raise ValueError("The first time series must have equal or greater length than the second one.")
+
+        if header_ts1 != header_ts2:
             raise ValueError("Both time series must have the same header column names.")
 
-        computed_metrics = compute_metrics(ts1, ts2, arguments.metrics)
+        computed_metrics = compute_metrics(ts1, ts2, arguments.metrics, computed_chosen_metric)
 
         os.makedirs("results/metrics", exist_ok=True)
         with open("results/metrics/results.json", "w") as file:
@@ -110,6 +112,15 @@ if __name__ == "__main__":
         required=False,
         default=1,
         type=int,
+    )
+
+    parser.add_argument(
+        "-split_m",
+        "--splitting_metric",
+        help="<Optional> Include the chosen metric used to pick the best window in the first time series.",
+        required=False,
+        default="dtw",
+        type=str,
     )
 
     args = parser.parse_args()

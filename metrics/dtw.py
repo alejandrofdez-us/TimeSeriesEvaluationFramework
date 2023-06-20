@@ -3,14 +3,21 @@ from dtaidistance import dtw_ndim
 from metrics.metric import Metric
 
 class Dtw(Metric):
-    def compute(self, ts1, ts2):
+    def compute(self, ts1, ts2, computed_chosen_metric):
     
-        metric_result = {"Multivariate": self.__compute_dtw(ts1, ts2)}
+        if computed_chosen_metric[0] == "dtw":
+            metric_result = {"Multivariate": computed_chosen_metric[1]}
+
+        else:
+            metric_result = {"Multivariate": self.__compute_dtw(ts1, ts2)}
 
         for column in range(ts2.shape[1]):
             metric_result.update({f"Column {column}": self.__compute_dtw(ts1[:, column].reshape(-1, 1), ts2[:, column].reshape(-1, 1))})
 
         return metric_result
+    
+    def compute_distance(self, ts1, ts2):
+        return self.__compute_dtw(ts1, ts2)
 
     def __compute_dtw(self, ts1, ts2):
         sample_length = len(ts2)

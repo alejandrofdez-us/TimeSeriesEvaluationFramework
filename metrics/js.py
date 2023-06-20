@@ -3,13 +3,19 @@ import numpy as np
 import sys
 
 class Js(Metric):
-    def compute(self, ts1, ts2):
-        metric_result = {"Multivariate": self.__js_distance_multivariate(ts1,ts2)}
+    def compute(self, ts1, ts2, computed_chosen_metric):
+        if computed_chosen_metric[0] == "js":
+            metric_result = {"Multivariate": computed_chosen_metric[1]}
+        else:
+            metric_result = {"Multivariate": self.__js_distance_multivariate(ts1, ts2)}
 
         for column in range(ts2.shape[1]):
             metric_result.update({f"Column {column}": self.__js_distance(ts1[:, column].reshape(-1, 1), ts2[:, column].reshape(-1, 1))})
 
         return metric_result
+    
+    def compute_distance(self, ts1, ts2):
+        return self.__js_distance_multivariate(ts1, ts2)
 
     def __js_distance(self, ts1, ts2, num_bins=100):
         KL_p_m, KL_q_m = self.__kl_divergence_univariate(ts1, ts2, num_bins=num_bins)

@@ -5,7 +5,14 @@ import re
 import os
 import random
 
-from dtaidistance import dtw_ndim
+from metrics.kl import Kl
+from metrics.dtw import Dtw
+from metrics.mmd import Mmd
+from metrics.js import Js
+from metrics.ks import Ks
+from metrics.cc import Cc
+from metrics.cp import Cp
+from metrics.hi import Hi
 
 def csv_has_header(filename, ts_delimiter, has_header):
     if has_header:
@@ -144,16 +151,17 @@ def get_ori_data_sample(seq_len, ori_data):
     ori_data_sample = ori_data[ori_data_sample_start:ori_data_sample_end]
     return ori_data_sample
 
-def get_most_similar_ori_data_sample(ori_data_windows_numpy, generated_data_sample):
+def get_most_similar_ori_data_sample(ts1_windows, ts2, metric_object):
     minimum_dtw = float('inf')
     most_similar_sample = []
-    for ori_data_sample in ori_data_windows_numpy:
+    for ts1 in ts1_windows:
         # TODO: Preguntamos por el parametro que define la metrica a usar para calcular la ventana mas parecida: mmd, dtw por defecto, ks, cc...
         # TODO: Definimos un argumento opcional para la metrica a usar
-        current_distance = dtw_ndim.distance_fast(ori_data_sample, generated_data_sample)
+        metric_object.compute_distance(ts1, ts2)
+        current_distance = metric_object.compute_distance(ts1, ts2)
         if current_distance < minimum_dtw:
             minimum_dtw = current_distance
-            most_similar_sample = ori_data_sample
+            most_similar_sample = ts1
     return most_similar_sample, minimum_dtw
 
 def split_ori_data_strided(ori_data_df, seq_len, stride):
@@ -165,6 +173,30 @@ def split_ori_data_strided(ori_data_df, seq_len, stride):
         ori_data_windows_numpy = np.array(
             [ori_data_df[start_index:start_index + seq_len] for start_index in start_sequence_range])
     return ori_data_windows_numpy
+
+def get_metric_function(splitting_metric):
+    metric_functions = {
+        "mmd": Mmd(),
+        "dtw": Dtw(),
+        "kl": Kl(),
+        "js": Js(),
+        "ks": Ks(),
+        "cc": Cc(),
+        "cp": Cp(),
+        "hi": Hi(),    
+    }
+
+    return metric_functions[splitting_metric]
+
+def preprocess_ts(ts1, ts2, stride, splitting_metric):
+    metric_object = get_metric_function(splitting_metric)
+
+    ts1_windows = split_ori_data_strided(ts1, ts2.shape[0], stride)
+    best_ts1, computed_metric = get_most_similar_ori_data_sample(ts1_windows, ts2, metric_object)
+
+    computed_chosen_metric = [splitting_metric, computed_metric]
+
+    return best_ts1, computed_chosen_metric
 
 def normalize_start_time_to_zero(sample):
     timestamp_column = sample[:, 0]

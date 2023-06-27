@@ -1,5 +1,3 @@
-#Propiedades y métodos de esta clase:
-
 class Plot:
     def __init__(self):
         pass

@@ -1,7 +1,6 @@
 import inspect
 import importlib
 import os
-import json
 
 from plots.plot import Plot
 

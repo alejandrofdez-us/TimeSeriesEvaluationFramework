@@ -1,6 +1,6 @@
 from itertools import cycle
 import matplotlib.pyplot as plt
-from helper import get_ori_data_sample
+from plot_helper import get_ori_data_sample
 import numpy as np
 
 from plots.plot import Plot

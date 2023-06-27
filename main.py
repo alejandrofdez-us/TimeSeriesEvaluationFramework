@@ -1,31 +1,28 @@
 import os
 import argparse
 from core import compute_metrics, generate_figures
-from helper import load_ts_from_csv, preprocess_ts
+from window_sampler import select_best_window
+from reader import load_ts_from_csv
 
 
 def main(arguments):
     try:
-        ts1, header_ts1, _ = load_ts_from_csv(
+        #TODO: Hacer lectura recursiva en directorio
+        ts1, header_ts1 = load_ts_from_csv(
             arguments.time_series_1_filename, arguments.header
         )
-        ts2, header_ts2, _ = load_ts_from_csv(
-            arguments.time_series_2_filename, arguments.header
+        ts2, header_ts2 = load_ts_from_csv(
+            arguments.time_series_2_path, arguments.header
         )
 
-        ts1, computed_chosen_metric = preprocess_ts(ts1, ts2, arguments.stride, arguments.splitting_metric)
-
-        if ts1.shape[1] < ts2.shape[1]:
-            raise ValueError("The first time series must have equal or greater length than the second one.")
-
+        # TODO: Hacer este if en la lectura de los csvs
         if header_ts1 != header_ts2:
             raise ValueError("Both time series must have the same header column names.")
 
-        computed_metrics = compute_metrics(ts1, ts2, arguments.metrics, computed_chosen_metric)
+        computed_metrics = compute_metrics(ts1, ts2, arguments.metrics, arguments.stride, arguments.window_selection_metric)
 
-        os.makedirs("results/metrics", exist_ok=True)
-        with open("results/metrics/results.json", "w") as file:
-            file.write(computed_metrics)
+        # TODO: El json tiene que ser una lista de clave valor, filename: lista de metrics
+        save_metrics(computed_metrics, "results/metrics")
 
         if arguments.figures:
             figures = generate_figures(ts1, ts2, header_ts1, arguments.figures, arguments.timestamp_frequency_seconds)
@@ -33,13 +30,6 @@ def main(arguments):
 
     except ValueError as error:
         print("Error: ", error)
-
-    # TODO: Incorporar las figuras de manera parecida a como hemos hecho con las métricas númericas
-    # TODO: Pensar si computar las métricas comparando columna a columna y no su version multivariate
-    # TODO: Pensar como  guardar los resultados (consola o fichero y formato csv? json? html? varios?), pedirle al
-    #  usuario nombre de fichero resultante y que por defecto sea algo así como results.csv
-    # ? TODO: ver si hay alguna manera de empaquetarlo para que no necesite instalar los requirements.txt -> Que necesitamos empaquetar?
-
 
 def save_figures(figures_dict, path="results/figures"):
     for figure_name, figures in figures_dict.items():
@@ -52,22 +42,28 @@ def save_figures(figures_dict, path="results/figures"):
                 format="pdf",
             )
 
+def save_metrics(computed_metrics, path="results/metrics"):
+    os.makedirs(f"{path}", exist_ok=True)
+    with open(f"{path}/results.json", "w") as file:
+        file.write(computed_metrics)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        usage="python main.py -ts1 path_to_file_1 -ts2 path_to_file_2 --metrics js mmd... [--figures] tsne pca... [--header] [--timestamp_frequency_seconds] 300 [--stride] 2"
+        usage="python main.py -ts1 path_to_file_1 -ts2_path path_to_files_2 --metrics js mmd... [--figures] tsne pca... \
+            [--header] [--timestamp_frequency_seconds] 300 [--stride] 2 [--window_selection_metric] cc"
     )
     parser.add_argument(
         "-ts1",
         "--time_series_1_filename",
-        help="<Required> Include a csv filename that represents a time-series including a header.",
+        help="<Required> Include a csv filename that represents a time series including a header.",
         type=str,
         required=True,
     )
     parser.add_argument(
-        "-ts2",
-        "--time_series_2_filename",
-        help="<Required> Include a csv filename that represents a time-series including a header.",
+        "-ts2_path",
+        "--time_series_2_path",
+        help="<Required> Include a directory with csv filenames each one representing time series.",
         type=str,
         required=True,
     )
@@ -115,8 +111,8 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "-split_m",
-        "--splitting_metric",
+        "-w_select_met",
+        "--window_selection_metric",
         help="<Optional> Include the chosen metric used to pick the best window in the first time series.",
         required=False,
         default="dtw",

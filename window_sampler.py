@@ -30,7 +30,7 @@ def split_ori_data_strided(ori_data_df, seq_len, stride):
             [ori_data_df[start_index:start_index + seq_len] for start_index in start_sequence_range])
     return ori_data_windows_numpy
 
-def get_metric_function(splitting_metric):
+def get_metric_function(windowing_metric):
     metric_functions = {
         "mmd": Mmd(),
         "dtw": Dtw(),
@@ -42,14 +42,23 @@ def get_metric_function(splitting_metric):
         "hi": Hi(),    
     }
 
-    return metric_functions[splitting_metric]
+    return metric_functions[windowing_metric]
 
-def select_best_window(ts1, ts2, stride, splitting_metric):
-    metric_object = get_metric_function(splitting_metric)
+def select_best_windows(ts1, ts2_dict, stride, windowing_metric):
+    metric_object = get_metric_function(windowing_metric)
+    ts2_dict_windowed = {}
 
-    ts1_windows = split_ori_data_strided(ts1, ts2.shape[0], stride)
-    best_ts1, computed_metric = get_most_similar_ori_data_sample(ts1_windows, ts2, metric_object)
+    for filename, ts2 in ts2_dict.items():
+        ts1_windows = split_ori_data_strided(ts1, ts2.shape[0], stride)
+        best_ts1, computed_metric = get_most_similar_ori_data_sample(ts1_windows, ts2, metric_object)
+        cached_metric = [windowing_metric, computed_metric]
 
-    cached_metric = [splitting_metric, computed_metric]
+        if best_ts1.shape[1] < ts2.shape[1]:
+            raise ValueError("The first time series must have equal or greater length than the second one.")
 
-    return best_ts1, cached_metric
+        ts2_dict_windowed[filename] = {}
+        ts2_dict_windowed[filename]["ts1"] = best_ts1
+        ts2_dict_windowed[filename]["ts2"] = ts2
+        ts2_dict_windowed[filename]["cached_metric"] = cached_metric
+
+    return ts2_dict_windowed

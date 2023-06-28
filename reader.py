@@ -1,6 +1,7 @@
 import csv
 import re
 import numpy as np
+import os
 
 def csv_has_header(filename, ts_delimiter, has_header):
     if has_header:
@@ -35,3 +36,18 @@ def load_ts_from_csv(filename, has_header=None):
     skiprows = 1 if has_header else 0
 
     return np.loadtxt(filename, delimiter=ts_delimiter, skiprows=skiprows), header
+
+
+def load_ts_from_path(path, header_ts1, has_header=None):
+    #Devuelve un diccionario con filename: loaded_ts
+    ts2_list = {}
+    for _, _, files in os.walk(path):
+        for file in files:
+            ts2, header_ts2 = load_ts_from_csv(f"{path}/{file}", has_header)
+
+            if header_ts1 != header_ts2:
+                raise ValueError("All time series must have the same header column names.")
+            
+            ts2_list[file] = ts2
+
+    return ts2_list

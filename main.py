@@ -1,32 +1,25 @@
 import os
 import argparse
 from core import compute_metrics, generate_figures
-from window_sampler import select_best_window
-from reader import load_ts_from_csv
+from reader import load_ts_from_csv, load_ts_from_path
 
 
 def main(arguments):
     try:
-        #TODO: Hacer lectura recursiva en directorio
         ts1, header_ts1 = load_ts_from_csv(
             arguments.time_series_1_filename, arguments.header
         )
-        ts2, header_ts2 = load_ts_from_csv(
-            arguments.time_series_2_path, arguments.header
+        ts2_dict = load_ts_from_path(
+            arguments.time_series_2_path, header_ts1, arguments.header
         )
 
-        # TODO: Hacer este if en la lectura de los csvs
-        if header_ts1 != header_ts2:
-            raise ValueError("Both time series must have the same header column names.")
+        computed_metrics = compute_metrics(ts1, ts2_dict, arguments.metrics, arguments.stride, arguments.window_selection_metric)
 
-        computed_metrics = compute_metrics(ts1, ts2, arguments.metrics, arguments.stride, arguments.window_selection_metric)
-
-        # TODO: El json tiene que ser una lista de clave valor, filename: lista de metrics
         save_metrics(computed_metrics, "results/metrics")
 
-        if arguments.figures:
-            figures = generate_figures(ts1, ts2, header_ts1, arguments.figures, arguments.timestamp_frequency_seconds)
-            save_figures(figures)
+        #if arguments.figures:
+        #    figures = generate_figures(ts1, ts2_dict, header_ts1, arguments.figures, arguments.timestamp_frequency_seconds)
+        #    save_figures(figures)
 
     except ValueError as error:
         print("Error: ", error)

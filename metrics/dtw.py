@@ -3,10 +3,9 @@ from dtaidistance import dtw_ndim
 from metrics.metric import Metric
 
 class Dtw(Metric):
-    def compute(self, ts1, ts2, computed_chosen_metric):
-    
-        if computed_chosen_metric[0] == "dtw":
-            metric_result = {"Multivariate": computed_chosen_metric[1]}
+    def compute(self, ts1, ts2, cached_metric):
+        if cached_metric[0] == "dtw":
+            metric_result = {"Multivariate": cached_metric[1]}
 
         else:
             metric_result = {"Multivariate": self.__compute_dtw(ts1, ts2)}

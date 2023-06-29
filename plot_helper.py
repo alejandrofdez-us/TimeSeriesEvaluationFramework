@@ -2,17 +2,30 @@ import numpy as np
 import pandas as pd
 import random
 
-def update_figures_arguments(time_series_1, time_series_2_dict, header, figures_to_be_generated, ts_freq_secs):
-    args = {"ts1" : time_series_1, "ts2_dict" : time_series_2_dict, "header" : header}
+def update_figures_arguments(time_series_2_dict, header, figures_to_be_generated, ts_freq_secs):
+    tsne_pca_computed = False
+    deltas_computed = False
+    args = {}
+    tsne_pca_args = {}
 
-    if "tsne" in figures_to_be_generated or "pca" in figures_to_be_generated:
-        args.update(tsne_pca_preprocess(time_series_1, time_series_2_dict)) # ver
+    for filename, ts_dict in time_series_2_dict.items():
+        args[filename] = {"ts1" : ts_dict["ts1"], "ts2" : ts_dict["ts2"], "header" : header}
+        #Son las unicas que quedan por arreglar
+        if ("tsne" in figures_to_be_generated or "pca" in figures_to_be_generated) and tsne_pca_computed == False:
+            tsne_pca_args = tsne_pca_preprocess(time_series_2_dict)
+            args[filename].update(tsne_pca_args)
+            tsne_pca_computed = True
 
-    if "deltas" in figures_to_be_generated:
-        args.update(deltas_preprocess(time_series_1, ts_freq_secs))
-    
-    if "evolution" in figures_to_be_generated:
-        args.update(evolution_preprocess(time_series_1, time_series_2_dict, header)) # ver
+        else: 
+            if tsne_pca_computed:
+                args[filename].update(tsne_pca_args)
+
+
+        if "deltas" in figures_to_be_generated and deltas_computed == False:
+            args[filename].update(deltas_preprocess(ts_dict["ts1"], ts_freq_secs))
+
+        if "evolution" in figures_to_be_generated:
+            args[filename].update(evolution_preprocess(ts_dict["ts1"], ts_dict["ts2"], header))
 
     return args
 
@@ -32,30 +45,28 @@ def deltas_preprocess(ts1, ts_freq_secs):
 
     return args
 
-def evolution_preprocess(ts1, ts2_dict, header):
+def evolution_preprocess(ts1, ts2, header):
 
-    generated_data_samples_df = {}
-    for filename, ts2 in ts2_dict.items():
-        generated_data_samples_df[filename] = pd.DataFrame(ts2, columns=header)
-    args = {"seq_len" : len(ts1[:, 0]), "ori_data_sample" : ts1, "generated_data_samples" : ts2_dict,
-                "generated_data_samples_df" : generated_data_samples_df}
+    generated_data_sample_df = pd.DataFrame(ts2, columns=header)
+    args = {"seq_len" : len(ts1[:, 0]), "ori_data_sample" : ts1, "generated_data_sample" : ts2,
+                "generated_data_sample_df" : generated_data_sample_df}
 
     return args
 
-def tsne_pca_preprocess (ts1, ts2_dict):
+def tsne_pca_preprocess (ts2_dict):
     generated_data = []
     ori_data_for_visualization = []
     n_samples = 0
     seq_len = 0
 
-    for ts2 in ts2_dict.values():
+    for ts_dict in ts2_dict.values():
         n_samples = n_samples + 1
-        seq_len = len(ts2)
-        generated_data.append(ts2)
-        ori_data_for_visualization.append(seq_cut_and_mix(ts1, seq_len))
+        seq_len = len(ts_dict["ts2"])
+        generated_data.append(ts_dict["ts2"])
+        ori_data_for_visualization.append(seq_cut_and_mix(ts_dict["ts1"], seq_len)[0])
 
     args = {"ori_data" : ori_data_for_visualization, "gen_data" : generated_data, "n_samples" : n_samples}
-    plot_args = plot_preprocess(args)
+    plot_args = tsne_pca_plot_preprocess(args)
     
     return plot_args
         
@@ -74,7 +85,7 @@ def seq_cut_and_mix (ori_data, seq_len):
 
     return data
 
-def plot_preprocess (args):
+def tsne_pca_plot_preprocess (args):
     # Analysis sample size (for faster computation)
     anal_sample_no = min([args["n_samples"], len(args["ori_data"])])
     idx = np.random.permutation(args["n_samples"])[:anal_sample_no]
@@ -98,8 +109,8 @@ def plot_preprocess (args):
             prep_data_hat = np.concatenate((prep_data_hat,
                                             np.reshape(np.mean(generated_data[i, :, :], 1), [1, seq_len])))
 
-    # Visualization parameter
-    colors = ["red" for _ in range(anal_sample_no)] + ["blue" for i in range(anal_sample_no)]
+    
+    colors = ["red" for _ in range(anal_sample_no)] + ["blue" for _ in range(anal_sample_no)]
     
     args.pop("ori_data")
     args.pop("gen_data")

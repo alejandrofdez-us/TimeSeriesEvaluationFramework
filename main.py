@@ -1,6 +1,6 @@
 import os
 import argparse
-from core import compute_metrics, generate_figures
+from core import generate_metrics_and_figures, compute_metrics, generate_figures
 from reader import load_ts_from_csv, load_ts_from_path
 
 
@@ -13,27 +13,28 @@ def main(arguments):
             arguments.time_series_2_path, header_ts1, arguments.header
         )
 
-        computed_metrics = compute_metrics(ts1, ts2_dict, arguments.metrics, arguments.stride, arguments.window_selection_metric)
+        computed_metrics, generated_figures = generate_metrics_and_figures(ts1, ts2_dict, arguments.metrics, arguments.stride, arguments.window_selection_metric, header_ts1, arguments.figures, arguments.timestamp_frequency_seconds)
 
         save_metrics(computed_metrics, "results/metrics")
 
-        #if arguments.figures:
-        #    figures = generate_figures(ts1, ts2_dict, header_ts1, arguments.figures, arguments.timestamp_frequency_seconds)
-        #    save_figures(figures)
+        if arguments.figures:
+            save_figures(generated_figures)
 
     except ValueError as error:
         print("Error: ", error)
 
 def save_figures(figures_dict, path="results/figures"):
-    for figure_name, figures in figures_dict.items():
-        for figure in figures:
-            figure_label = figure[0].axes[0].get_title()
-            os.makedirs(f"{path}/{figure_name}", exist_ok=True)
+    for filename, figures in figures_dict.items():
+        for figure_name, plots in figures.items():
+            for plot in plots:
+                plot_label = plot[0].axes[0].get_title()
+                original_filename = filename.split(".")[0]
+                os.makedirs(f"{path}/{original_filename}/{figure_name}/", exist_ok=True)
 
-            figure[0].savefig(
-                f"{path}/{figure_name}/{figure_label}.pdf",
-                format="pdf",
-            )
+                plot[0].savefig(
+                    f"{path}/{original_filename}/{figure_name}/{plot_label}.pdf",
+                    format="pdf",
+                )
 
 def save_metrics(computed_metrics, path="results/metrics"):
     os.makedirs(f"{path}", exist_ok=True)

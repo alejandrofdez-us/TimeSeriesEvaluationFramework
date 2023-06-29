@@ -21,7 +21,7 @@ class Pca(Plot):
         plt.scatter(pca_results[:, 0], pca_results[:, 1],
                     c=args["colors"][:args["anal_sample_no"]], alpha=0.2, label="TS_1")
         plt.scatter(pca_hat_results[:, 0], pca_hat_results[:, 1],
-                    c=args["colors"][:args["anal_sample_no"]], alpha=0.2, label="TS_2")
+                    c=args["colors"][args["anal_sample_no"]:], alpha=0.2, label="TS_2")
 
         ax.legend()
         plt.title('PCA')

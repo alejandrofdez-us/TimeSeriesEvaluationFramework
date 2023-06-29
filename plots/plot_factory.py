@@ -23,11 +23,13 @@ class PlotFactory(metaclass=Singleton):
 
     def generate_figures(self):
         generated_plots = {}
-        for figure_to_be_computed in self.figures_to_be_generated:
-            plot = self.__create_figure(figure_to_be_computed)    
-            generated_plots[figure_to_be_computed] = plot.generate_figures(
-                self.args
-            )
+        for filename, figure_to_be_computed_args in self.args.items():
+            generated_plots[filename] = {}
+            for figure_to_be_computed in self.figures_to_be_generated:
+                plot = self.__create_figure(figure_to_be_computed)
+                generated_plots[filename][figure_to_be_computed] = plot.generate_figures(
+                    figure_to_be_computed_args
+                )
 
         return generated_plots
 

@@ -53,9 +53,6 @@ def select_best_windows(ts1, ts2_dict, stride, windowing_metric):
         best_ts1, computed_metric = get_most_similar_ori_data_sample(ts1_windows, ts2, metric_object)
         cached_metric = [windowing_metric, computed_metric]
 
-        if best_ts1.shape[1] < ts2.shape[1]:
-            raise ValueError("The first time series must have equal or greater length than the second one.")
-
         ts2_dict_windowed[filename] = {}
         ts2_dict_windowed[filename]["ts1"] = best_ts1
         ts2_dict_windowed[filename]["ts2"] = ts2

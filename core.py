@@ -26,4 +26,4 @@ def generate_figures(ts1, ts2_dict, stride, window_selection_metric, header, fig
     factory = PlotFactory(figures_to_be_generated, args)
     generated_figures = factory.generate_figures()
 
-    return generated_figures
+    return generated_figures, factory.computed_figures_requires_all_samples

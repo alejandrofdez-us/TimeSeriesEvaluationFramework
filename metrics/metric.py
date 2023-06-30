@@ -1,5 +1,3 @@
-#Propiedades y métodos de esta clase:
-
 class Metric:
     def __init__(self):
         pass

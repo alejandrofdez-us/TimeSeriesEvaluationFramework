@@ -7,6 +7,10 @@ class Pca(Plot):
     def generate_figures(self, args):
         plot_array = self.__generate_pca_figures(args)
         return plot_array
+    
+    @staticmethod
+    def requires_all_samples():
+        return True
 
     def __generate_pca_figures(self, args):
         # PCA Analysis

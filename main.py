@@ -18,22 +18,29 @@ def main(arguments):
             save_metrics(computed_metrics)
 
         if arguments.figures:
-            generated_figures = generate_figures(ts1, ts2_dict, arguments.stride, arguments.window_selection_metric, header_ts1, arguments.figures, arguments.timestamp_frequency_seconds)
-            save_figures(generated_figures)
+            generated_figures, computed_figures_requires_all_samples = generate_figures(ts1, ts2_dict, arguments.stride, arguments.window_selection_metric, header_ts1, arguments.figures, arguments.timestamp_frequency_seconds)
+            save_figures(generated_figures, computed_figures_requires_all_samples)
 
     except ValueError as error:
         print("Error: ", error)
 
-def save_figures(figures_dict, path="results/figures"):
+def save_figures(figures_dict, computed_figures_requires_all_samples, path="results/figures"):
     for filename, figures in figures_dict.items():
         for figure_name, plots in figures.items():
             for plot in plots:
                 plot_label = plot[0].axes[0].get_title()
-                original_filename = filename.split(".")[0]
-                os.makedirs(f"{path}/{original_filename}/{figure_name}/", exist_ok=True)
+                dir_path = ""
+
+                if figure_name not in computed_figures_requires_all_samples:
+                    original_filename = filename.split(".")[0]
+                    dir_path = f"{path}/{original_filename}/{figure_name}/"
+                else:
+                    dir_path = f"{path}/{figure_name}/"
+                
+                os.makedirs(dir_path, exist_ok=True)
 
                 plot[0].savefig(
-                    f"{path}/{original_filename}/{figure_name}/{plot_label}.pdf",
+                    f"{dir_path}{plot_label}.pdf",
                     format="pdf",
                 )
 
@@ -48,15 +55,13 @@ if __name__ == "__main__":
         usage="python main.py -ts1 path_to_file_1 -ts2_path path_to_files_2 [--metrics] [js ...] [--figures] [tsne ...] \
             [--header] [--timestamp_frequency_seconds] 300 [--stride] 2 [--window_selection_metric] metric_name"
     )
-    # TODO: Explicar que la ts_1 puede ser mayor o igual que la segunda, pero en caso de ser mayor, se partira la ts_1
     parser.add_argument(
         "-ts1",
         "--time_series_1_filename",
-        help="<Required> Include a csv filename that represents a time series.",
+        help="<Required> Include a csv filename that represents a time series. If ts1 is bigger than time series in ts2_path, it will be splitted in windows.",
         type=str,
         required=True,
     )
-    # TODO: Hacer que tambien pueda recibir un csv directamente
     parser.add_argument(
         "-ts2_path",
         "--time_series_2_path",
@@ -64,7 +69,6 @@ if __name__ == "__main__":
         type=str,
         required=True,
     )
-
     parser.add_argument(
         "-m",
         "--metrics",
@@ -78,10 +82,9 @@ if __name__ == "__main__":
         "--figures",
         nargs="+",
         help="<Optional> Include figure names to be generated as a list separated by spaces.",
-        choices=["tsne", "pca", "dtw", "evolution", "deltas"],
+        choices=["tsne", "pca", "dtw", "evolution", "deltas", "pca2"],
         required=False,
     )
-
     parser.add_argument(
         "-head",
         "--header",
@@ -89,7 +92,6 @@ if __name__ == "__main__":
         required=False,
         action="store_true",
     )
-
     parser.add_argument(
         "-ts_freq_secs",
         "--timestamp_frequency_seconds",
@@ -98,7 +100,6 @@ if __name__ == "__main__":
         default=1,
         type=int,
     )
-
     parser.add_argument(
         "-strd",
         "--stride",
@@ -107,7 +108,6 @@ if __name__ == "__main__":
         default=1,
         type=int,
     )
-
     parser.add_argument(
         "-w_select_met",
         "--window_selection_metric",
@@ -116,6 +116,5 @@ if __name__ == "__main__":
         default="dtw",
         type=str,
     )
-
     args = parser.parse_args()
     main(args)

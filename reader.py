@@ -40,14 +40,22 @@ def load_ts_from_csv(filename, has_header=None):
 
 def load_ts_from_path(path, header_ts1, has_header=None):
     time_series = {}
-    #TODO: El path podría ser un fichero, en ese caso se ha de devolver un diccionario con sólo una serie temporal
-    for _, _, files in os.walk(path):
-        for file in files:
-            ts2, header_ts2 = load_ts_from_csv(f"{path}/{file}", has_header)
+    _, file_extension = os.path.splitext(path)
+    if file_extension.lower() == ".csv":
+        ts2, header_ts2 = load_ts_from_csv(path, has_header)
 
-            if (header_ts1 != header_ts2) and has_header != None:
-                raise ValueError("All time series must have the same header column names.")
-            
-            time_series[file] = ts2
+        if (header_ts1 != header_ts2) and has_header != None:
+            raise ValueError("All time series must have the same header column names.")
+        
+        time_series[path.split("/")[-1]] = ts2
+    else:    
+        for _, _, files in os.walk(path):
+            for file in files:
+                ts2, header_ts2 = load_ts_from_csv(f"{path}/{file}", has_header)
+
+                if (header_ts1 != header_ts2) and has_header != None:
+                    raise ValueError("All time series must have the same header column names.")
+                
+                time_series[file] = ts2
 
     return time_series

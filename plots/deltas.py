@@ -36,7 +36,7 @@ class Deltas(Plot):
         min_y_value = min(np.amin(delta_ts1_column_array), np.amin(delta_gen_column))
         # TODO: Comprobar que pasa con el eje x
         return self.__create_figure(ts1_column_values_array=delta_ts1_column_array, generated_column_values=delta_gen_column, column_name=column_name,
-                    axis=[0, seq_len // (minutes / (ts_freq_secs / 60)), min_y_value, max_y_value], minutes=minutes)
+                    axis=[0, len(delta_ts1_column_array[0])-1, min_y_value, max_y_value], minutes=minutes)
         
     def __compute_grouped_delta_from_sample(self, column_number, minutes, data_sample, seq_len, ts_freq_secs):
         sample_column = data_sample[:, column_number]

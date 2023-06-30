@@ -1,13 +1,8 @@
+import os
 import numpy as np
-
-from metrics.kl import Kl
-from metrics.dtw import Dtw
-from metrics.mmd import Mmd
 from metrics.js import Js
-from metrics.ks import Ks
-from metrics.cc import Cc
-from metrics.cp import Cp
-from metrics.hi import Hi
+
+from metrics.metric_factory import MetricFactory
 
 def get_most_similar_ts_sample(ts1_windows, ts2, metric_object):
     current_best = float('inf')
@@ -30,25 +25,16 @@ def split_ts_data_strided(ts_df, seq_len, stride):
             [ts_df[start_index:start_index + seq_len] for start_index in start_sequence_range])
     return ts_windows_numpy
 
-# TODO: Recorrer el directorio en busca de metricas 
 def get_metric_function(window_selection_metric):
-    metric_functions = {
-        "mmd": Mmd(),
-        "dtw": Dtw(),
-        "kl": Kl(),
-        "js": Js(),
-        "ks": Ks(),
-        "cc": Cc(),
-        "cp": Cp(),
-        "hi": Hi(),    
-    }
+    folder_path = os.path.dirname(os.path.abspath(__file__)) + "\\metrics"
+    dir_classes = MetricFactory.find_classes_in_directory([window_selection_metric], folder_path)
+    metric_classes = MetricFactory.get_metric_classes(dir_classes)
 
-    return metric_functions[window_selection_metric]
+    return metric_classes[window_selection_metric]()
 
 def create_ts1_ts2_associated_windows(ts1, ts2_dict, stride, window_selection_metric):
     metric_object = get_metric_function(window_selection_metric)
     ts1_ts2_associated_windows = {}
-
 
     for filename, ts2 in ts2_dict.items():
         ts1_windows = split_ts_data_strided(ts1, ts2.shape[0], stride)

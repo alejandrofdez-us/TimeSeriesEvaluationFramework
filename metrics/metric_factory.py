@@ -19,8 +19,8 @@ class MetricFactory(metaclass=Singleton):
         self.ts1_ts2_associated_windows = ts1_ts2_associated_windows
 
         folder_path = os.path.dirname(os.path.abspath(__file__))
-        curr_modules = self.__find_classes_in_folder(folder_path)
-        self.metric_classes = self.__get_metric_classes(curr_modules)
+        curr_modules = self.find_classes_in_directory(metrics_to_be_computed, folder_path)
+        self.metric_classes = self.get_metric_classes(curr_modules)
 
     def get_metrics_json(self):
         computed_metrics = {}
@@ -46,7 +46,7 @@ class MetricFactory(metaclass=Singleton):
             raise ValueError('Invalid metric name')
 
     @staticmethod
-    def __get_metric_classes(modules):
+    def get_metric_classes(modules):
         metric_classes = {}
 
         for name, obj in modules.items():
@@ -57,14 +57,15 @@ class MetricFactory(metaclass=Singleton):
                         metric_classes[name] = instance
         return metric_classes
     
-    def __find_classes_in_folder(self, folder_path):
+    @staticmethod
+    def find_classes_in_directory(metrics_to_be_computed, folder_path):
         classes = {}
 
         for _, _, files in os.walk(folder_path):
             for file_name in files:
                 if file_name.endswith('.py'):
                     module_name = file_name[:-3]
-                    if module_name in self.metrics_to_be_computed:
+                    if module_name in metrics_to_be_computed:
                         try:
                             module = importlib.import_module(f".{module_name}", package="metrics")
                             classes[module_name] = module

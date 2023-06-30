@@ -22,7 +22,7 @@ class PlotFactory(metaclass=Singleton):
         self.computed_figures_requires_all_samples= []
 
         folder_path = os.path.dirname(os.path.abspath(__file__))
-        curr_modules = self.__find_classes_in_folder(folder_path)
+        curr_modules = self.__find_classes_in_directory(folder_path)
         self.figure_classes = self.__get_figure_classes(curr_modules)
 
 
@@ -63,7 +63,7 @@ class PlotFactory(metaclass=Singleton):
                             self.figures_requires_all_samples.append(name)
         return figure_classes
     
-    def __find_classes_in_folder(self, folder_path):
+    def __find_classes_in_directory(self, folder_path):
         classes = {}
 
         for _, _, files in os.walk(folder_path):

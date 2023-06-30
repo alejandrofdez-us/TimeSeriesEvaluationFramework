@@ -61,4 +61,6 @@ class Tsne(Plot):
         plt.xlabel('x_tsne')
         plt.ylabel('y_tsne')
 
+        plt.close()
+
         return fig, ax

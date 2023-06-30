@@ -24,10 +24,10 @@ class Hi(Metric):
         histogram_diff_matrix = []
         for column in range(0, ts1.shape[1]):
             ts1_column_values = ts1[:, column]
-            ori_histogram, ori_bin_edges = np.histogram(ts1_column_values)
+            ts1_histogram, _ = np.histogram(ts1_column_values)
             generated_data_column_values = ts2[:, column]
-            generated_histogram, generated_bin_edges = np.histogram(generated_data_column_values)
-            column_histogram_diff = ori_histogram - generated_histogram
+            generated_histogram, _ = np.histogram(generated_data_column_values)
+            column_histogram_diff = ts1_histogram - generated_histogram
             histogram_diff_matrix.append(column_histogram_diff)
         histogram_diff_matrix = np.asmatrix(histogram_diff_matrix)
         l1_norms_histogram_diff = np.apply_along_axis(np.linalg.norm, 1, histogram_diff_matrix)

@@ -1,6 +1,6 @@
 import os
 import argparse
-from core import generate_metrics_and_figures, compute_metrics, generate_figures
+from core import compute_metrics, generate_figures
 from reader import load_ts_from_csv, load_ts_from_path
 
 
@@ -13,11 +13,12 @@ def main(arguments):
             arguments.time_series_2_path, header_ts1, arguments.header
         )
 
-        computed_metrics, generated_figures = generate_metrics_and_figures(ts1, ts2_dict, arguments.metrics, arguments.stride, arguments.window_selection_metric, header_ts1, arguments.figures, arguments.timestamp_frequency_seconds)
-
-        save_metrics(computed_metrics, "results/metrics")
+        if arguments.metrics:
+            computed_metrics = compute_metrics(ts1, ts2_dict, arguments.stride, arguments.window_selection_metric, arguments.metrics)
+            save_metrics(computed_metrics)
 
         if arguments.figures:
+            generated_figures = generate_figures(ts1, ts2_dict, arguments.stride, arguments.window_selection_metric, header_ts1, arguments.figures, arguments.timestamp_frequency_seconds)
             save_figures(generated_figures)
 
     except ValueError as error:
@@ -44,30 +45,33 @@ def save_metrics(computed_metrics, path="results/metrics"):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        usage="python main.py -ts1 path_to_file_1 -ts2_path path_to_files_2 --metrics js mmd... [--figures] tsne pca... \
-            [--header] [--timestamp_frequency_seconds] 300 [--stride] 2 [--window_selection_metric] cc"
+        usage="python main.py -ts1 path_to_file_1 -ts2_path path_to_files_2 [--metrics] [js ...] [--figures] [tsne ...] \
+            [--header] [--timestamp_frequency_seconds] 300 [--stride] 2 [--window_selection_metric] metric_name"
     )
+    # TODO: Explicar que la ts_1 puede ser mayor o igual que la segunda, pero en caso de ser mayor, se partira la ts_1
     parser.add_argument(
         "-ts1",
         "--time_series_1_filename",
-        help="<Required> Include a csv filename that represents a time series including a header.",
+        help="<Required> Include a csv filename that represents a time series.",
         type=str,
         required=True,
     )
+    # TODO: Hacer que tambien pueda recibir un csv directamente
     parser.add_argument(
         "-ts2_path",
         "--time_series_2_path",
-        help="<Required> Include a directory with csv filenames each one representing time series.",
+        help="<Required> Include the path to a csv file or a directory with csv files, each one representing time series.",
         type=str,
         required=True,
     )
+
     parser.add_argument(
         "-m",
         "--metrics",
         nargs="+",
-        help="<Required> Include metrics to be computed as a list separated by spaces.",
+        help="<Optional> Include metrics to be computed as a list separated by spaces.",
         choices=["js", "mmd", "dtw", "kl", "ks", "cc", "cp", "hi"],
-        required=True,
+        required=False,
     )
     parser.add_argument(
         "-f",

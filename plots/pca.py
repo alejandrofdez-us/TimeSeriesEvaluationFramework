@@ -31,4 +31,6 @@ class Pca(Plot):
         plot_array = []
         plot_array.append((fig, ax))
 
+        plt.close()
+
         return plot_array

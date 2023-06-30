@@ -14,9 +14,9 @@ class Singleton(type):
         return cls._instances[cls]
 
 class MetricFactory(metaclass=Singleton):
-    def __init__(self, metrics_to_be_computed, ts2_dict_windowed):
+    def __init__(self, metrics_to_be_computed, ts1_ts2_associated_windows):
         self.metrics_to_be_computed = metrics_to_be_computed
-        self.ts2_dict_windowed = ts2_dict_windowed
+        self.ts1_ts2_associated_windows = ts1_ts2_associated_windows
 
         folder_path = os.path.dirname(os.path.abspath(__file__))
         curr_modules = self.__find_classes_in_folder(folder_path)
@@ -24,7 +24,7 @@ class MetricFactory(metaclass=Singleton):
 
     def get_metrics_json(self):
         computed_metrics = {}
-        for filename, ts_dict in self.ts2_dict_windowed.items():
+        for filename, ts_dict in self.ts1_ts2_associated_windows.items():
             computed_metrics[filename] = {}
             for metric_to_be_computed in self.metrics_to_be_computed:
                 metric = self.__create_metric(metric_to_be_computed)    

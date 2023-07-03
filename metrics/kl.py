@@ -1,4 +1,3 @@
-# https://mail.python.org/pipermail/scipy-user/2011-May/029521.html
 import sys
 
 import numpy as np

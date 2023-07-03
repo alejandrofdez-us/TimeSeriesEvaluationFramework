@@ -1,6 +1,5 @@
 import os
 import numpy as np
-from metrics.js import Js
 
 from metrics.metric_factory import MetricFactory
 

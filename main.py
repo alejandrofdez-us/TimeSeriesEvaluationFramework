@@ -82,7 +82,7 @@ if __name__ == "__main__":
         "--figures",
         nargs="+",
         help="<Optional> Include figure names to be generated as a list separated by spaces.",
-        choices=["tsne", "pca", "dtw", "evolution", "deltas", "pca2"],
+        choices=["tsne", "pca", "dtw", "evolution", "deltas"],
         required=False,
     )
     parser.add_argument(

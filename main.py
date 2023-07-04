@@ -19,6 +19,7 @@ def main(arguments):
 
         if arguments.figures:
             generated_figures, computed_figures_requires_all_samples = generate_figures(ts1, ts2_dict, arguments.stride, arguments.window_selection_metric, header_ts1, arguments.figures, arguments.timestamp_frequency_seconds)
+            # TODO: Se hace llamada al get_figures_that_requires_all_samples() para saber qué figuras requieren que se le pasen todas las muestras
             save_figures(generated_figures, computed_figures_requires_all_samples)
 
     except ValueError as error:
@@ -36,7 +37,6 @@ def save_figures(figures_dict, computed_figures_requires_all_samples, path="resu
                     dir_path = f"{path}/{original_filename}/{figure_name}/"
                 else:
                     dir_path = f"{path}/{figure_name}/"
-                
                 os.makedirs(dir_path, exist_ok=True)
 
                 plot[0].savefig(
@@ -74,6 +74,7 @@ if __name__ == "__main__":
         "--metrics",
         nargs="+",
         help="<Optional> Include metrics to be computed as a list separated by spaces.",
+        #TODO: Crear lista de metricas disponibles llamando a MetricFactory.get_available_metrics()
         choices=["js", "mmd", "dtw", "kl", "ks", "cc", "cp", "hi"],
         required=False,
     )
@@ -82,6 +83,7 @@ if __name__ == "__main__":
         "--figures",
         nargs="+",
         help="<Optional> Include figure names to be generated as a list separated by spaces.",
+        #TODO: Crear lista de figuras disponibles llamando a PlotFactory.get_available_figures()
         choices=["tsne", "pca", "dtw", "evolution", "deltas"],
         required=False,
     )

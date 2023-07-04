@@ -1,7 +1,7 @@
 import csv
 import re
-import numpy as np
 import os
+import numpy as np
 
 def csv_has_header(filename, ts_delimiter, has_header):
     if has_header:
@@ -40,22 +40,18 @@ def load_ts_from_csv(filename, has_header=None):
 
 def load_ts_from_path(path, header_ts1, has_header=None):
     time_series = {}
-    _, file_extension = os.path.splitext(path)
-    if file_extension.lower() == ".csv":
+    if os.path.isfile(path):
         ts2, header_ts2 = load_ts_from_csv(path, has_header)
-
-        if (header_ts1 != header_ts2) and has_header != None:
+        # TODO: Hacer un metodo que sea check_headers(header_ts1, header_ts2) que compruebe que los headers son iguales (elimina el codigo duplicado)
+        if (header_ts1 != header_ts2) and has_header is not None:
             raise ValueError("All time series must have the same header column names.")
-        
-        time_series[path.split("/")[-1]] = ts2
+        time_series[os.path.basename(path)] = ts2
     else:    
         for _, _, files in os.walk(path):
             for file in files:
                 ts2, header_ts2 = load_ts_from_csv(f"{path}/{file}", has_header)
-
-                if (header_ts1 != header_ts2) and has_header != None:
+                if (header_ts1 != header_ts2) and has_header is not None:
                     raise ValueError("All time series must have the same header column names.")
-                
                 time_series[file] = ts2
 
     return time_series

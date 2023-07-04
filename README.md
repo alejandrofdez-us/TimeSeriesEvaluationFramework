@@ -84,9 +84,9 @@ If `-ts1` file include more rows than `-ts2_path` files, the fist time series wi
 Examples of usage are shown below:
 
 - Comparing two time series using DTW metric and figure parameters:
-```Bash
-python main.py --time_series_1_filename data/example_1.csv --time_series_2_path experiments/mini_example_1.csv --metrics dtw --figures dtw
-```
+  ```Bash
+  python main.py --time_series_1_filename data/example_1.csv --time_series_2_path experiments/mini_example_1.csv --metrics dtw --figures dtw
+  ```
 
 - Comparison between a time series and all time series within a directory:
 ```Bash

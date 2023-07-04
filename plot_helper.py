@@ -1,6 +1,6 @@
+import random
 import numpy as np
 import pandas as pd
-import random
 
 def update_figures_arguments(time_series_2_dict, header, figures_to_be_generated, ts_freq_secs):
     are_tsne_pca_preprocessed = False
@@ -25,14 +25,14 @@ def update_figures_arguments(time_series_2_dict, header, figures_to_be_generated
 
     return args
 
-def get_time_series_sample(seq_len, ts):
-    if len(ts) > seq_len:
-        ts_sample_start = random.randrange(0, len(ts) - seq_len)
-    else:  # seq_len is the full ts_data_length
+def get_random_time_series_sample(seq_len, time_series):
+    if len(time_series) > seq_len:
+        ts_sample_start = random.randrange(0, len(time_series) - seq_len)
+    else:
         ts_sample_start = 0
 
     ts_sample_end = ts_sample_start + seq_len
-    ts_sample = ts[ts_sample_start:ts_sample_end]
+    ts_sample = time_series[ts_sample_start:ts_sample_end]
     return ts_sample
 
 def deltas_preprocess(ts1, ts_freq_secs):
@@ -41,7 +41,6 @@ def deltas_preprocess(ts1, ts_freq_secs):
     return args
 
 def evolution_preprocess(ts1, ts2, header):
-
     generated_data_sample_df = pd.DataFrame(ts2, columns=header)
     args = {"seq_len" : len(ts1[:, 0]), "ts_sample" : ts1, "generated_data_sample" : ts2,
                 "generated_data_sample_df" : generated_data_sample_df}
@@ -58,14 +57,15 @@ def tsne_pca_preprocess (ts2_dict):
         n_samples = n_samples + 1
         seq_len = len(ts_dict["ts2"])
         generated_data.append(ts_dict["ts2"])
-        ts1_for_visualization.append(seq_cut_and_mix(ts_dict["ts1"], seq_len)[0])
+        ts1_for_visualization.append(cut_and_mix_time_series(ts_dict["ts1"], seq_len)[0])
 
     args = {"ts1_data" : ts1_for_visualization, "gen_data" : generated_data, "n_samples" : n_samples}
     plot_args = tsne_pca_plot_preprocess(args)
     
     return plot_args
-        
-def seq_cut_and_mix (ts, seq_len):
+
+# TODO:Cortar y mezclar en dos metodos distintos, con un metodo shuffle_time_series que los llame
+def cut_and_mix_time_series (ts, seq_len):
     temp_data = []
     # Cut data by sequence length
     for i in range(0, len(ts) - seq_len + 1):
@@ -104,7 +104,6 @@ def tsne_pca_plot_preprocess (args):
             prep_data_hat = np.concatenate((prep_data_hat,
                                             np.reshape(np.mean(generated_data[i, :, :], 1), [1, seq_len])))
 
-    
     colors = ["red" for _ in range(anal_sample_no)] + ["blue" for _ in range(anal_sample_no)]
     
     args.pop("ts1_data")

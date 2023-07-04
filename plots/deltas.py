@@ -1,6 +1,6 @@
 from itertools import cycle
 import matplotlib.pyplot as plt
-from plot_helper import get_time_series_sample
+from plot_helper import get_random_time_series_sample
 import numpy as np
 
 from plots.plot import Plot
@@ -26,7 +26,7 @@ class Deltas(Plot):
     def __generate_figures_grouped_by_minutes_various_ts_samples(self, minutes, column_number, column_name, ts1, generated_data_sample, 
                                                                 seq_len, ts_freq_secs, n_ts1_samples):
         delta_ts1_column_array = [
-            self.__compute_grouped_delta_from_sample(column_number, minutes, get_time_series_sample(seq_len, ts1), seq_len,
+            self.__compute_grouped_delta_from_sample(column_number, minutes, get_random_time_series_sample(seq_len, ts1), seq_len,
                                             ts_freq_secs) for _ in range(n_ts1_samples)]
 
         delta_gen_column = self.__compute_grouped_delta_from_sample(column_number, minutes, generated_data_sample, seq_len,

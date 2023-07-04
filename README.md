@@ -10,12 +10,12 @@
 - [Project Description](#project-description)
 - [Installation](#installation)
 - [Usage](#usage)
-- [Contributing](#contributing)
 - [License](#license)
 
 ## Project Description
 
 Time Series Evaluation Framework is an open-source project designed to facilitate the evaluation and comparison of multivariate time series data. It provides a comprehensive toolkit for analyzing, visualizing, and reporting multiple metrics and figures derived from time series datasets. The framework simplifies the process of evaluating time series by offering data preprocessing, metrics computation, visualization, statistical analysis, and report generation functionalities. With its customizable features, Time Series Evaluation Framework empowers researchers and data scientists to gain insights, identify patterns, and make informed decisions based on their time series data.
+
 
 It can compute the following **metrics**:
 
@@ -36,9 +36,16 @@ and generates the following **figures**:
 
   Each generated figure plots both the original and the synthetically generated data to easily obtain key insights into the similarities or differences between them.
 - `deltas`: the differences between the values of each column grouped by periods of time. For instance, the differences between the cpu usage every 5 minutes or every 30 minutes. These deltas can be used as a means of comparison between time series short-/mid-/long-term patterns.
+![Delta Image grouped by 2 minutes](docs/images/mini_sample_1/deltas/cpu_TS_1_vs_TS_2_(grouped_by_2_minutes).png)
+![Delta Image grouped by 5 minutes](docs/images/mini_sample_1/deltas/cpu_TS_1_vs_TS_2_(grouped_by_5_minutes).png)
+![Delta Image grouped by 10 minutes](docs/images/mini_sample_1/deltas/cpu_TS_1_vs_TS_2_(grouped_by_10_minutes).png)
 - `pca`: the linear dimensionality reduction technique that aims to find the principal components of a data set by computing the linear combinations of the original characteristics that explain the most variance in the data.
+![PCA Image](docs/images/pca/PCA.png)
 - `tsne`: a tool for visualising high-dimensional data sets in a 2D or 3D graphical representation allowing the creation of a single map that reveals the structure of the data at many different scales.
+![TSNE Image 300 iterations 40 perplexity](docs/images/tsne/t_SNE_iter_300-perplexity_40.png)
+![TSNE Image 1000 iterations 40 perplexity](docs/images/tsne/t_SNE_iter_1000-perplexity_40.png)
 - `dtw` path: In addition to the numerical similarity measure, the graphical representation of the DTW path of each column can be useful to better analyse the similarities or differences between the time series columns. Notice that there is no multivariate representation of DTW paths, only single column representations.
+![DTW Image for cpu](docs/images/mini_sample_1/dtw/DTW_cpu.png)
 
 ## Installation
 
@@ -101,7 +108,7 @@ python main.py -ts1 data/example_1.csv -ts2 experiments -m dtw -f dtw --header
 python main.py -ts1 data/example_1.csv -ts2 experiments -m dtw -f dtw --timestamp_frequency_seconds 60
 ```
 
-- Comparison between time series specifying the stride to be used when selecting the best windows in the first time series:
+- Comparison between time series specifying the stride that determines the step or distance by which a fixed-size window moves over the first time series:
 ```Bash
 python main.py -ts1 data/example_1.csv -ts2 experiments -m dtw -f dtw --stride 5
 ```
@@ -124,4 +131,4 @@ This allows the framework to dynamically recognize and utilize these custom clas
 
 ## License
 
-Time Series Evaluation Framework is free and open-source software licensed under the [MIT license](<https://github.com>).
+Time Series Evaluation Framework is free and open-source software licensed under the [MIT license](LICENSE).

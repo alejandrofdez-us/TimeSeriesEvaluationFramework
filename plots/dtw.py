@@ -1,5 +1,6 @@
 from dtaidistance import dtw_visualisation
 from dtaidistance import dtw
+from matplotlib import pyplot as plt
 
 from plots.plot import Plot
 
@@ -25,5 +26,6 @@ class Dtw(Plot):
         )
 
         figure[0].axes[0].set_title(f"DTW_{column}")
+        plt.close()
 
         return figure

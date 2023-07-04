@@ -19,8 +19,6 @@ class Hi(Metric):
         return self.__compute_hi(ts1, ts2)
 
     def __compute_hi(self, ts1, ts2):
-        # normalized_ts1_sample = normalize_start_time_to_zero(ts1)
-        # normalized_ts2 = normalize_start_time_to_zero(ts2)
         histogram_diff_matrix = []
         for column in range(0, ts1.shape[1]):
             ts1_column_values = ts1[:, column]

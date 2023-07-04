@@ -13,14 +13,12 @@ class Pca(Plot):
         return True
 
     def __generate_pca_figures(self, args):
-        # PCA Analysis
         assert len(args["prep_data"]) >= 2, 'The number of samples must be greater than 2 for PCA analysis.'    
         pca = PCA(n_components=2)
         pca.fit(args["prep_data"])
         pca_results = pca.transform(args["prep_data"])
         pca_hat_results = pca.transform(args["prep_data_hat"])
 
-        # Plotting
         fig, ax = plt.subplots(1)
         plt.scatter(pca_results[:, 0], pca_results[:, 1],
                     c=args["colors"][:args["anal_sample_no"]], alpha=0.2, label="TS_1")

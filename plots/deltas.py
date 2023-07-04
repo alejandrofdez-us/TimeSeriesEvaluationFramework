@@ -34,7 +34,6 @@ class Deltas(Plot):
 
         max_y_value = max(np.amax(delta_ts1_column_array), np.amax(delta_gen_column))
         min_y_value = min(np.amin(delta_ts1_column_array), np.amin(delta_gen_column))
-        # TODO: Comprobar que pasa con el eje x
         return self.__create_figure(ts1_column_values_array=delta_ts1_column_array, generated_column_values=delta_gen_column, column_name=column_name,
                     axis=[0, len(delta_ts1_column_array[0])-1, min_y_value, max_y_value], minutes=minutes)
         

@@ -16,9 +16,6 @@ class Cc(Metric):
         return self.__cc(ts1, ts2)
 
     def __cc(self, ts1, ts2):
-        # TODO: remove the following two commented lines?
-        # normalized_ts1 = normalize_start_time_to_zero(ts1)
-        # normalized_ts2 = normalize_start_time_to_zero(ts2)
         ts1_covariance = np.cov(ts1)
         generated_data_covariance = np.cov(ts2)
         covariance_diff_matrix = ts1_covariance - generated_data_covariance

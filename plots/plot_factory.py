@@ -18,12 +18,12 @@ class PlotFactory(metaclass=Singleton):
         self.args = args
         self.pca_is_computed = False
         self.tsne_is_computed = False
-        self.figures_requires_all_samples = []
+        self.figures_requires_all_samples = PlotFactory.get_figures_that_requires_all_samples(figures_to_be_generated)
         self.computed_figures_requires_all_samples= []
 
         folder_path = os.path.dirname(os.path.abspath(__file__))
-        curr_modules = self.__find_classes_in_directory(folder_path)
-        self.figure_classes = self.__get_figure_classes(curr_modules)
+        curr_modules = PlotFactory.__find_classes_in_directory(folder_path, figures_to_be_generated)
+        self.figure_classes = PlotFactory.__get_figure_classes(curr_modules)
 
 
     def generate_figures(self):
@@ -50,7 +50,8 @@ class PlotFactory(metaclass=Singleton):
         else:
             raise ValueError('Invalid metric name')
 
-    def __get_figure_classes(self, modules):
+    @staticmethod
+    def __get_figure_classes(modules):
         figure_classes = {}
 
         for name, obj in modules.items():
@@ -59,18 +60,17 @@ class PlotFactory(metaclass=Singleton):
                     instance = getattr(obj, name.capitalize())
                     if issubclass(instance, Plot):
                         figure_classes[name] = instance
-                        if instance.requires_all_samples():
-                            self.figures_requires_all_samples.append(name)
         return figure_classes
-    
-    def __find_classes_in_directory(self, folder_path):
+
+    @staticmethod    
+    def __find_classes_in_directory(folder_path, figures_to_be_generated):
         classes = {}
 
         for _, _, files in os.walk(folder_path):
             for file_name in files:
                 if file_name.endswith('.py'):
                     module_name = file_name[:-3]
-                    if module_name in self.figures_to_be_generated:
+                    if module_name in figures_to_be_generated:
                         try:
                             module = importlib.import_module(f".{module_name}", package="plots")
                             classes[module_name] = module
@@ -78,3 +78,14 @@ class PlotFactory(metaclass=Singleton):
                             pass
 
         return classes
+
+    @staticmethod
+    def get_figures_that_requires_all_samples(figures_to_be_generated):
+        folder_path = os.path.dirname(os.path.abspath(__file__))
+        curr_modules = PlotFactory.__find_classes_in_directory(folder_path, figures_to_be_generated)
+        figure_classes = PlotFactory.__get_figure_classes(curr_modules)
+        figures_that_requires_all_samples = []
+        for figure_name, figure_class in figure_classes.items():
+            if figure_class.requires_all_samples():
+                figures_that_requires_all_samples.append(figure_name)
+        return figures_that_requires_all_samples

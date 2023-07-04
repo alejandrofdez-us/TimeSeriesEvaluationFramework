@@ -1,5 +1,8 @@
 import os
 import argparse
+from metrics.metric_config import MetricConfig
+from plots.plot_config import PlotConfig
+from plots.plot_factory import PlotFactory
 from core import compute_metrics, generate_figures
 from reader import load_ts_from_csv, load_ts_from_path
 
@@ -14,25 +17,27 @@ def main(arguments):
         )
 
         if arguments.metrics:
-            computed_metrics = compute_metrics(ts1, ts2_dict, arguments.stride, arguments.window_selection_metric, arguments.metrics)
+            metric_config = MetricConfig(arguments.stride, arguments.window_selection_metric, arguments.metrics)
+            computed_metrics = compute_metrics(ts1, ts2_dict, metric_config)
             save_metrics(computed_metrics)
 
         if arguments.figures:
-            generated_figures, computed_figures_requires_all_samples = generate_figures(ts1, ts2_dict, arguments.stride, arguments.window_selection_metric, header_ts1, arguments.figures, arguments.timestamp_frequency_seconds)
-            # TODO: Se hace llamada al get_figures_that_requires_all_samples() para saber qué figuras requieren que se le pasen todas las muestras
-            save_figures(generated_figures, computed_figures_requires_all_samples)
+            plot_config = PlotConfig(arguments.stride, arguments.window_selection_metric, arguments.figures, arguments.timestamp_frequency_seconds)
+            generated_figures = generate_figures(ts1, ts2_dict, header_ts1, plot_config)
+            figures_requires_all_samples = PlotFactory.get_figures_that_requires_all_samples(arguments.figures)
+            save_figures(generated_figures, figures_requires_all_samples)
 
     except ValueError as error:
         print("Error: ", error)
 
-def save_figures(figures_dict, computed_figures_requires_all_samples, path="results/figures"):
+def save_figures(figures_dict, figures_requires_all_samples, path="results/figures"):
     for filename, figures in figures_dict.items():
         for figure_name, plots in figures.items():
             for plot in plots:
                 plot_label = plot[0].axes[0].get_title()
                 dir_path = ""
 
-                if figure_name not in computed_figures_requires_all_samples:
+                if figure_name not in figures_requires_all_samples:
                     original_filename = filename.split(".")[0]
                     dir_path = f"{path}/{original_filename}/{figure_name}/"
                 else:

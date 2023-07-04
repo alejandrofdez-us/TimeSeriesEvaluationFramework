@@ -42,16 +42,17 @@ def load_ts_from_path(path, header_ts1, has_header=None):
     time_series = {}
     if os.path.isfile(path):
         ts2, header_ts2 = load_ts_from_csv(path, has_header)
-        # TODO: Hacer un metodo que sea check_headers(header_ts1, header_ts2) que compruebe que los headers son iguales (elimina el codigo duplicado)
-        if (header_ts1 != header_ts2) and has_header is not None:
-            raise ValueError("All time series must have the same header column names.")
+        check_headers(header_ts1, header_ts2)
         time_series[os.path.basename(path)] = ts2
-    else:    
+    else:
         for _, _, files in os.walk(path):
             for file in files:
                 ts2, header_ts2 = load_ts_from_csv(f"{path}/{file}", has_header)
-                if (header_ts1 != header_ts2) and has_header is not None:
-                    raise ValueError("All time series must have the same header column names.")
+                check_headers(header_ts1, header_ts2)
                 time_series[file] = ts2
 
     return time_series
+
+def check_headers(header_ts1, header_ts2):
+    if header_ts1 != header_ts2:
+        raise ValueError("All time series must have the same header column names.")

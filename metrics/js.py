@@ -1,6 +1,8 @@
-from metrics.metric import Metric
-import numpy as np
 import sys
+import numpy as np
+
+from scipy.spatial import cKDTree as KDTree
+from metrics.metric import Metric
 
 class Js(Metric):
     def compute(self, ts1, ts2, cached_metric):
@@ -49,9 +51,6 @@ class Js(Metric):
 
 
     def __kl_divergence(self, x, y):
-        from scipy.spatial import cKDTree as KDTree
-
-        # Check the dimensions are consistent
         x = np.atleast_2d(x)
         y = np.atleast_2d(y)
 
@@ -60,14 +59,10 @@ class Js(Metric):
 
         assert (d == dy)
 
-        # Build a KD tree representation of the samples and find the nearest neighbour
-        # of each point in x.
         xtree = KDTree(x)
         ytree = KDTree(y)
         eps = 0.000001
 
-        # Get the first two nearest neighbours for x, since the closest one is the
-        # sample itself.
         r = xtree.query(x, k=2, eps=.01, p=2)[0][:, 1]
         s = ytree.query(x, k=1, eps=.01, p=2)[0]
         np.set_printoptions(threshold=sys.maxsize)
@@ -77,6 +72,4 @@ class Js(Metric):
         r = np.vectorize(lambda r_i: eps if r_i == 0 else r_i - pr)(r)
         s = np.vectorize(lambda s_i: eps if s_i == 0 else s_i - ps)(s)
 
-        # There is a mistake in the paper. In Eq. 14, the right side misses a negative sign
-        # on the first term of the right hand side.
         return -np.log(r / s).sum() * d / n + np.log(m / (n - 1.))

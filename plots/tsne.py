@@ -14,13 +14,10 @@ class Tsne(Plot):
         return True
 
     def __generate_tsne_figures(self, args):
-
-        # Do t-SNE Analysis together
         prep_data_final = np.concatenate((args["prep_data"], args["prep_data_hat"]), axis=0)
 
-        # TSNE analysis
         perplexity = 40
-        # FIX perplexity when very few samples
+
         if args["n_samples"] < 40:
             perplexity = args["n_samples"]
 

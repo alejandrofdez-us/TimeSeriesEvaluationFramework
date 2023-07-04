@@ -41,7 +41,7 @@ def save_figures(figures_dict, computed_figures_requires_all_samples, path="resu
 
                 plot[0].savefig(
                     f"{dir_path}{plot_label}.pdf",
-                    format="pdf",
+                    format="pdf", bbox_inches="tight"
                 )
 
 def save_metrics(computed_metrics, path="results/metrics"):

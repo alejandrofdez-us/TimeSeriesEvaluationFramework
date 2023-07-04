@@ -1,14 +1,25 @@
 import os
 import argparse
+from metrics.metric import Metric
 from metrics.metric_config import MetricConfig
+from plots.plot import Plot
 from plots.plot_config import PlotConfig
 from plots.plot_factory import PlotFactory
 from core import compute_metrics, generate_figures
-from reader import load_ts_from_csv, load_ts_from_path
+from reader import find_available_classes, load_ts_from_csv, load_ts_from_path
 
 
 def main(arguments):
     try:
+        available_metrics = find_available_classes("metrics", Metric, "metrics")
+        available_figures = find_available_classes("plots", Plot, "plots")
+
+        if check_list_contains_sublist(available_metrics.keys(), arguments.metrics) is False:
+            raise ValueError("Metric name not found.")
+
+        if check_list_contains_sublist(available_figures.keys(), arguments.figures) is False:
+            raise ValueError("Figure name not found.")
+
         ts1, header_ts1 = load_ts_from_csv(
             arguments.time_series_1_filename, arguments.header
         )
@@ -54,6 +65,8 @@ def save_metrics(computed_metrics, path="results/metrics"):
     with open(f"{path}/results.json", "w") as file:
         file.write(computed_metrics)
 
+def check_list_contains_sublist(list, sublist):
+    return set(sublist).issubset(set(list))
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -79,8 +92,6 @@ if __name__ == "__main__":
         "--metrics",
         nargs="+",
         help="<Optional> Include metrics to be computed as a list separated by spaces.",
-        #TODO: Crear lista de metricas disponibles llamando a MetricFactory.get_available_metrics()
-        choices=["js", "mmd", "dtw", "kl", "ks", "cc", "cp", "hi"],
         required=False,
     )
     parser.add_argument(
@@ -88,8 +99,6 @@ if __name__ == "__main__":
         "--figures",
         nargs="+",
         help="<Optional> Include figure names to be generated as a list separated by spaces.",
-        #TODO: Crear lista de figuras disponibles llamando a PlotFactory.get_available_figures()
-        choices=["tsne", "pca", "dtw", "evolution", "deltas"],
         required=False,
     )
     parser.add_argument(

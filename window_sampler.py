@@ -23,11 +23,10 @@ def split_ts_strided(ts_np, seq_len, stride):
     return ts_windows
 
 def get_metric_function(window_selection_metric):
-    folder_path = os.path.dirname(os.path.abspath(__file__)) + "\\metrics"
-    dir_classes = MetricFactory.find_classes_in_directory([window_selection_metric], folder_path)
-    metric_classes = MetricFactory.get_metric_classes(dir_classes)
+    folder_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "metrics")
+    metric_classes = MetricFactory.find_metrics_in_directory([window_selection_metric], folder_path)
 
-    return metric_classes[window_selection_metric]()
+    return metric_classes[window_selection_metric]
 
 def create_ts1_ts2_associated_windows(ts1, ts2_dict, stride, window_selection_metric):
     metric_object = get_metric_function(window_selection_metric)

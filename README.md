@@ -126,9 +126,9 @@ Users must provide at least a metric or a figure to be computed/generated:
 The following arguments are also available for fine-tuning:
 
 - `-ts_freq_secs` the frequency in seconds in which samples were taken just to generate the delta figures. By default is
-  one second.
+  `1` second.
 - `-strd` when `ts1` time-series is longer than `ts2_path` time-series file(s) the windows are computed by using a
-  stride of 1 by default. Sometimes using a larger value for the stride parameter improves the performance by skipping
+  stride of `1` by default. Sometimes using a larger value for the stride parameter improves the performance by skipping
   the computation of similarity between so many windows.
 
 ### Basic usage examples:
@@ -137,29 +137,25 @@ The following examples of evaluation of similarity are shown below:
 
 1. Two time series computing only DTW metric and DTW figure:
     ```Bash
-    python main.py -ts1 data/example_1.csv --ts2_path experiments/mini_example_1.csv --metrics dtw --figures dtw
+    python main.py -ts1 data/example_1.csv -ts2_path experiments/mini_example_1.csv -m dtw -f dtw
     ```
 
 1. A time series and all time series within a directory computing only DTW metric and DTW figure::
-
     ```Bash
     python main.py -ts1 data/example_1.csv -ts2_path experiments -m dtw -f dtw
     ```
 
 1. A time series and all time series within a directory computing every metric and figure available:
-
     ```Bash
     python main.py -ts1 data/example_1.csv -ts2 experiments -m cc cp dtw hi js kl ks mmd -f deltas dtw evolution pca tsne
     ```
 
 1. Comparison using filenames whose first rows are used as headers (all filenames must contain the same header):
-
     ```Bash
     python main.py -ts1 data/example_1.csv -ts2 experiments -m dtw -f dtw -head
     ```
 
 1. Comparison between time series specifying the frequency in seconds in which samples were taken:
-
     ```Bash
     python main.py -ts1 data/example_1.csv -ts2_path experiments -m dtw -f dtw --timestamp_frequency_seconds 60
     ```
@@ -167,7 +163,6 @@ The following examples of evaluation of similarity are shown below:
 1. Comparison between time series specifying the stride that determines the step or distance by which a fixed-size
    window
    moves over the first time series:
-
     ```Bash
     python main.py -ts1 data/example_1.csv -ts2_path experiments -m dtw -f dtw -strd 5
     ```

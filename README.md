@@ -21,7 +21,9 @@ offering data preprocessing, metrics computation, visualization, statistical ana
 functionalities. With its customizable features, Time Series Evaluation Framework empowers researchers and data
 scientists to gain insights, identify patterns, and make informed decisions based on their time series data.
 
-It can compute the following **metrics**:
+### Available metrics
+
+This toolkit can compute the following metrics:
 
 - `kl`: Kullback-Leibler divergence
 - `js`: Jensen-Shannon divergence
@@ -32,7 +34,9 @@ It can compute the following **metrics**:
 - `cp`: Difference of correlations
 - `hi`: Difference of histograms
 
-and generates the following **figures**:
+### Available figures
+
+This toolkit can generate the following figures:
 
 - `2D`: the ordinary graphical representation of the time series in a 2D figure with the time represented on the x axis
   and the data values on the y-axis for
@@ -95,70 +99,84 @@ Constraints:
 
 - `-ts1` time-series file and `-ts2_path` time-series file(s) must have the same dimensionality (number of columns).
 - all `-ts2_path` time-series files must have the same length (number of rows).
-- `-ts1` may be a longer time series than those included in `-ts2_path` files.
+- `-ts1` may be a longer time series (more rows) than those included in `-ts2_path` files.
 
-If `-ts1` time-series file is longer (more rows) than `-ts2_path` time-series file(s), the first time series will be
+If `-ts1` time-series file is longer (more rows) than `-ts2_path` time-series file(s), the `-ts1` time series will be
 divided in windows of the same
-length as the `-ts2_path` time-series file(s) to select the most similar window per each `-ts2_path` time-series file,
-and therefore
-compute metrics and figures that assess the similarity between the most similar `-ts1` window and each `-ts2_path`
-time-series file.
+length as the `-ts2_path` time-series file(s).
 
-`DTW` is the default metric when it comes to picking each window, any other metric is also available for this purpose
-using the --window_selection_metric argument.
+For each `-ts2_path` time-series file, the most similar window (*) from `-ts1` time series is selected.
 
-Examples of usage are shown below:
+Finally, metrics and figures that assess the similarity between each pair of `-ts2_path` file
+time-series and its associated most similar `-ts1` window are computed.
 
-- Comparing two time series using DTW metric and figure parameters:
-  ```Bash
-  python main.py --time_series_1_filename data/example_1.csv --time_series_2_path experiments/mini_example_1.csv --metrics dtw --figures dtw
-  ```
+(*) `DTW` is the default `--window_selection_metric`, i.e. is the metric used for the selection of the most
+similar `-ts1` time series window per each `--ts2_path` time-series file(s). However, any of the
+[metrics](#available-metrics) are also available for this purpose using the `--window_selection_metric` argument.
 
-- Comparison between a time series and all time series within a directory:
+Users must provide at least a metric or a figure to be computed/generated:
 
-```Bash
-python main.py --time_series_1_filename data/example_1.csv --time_series_2_path experiments --metrics dtw --figures dtw
-```
+- `-m` the [metrics](#available-metrics) names to be computed as a list separated by spaces.
+- `-f` the [figures](#available-figures) names to be computed as a list separated by spaces
 
-- Comparison using every metric and figure available:
+### Basis usage examples:
 
-```Bash
-python main.py -ts1 data/example_1.csv -ts2 experiments --metrics cc cp dtw hi js kl ks mmd --figures deltas dtw evolution pca tsne
-```
+The following examples of evaluation of similarity are shown below:
 
-- Comparison using filenames whose first rows are used as headers (all filenames must contain the same header):
+1. Two time series computing only DTW metric and DTW figure:
+    ```Bash
+    python main.py -ts1 data/example_1.csv --ts2_path experiments/mini_example_1.csv --metrics dtw --figures dtw
+    ```
 
-```Bash
-python main.py -ts1 data/example_1.csv -ts2 experiments -m dtw -f dtw --header
-```
+1. A time series and all time series within a directory computing only DTW metric and DTW figure::
 
-- Comparison between time series specifying the frequency in seconds in which samples were taken:
+    ```Bash
+    python main.py -ts1 data/example_1.csv -ts2_path experiments -m dtw -f dtw
+    ```
 
-```Bash
-python main.py -ts1 data/example_1.csv -ts2 experiments -m dtw -f dtw --timestamp_frequency_seconds 60
-```
+1. A time series and all time series within a directory computing every metric and figure available:
 
-- Comparison between time series specifying the stride that determines the step or distance by which a fixed-size window
-  moves over the first time series:
+    ```Bash
+    python main.py -ts1 data/example_1.csv -ts2 experiments -m cc cp dtw hi js kl ks mmd -f deltas dtw evolution pca tsne
+    ```
 
-```Bash
-python main.py -ts1 data/example_1.csv -ts2 experiments -m dtw -f dtw --stride 5
-```
+1. Comparison using filenames whose first rows are used as headers (all filenames must contain the same header):
 
-- Comparison between time series specifying the window selection metric to be used when selecting the best windows in
-  the first time series:
+    ```Bash
+    python main.py -ts1 data/example_1.csv -ts2 experiments -m dtw -f dtw -head
+    ```
 
-```Bash
-python main.py -ts1 data/example_1.csv -ts2 experiments -m dtw -f dtw --window_selection_metric js
-```
+1. Comparison between time series specifying the frequency in seconds in which samples were taken:
 
-- Using our sample time series to compute every single metric and figure:
+    ```Bash
+    python main.py -ts1 data/example_1.csv -ts2_path experiments -m dtw -f dtw --timestamp_frequency_seconds 60
+    ```
 
-```Bash
-python main.py -ts1 data/sample_1.csv -ts2 experiments -head -m cc cp dtw hi js kl ks mmd -f deltas dtw evolution pca tsne -w_select_met cc -ts_freq_secs 60 -strd 5
-```
+1. Comparison between time series specifying the stride that determines the step or distance by which a fixed-size
+   window
+   moves over the first time series:
 
-Every output will be found in the `results` directory.
+    ```Bash
+    python main.py -ts1 data/example_1.csv -ts2_path experiments -m dtw -f dtw -strd 5
+    ```
+
+1. Comparison between time series specifying the window selection metric to be used when selecting the best windows in
+   the first time series:
+
+    ```Bash
+    python main.py -ts1 data/example_1.csv -ts2_path experiments -m dtw -f dtw --window_selection_metric js
+    ```
+
+1. Using our sample time series to compute every single metric and figure:
+
+    ```Bash
+    python main.py -ts1 data/sample_1.csv -ts2_path experiments -head -m cc cp dtw hi js kl ks mmd -f deltas dtw evolution pca tsne -w_select_met cc -ts_freq_secs 60 -strd 5
+    ```
+
+Every metric computation will be found in the `results` directory and every figure generated will be found at `figures`
+directory
+
+## Advances usage
 
 Additionally, users may implement their own metric or figure classes an include them within the `metrics` or `plots`
 directory. To ensure compatibility with our framework, they have to inherit from the base classes (`Metric` and `Plot`)

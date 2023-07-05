@@ -113,18 +113,23 @@ For each `-ts2_path` time-series file, the most similar window (*) from `-ts1` t
 Finally, metrics and figures that assess the similarity between each pair of `-ts2_path` file
 time-series and its associated most similar `-ts1` window are computed.
 
-(*) `DTW` is the default `--window_selection_metric`, i.e. is the metric used for the selection of the most
-similar `-ts1` time series window per each `--ts2_path` time-series file(s). However, any of the
-[metrics](#available-metrics) are also available for this purpose using the `--window_selection_metric` argument.
+(*) `-w_select_met` is the metric used for the selection of the most
+similar `-ts1` time-series window per each `--ts2_path` time-series file(s).`dtw` is the default value, however, any of
+the
+[metrics](#available-metrics) are also available for this purpose using this argument.
 
 Users must provide at least a metric or a figure to be computed/generated:
 
 - `-m` the [metrics](#available-metrics) names to be computed as a list separated by spaces.
 - `-f` the [figures](#available-figures) names to be computed as a list separated by spaces
 
-The following arguments are also available for other purposes:
+The following arguments are also available for fine-tuning:
 
-- `-ts_freq_secs`
+- `-ts_freq_secs` the frequency in seconds in which samples were taken just to generate the delta figures. By default is
+  one second.
+- `-strd` when `ts1` time-series is longer than `ts2_path` time-series file(s) the windows are computed by using a
+  stride of 1 by default. Sometimes using a larger value for the stride parameter improves the performance by skipping
+  the computation of similarity between so many windows.
 
 ### Basic usage examples:
 

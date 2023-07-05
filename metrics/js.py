@@ -15,7 +15,7 @@ class Js(Metric):
             metric_result.update({f"Column {column}": self.__js_distance(ts1[:, column].reshape(-1, 1), ts2[:, column].reshape(-1, 1))})
 
         return metric_result
-    
+
     def compute_distance(self, ts1, ts2):
         return self.__js_distance_multivariate(ts1, ts2)
 
@@ -29,7 +29,7 @@ class Js(Metric):
         kl_diverenge_1 = self.__kl_divergence(ts1, ts2)
         kl_diverenge_2 = self.__kl_divergence(ts2, ts1)
         return (kl_diverenge_1 + kl_diverenge_2) / 2
-    
+
     def __kl_divergence_univariate(self, array_1, array_2, range_values=None, num_bins=10):
         eps = 0.000001
         min_array1 = array_1.min()
@@ -57,7 +57,7 @@ class Js(Metric):
         n, d = x.shape
         m, dy = y.shape
 
-        assert (d == dy)
+        assert d == dy
 
         xtree = KDTree(x)
         ytree = KDTree(y)

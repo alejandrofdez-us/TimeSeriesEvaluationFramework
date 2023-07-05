@@ -8,7 +8,7 @@ class Tsne(Plot):
     def generate_figures(self, args):
         plot_array = self.__generate_tsne_figures(args)
         return plot_array
-    
+
     @staticmethod
     def requires_all_samples():
         return True
@@ -41,15 +41,14 @@ class Tsne(Plot):
                         'iter_300-perplexity_5'))
             plot_array.append(self.__compute_tsne(args["anal_sample_no"], args["colors"], perplexity, prep_data_final, 1000,
                         'iter_1000-perplexity_5'))
-        
+
         return plot_array
-            
+
     def __compute_tsne(self, anal_sample_no, colors, perplexity, prep_data_final, iterations, filename):
         tsne_300 = TSNE(n_components=2, verbose=0, perplexity=perplexity, n_iter=iterations)
         tsne_results_300 = tsne_300.fit_transform(prep_data_final)
 
         return self.__tsne_ploting(anal_sample_no, colors, tsne_results_300, filename)
-
 
     def __tsne_ploting(self, anal_sample_no, colors, tsne_results, filename):
         fig, ax = plt.subplots(1)

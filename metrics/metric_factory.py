@@ -25,7 +25,7 @@ class MetricFactory(metaclass=Singleton):
             return metric_object
         else:
             raise ValueError('Invalid metric name')
-    
+
     @staticmethod
     def find_metrics_in_directory(metrics_to_be_computed, folder_path):
         available_metrics = find_available_classes(folder_path, Metric, "metrics")

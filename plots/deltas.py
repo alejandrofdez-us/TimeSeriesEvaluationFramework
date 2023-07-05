@@ -1,8 +1,8 @@
 from itertools import cycle
 import matplotlib.pyplot as plt
-from plot_helper import get_random_time_series_sample
 import numpy as np
 
+from plot_helper import get_random_time_series_sample
 from plots.plot import Plot
 
 class Deltas(Plot):
@@ -16,11 +16,11 @@ class Deltas(Plot):
         for index, column in enumerate(args["header"]):
             time_delta_minutes = [2, 5, 10]
             time_delta_minutes = [(args["ts_freq_secs"]/60) * value for value in time_delta_minutes]
-            
+
             for minutes in time_delta_minutes:
                 plot_array.append(self.__generate_figures_grouped_by_minutes_various_ts_samples(minutes, index, column, args["ts1"], args["ts2"], 
                                                                         args["seq_len"], args["ts_freq_secs"], args["n_ts1_samples"]))
-        
+
         return plot_array
 
     def __generate_figures_grouped_by_minutes_various_ts_samples(self, minutes, column_number, column_name, ts1, generated_data_sample, 
@@ -36,7 +36,7 @@ class Deltas(Plot):
         min_y_value = min(np.amin(delta_ts1_column_array), np.amin(delta_gen_column))
         return self.__create_figure(ts1_column_values_array=delta_ts1_column_array, generated_column_values=delta_gen_column, column_name=column_name,
                     axis=[0, len(delta_ts1_column_array[0])-1, min_y_value, max_y_value], minutes=minutes)
-        
+
     def __compute_grouped_delta_from_sample(self, column_number, minutes, data_sample, seq_len, ts_freq_secs):
         sample_column = data_sample[:, column_number]
         sample_column_splitted = np.array_split(sample_column, seq_len // (minutes / (ts_freq_secs / 60)))

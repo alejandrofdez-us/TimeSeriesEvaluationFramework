@@ -7,18 +7,18 @@ from scipy.spatial import cKDTree as KDTree
 
 class Kl(Metric):
     def compute (self, ts1, ts2, cached_metric):
-      if cached_metric[0] == "kl":
-        metric_result = {"Multivariate": cached_metric[1]}
-      else:
-        metric_result = {"Multivariate": self.__kl_divergence(ts1, ts2)}
+        if cached_metric[0] == "kl":
+            metric_result = {"Multivariate": cached_metric[1]}
+        else:
+            metric_result = {"Multivariate": self.__kl_divergence(ts1, ts2)}
 
-      for column in range(ts2.shape[1]):
-          metric_result.update({f"Column {column}": self.__kl_divergence_univariate(ts1[:, column].reshape(-1, 1), ts2[:, column].reshape(-1, 1))})
+        for column in range(ts2.shape[1]):
+            metric_result.update({f"Column {column}": self.__kl_divergence_univariate(ts1[:, column].reshape(-1, 1), ts2[:, column].reshape(-1, 1))})
 
-      return metric_result
-    
+        return metric_result
+
     def compute_distance(self, ts1, ts2):
-       return self.__kl_divergence(ts1, ts2)
+        return self.__kl_divergence(ts1, ts2)
 
     def __kl_divergence_univariate(self, array_1, array_2, range_values=None, num_bins=10):
         eps = 0.000001

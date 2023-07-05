@@ -15,8 +15,8 @@ def get_most_similar_ts_sample(ts1_windows, ts2, metric_object):
     return most_similar_sample, current_best
 
 def split_ts_strided(ts_np, seq_len, stride):
-    assert seq_len <= ts_np.shape[0], 'seq_len cannot be greater than the original dataset length'
-    assert (ts_np.shape[0] - seq_len) >= stride-1, 'stride cannot be greater than the size difference between time series'
+    assert seq_len <= ts_np.shape[0], 'Seq_len cannot be greater than the original dataset length.'
+    assert (ts_np.shape[0] - seq_len) >= stride-1, 'Stride cannot be greater than the size difference between time series.'
     start_sequence_range = list(range(0, (ts_np.shape[0] - seq_len)+1, stride))
     ts_windows = np.array(
         [ts_np[start_index:start_index + seq_len] for start_index in start_sequence_range])

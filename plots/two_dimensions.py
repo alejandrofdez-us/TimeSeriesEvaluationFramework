@@ -5,12 +5,10 @@ import pandas
 
 from plots.plot import Plot
 
-class Evolution(Plot):
+class TwoDimensions(Plot):
+    # TODO: Hacer que en el init se sobreescriba el nombre de la clase (el nombre va a ser 2d)
+    # TODO: Comprobar que todos los plots sobreescriban correctamente generate_figures
     def generate_figures(self, args):
-        plot_array = self.__generate_evolution_figures(args)
-        return plot_array
-
-    def __generate_evolution_figures(self, args):
         plot_array = []
         
         plot_array.append(self.__generate_figure_from_df(args["ts_sample"], args["generated_data_sample_df"]))
@@ -57,7 +55,7 @@ class Evolution(Plot):
         cycol = cycle('grcmk')
 
         for ts1_column_values in ts1_column_values_array:
-            plt.plot(ts1_column_values, c=next(cycol), label=f'TS_1', linewidth=1)
+            plt.plot(ts1_column_values, c=next(cycol), label="TS_1", linewidth=1)
             i += 1
 
         plt.plot(generated_column_values, c="blue", label="TS_2", linewidth=2)

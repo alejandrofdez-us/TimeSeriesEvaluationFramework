@@ -20,8 +20,8 @@ def update_figures_arguments(time_series_2_dict, header, figures_to_be_generated
         if "deltas" in figures_to_be_generated:
             args[filename].update(deltas_preprocess(ts_dict["ts1"], ts_freq_secs))
 
-        if "evolution" in figures_to_be_generated:
-            args[filename].update(evolution_preprocess(ts_dict["ts1"], ts_dict["ts2"], header))
+        if "2d" in figures_to_be_generated:
+            args[filename].update(two_dimensions_preprocess(ts_dict["ts1"], ts_dict["ts2"], header))
 
     return args
 
@@ -40,7 +40,7 @@ def deltas_preprocess(ts1, ts_freq_secs):
 
     return args
 
-def evolution_preprocess(ts1, ts2, header):
+def two_dimensions_preprocess(ts1, ts2, header):
     generated_data_sample_df = pd.DataFrame(ts2, columns=header)
     args = {"seq_len" : len(ts1[:, 0]), "ts_sample" : ts1, "generated_data_sample" : ts2,
                 "generated_data_sample_df" : generated_data_sample_df}

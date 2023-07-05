@@ -31,7 +31,7 @@ class PlotFactory(metaclass=Singleton):
         else:
             raise ValueError('Invalid metric name')
 
-    @staticmethod    
+    @staticmethod
     def __find_figures_in_directory(folder_path, figures_to_be_generated):
         available_figures = find_available_classes(folder_path, Plot, "plots")
         available_figures = {k: v for k, v in available_figures.items() if k in figures_to_be_generated}

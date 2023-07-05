@@ -18,8 +18,10 @@ def compute_metrics(ts1, ts2_dict, metric_config):
     computed_metrics = {}
     for filename, ts_dict in TS1_TS2_ASSOCIATED_WINDOWS.items():
         computed_metrics[filename] = {}
+        # TODO: Iterar los objetos de metrica directamente y aprovechar el nuevo atributo name
         for metric_to_be_computed in factory.metrics_to_be_computed:
             metric = factory.create_metric(metric_to_be_computed)
+            # TODO: Preguntar aqui si la metrica esta ya cacheada y si es asi, no llamamos
             computed_metrics[filename][metric_to_be_computed] = metric.compute(
                 ts_dict["ts1"], ts_dict["ts2"], ts_dict["cached_metric"]
             )
@@ -40,8 +42,10 @@ def generate_figures(ts1, ts2_dict, header, plot_config):
     generated_figures = {}
     for filename, figure_to_be_computed_args in args.items():
         generated_figures[filename] = {}
+        # TODO: Devolvemos los objetos como haremos arriba
         for figure_to_be_computed in factory.figures_to_be_generated:
-            if (figure_to_be_computed not in factory.computed_figures_requires_all_samples):
+            # TODO: La factory no deberia de tener la responsabilidad de recoger figuras ya computadas
+            if figure_to_be_computed not in factory.computed_figures_requires_all_samples:
                 plot = factory.create_figure(figure_to_be_computed)
                 generated_figures[filename][figure_to_be_computed] = plot.generate_figures(
                     figure_to_be_computed_args

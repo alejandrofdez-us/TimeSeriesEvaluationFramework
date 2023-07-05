@@ -1,5 +1,5 @@
-import scipy
 import statistics
+import scipy
 
 from metrics.metric import Metric
 
@@ -23,4 +23,3 @@ class Ks(Metric):
         return statistics.mean(
             [scipy.stats.ks_2samp(ts2[:, column_index], ts1[:, column_index])[0] for
             column_index in column_indexes])
-

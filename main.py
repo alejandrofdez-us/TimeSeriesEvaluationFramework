@@ -1,5 +1,6 @@
 import os
 import argparse
+
 from metrics.metric import Metric
 from metrics.metric_config import MetricConfig
 from plots.plot import Plot
@@ -11,6 +12,7 @@ from reader import find_available_classes, load_ts_from_csv, load_ts_from_path
 
 def main(arguments):
     try:
+        # TODO: Pasar estas dos llamadas a la factory que corresponda
         available_metrics = find_available_classes("metrics", Metric, "metrics")
         available_figures = find_available_classes("plots", Plot, "plots")
 
@@ -87,6 +89,7 @@ if __name__ == "__main__":
         type=str,
         required=True,
     )
+    # TODO: Añadir container en los argumentos
     parser.add_argument(
         "-m",
         "--metrics",

@@ -87,13 +87,16 @@ pip install -r requirements.txt
 
 ## Usage
 
-Users must provide `.csv` files containing multivariate time series by using the arguments `--time_series_1_filename`
-or `-ts1` and `--time_series_2_path` or `-ts2_path`.
+Users must provide `.csv` files containing multivariate time series by using the arguments `-ts1` and `-ts2_path`. Those
+time series should not include a timestamp column and if a header is present, use the `-head` argument. The column
+delimiter is automatically detected.
 
 - `-ts1` should point to a single `csv` filename. This time series may represent the baseline or ground truth time
   series.
 - `-ts2_path` can point to another single `csv` filename or a directory that contains multiple `csv` files to be
   compared with `-ts1` file.
+- `-head` if your time series files include a header this argument must be present. If not present, the software
+  understands that csv files don't include a header row.
 
 Constraints:
 
@@ -119,7 +122,11 @@ Users must provide at least a metric or a figure to be computed/generated:
 - `-m` the [metrics](#available-metrics) names to be computed as a list separated by spaces.
 - `-f` the [figures](#available-figures) names to be computed as a list separated by spaces
 
-### Basis usage examples:
+The following arguments are also available for other purposes:
+
+- `-ts_freq_secs`
+
+### Basic usage examples:
 
 The following examples of evaluation of similarity are shown below:
 
@@ -176,7 +183,7 @@ The following examples of evaluation of similarity are shown below:
 Every metric computation will be found in the `results` directory and every figure generated will be found at `figures`
 directory
 
-## Advances usage
+## Advanced usage
 
 Additionally, users may implement their own metric or figure classes an include them within the `metrics` or `plots`
 directory. To ensure compatibility with our framework, they have to inherit from the base classes (`Metric` and `Plot`)

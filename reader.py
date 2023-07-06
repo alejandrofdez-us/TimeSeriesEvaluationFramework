@@ -3,18 +3,22 @@ import importlib
 import os
 import numpy as np
 
+
 def read_header_from_csv(filename, ts_delimiter, has_header):
     if has_header:
         header = np.genfromtxt(filename, delimiter=ts_delimiter, names=has_header, max_rows=1, dtype=str).dtype.names
     else:
-        header = ["column-"+str(i) for i in range(len(header))]
+        first_row = np.loadtxt(filename, delimiter=ts_delimiter, max_rows=1)
+        header = ["column-" + str(i) for i in range(len(first_row))]
     return header
+
 
 def detect_line_delimiter(filename):
     with open(filename, "r", newline="") as file:
         ts_delimiter = csv.Sniffer().sniff(file.readline()).delimiter
 
     return ts_delimiter
+
 
 def load_ts_from_csv(filename, has_header=None):
     ts_delimiter = detect_line_delimiter(filename)
@@ -40,9 +44,11 @@ def load_ts_from_path(path, header_ts1, has_header=None):
 
     return time_series
 
+
 def check_headers(header_ts1, header_ts2):
     if header_ts1 != header_ts2:
         raise ValueError("All time series must have the same header column names.")
+
 
 def find_available_classes(folder_path, parent_class, package):
     available_classes = {}
@@ -57,6 +63,7 @@ def find_available_classes(folder_path, parent_class, package):
                     available_classes[available_class.get_name()] = available_class
     return available_classes
 
+
 def is_module_subclass(module, module_name, parent_class):
     if module is not None:
         class_name = to_camel_case(module_name)
@@ -64,11 +71,13 @@ def is_module_subclass(module, module_name, parent_class):
             return hasattr(module, class_name) and issubclass(getattr(module, class_name), parent_class)
     return False
 
+
 def import_metric_module(module_name, package):
     try:
         return importlib.import_module(f".{module_name}", package=package)
     except ImportError:
         return None
+
 
 def to_camel_case(snake_str):
     components = snake_str.split('_')

@@ -53,12 +53,13 @@ def find_available_classes(folder_path, parent_class, package):
                 module_name = file_name[:-3]
                 module = import_metric_module(module_name, package)
                 if is_module_subclass(module, module_name, parent_class):
-                    available_classes[module_name] = getattr(module, module_name.capitalize())()
+                    available_class = getattr(module, to_camel_case(module_name))()
+                    available_classes[available_class.get_name()] = available_class
     return available_classes
 
 def is_module_subclass(module, module_name, parent_class):
     if module is not None:
-        class_name = module_name.capitalize()
+        class_name = to_camel_case(module_name)
         if parent_class.__name__ != module_name.capitalize():
             return hasattr(module, class_name) and issubclass(getattr(module, class_name), parent_class)
     return False
@@ -68,3 +69,7 @@ def import_metric_module(module_name, package):
         return importlib.import_module(f".{module_name}", package=package)
     except ImportError:
         return None
+
+def to_camel_case(snake_str):
+    components = snake_str.split('_')
+    return "".join(x.capitalize() for x in components)

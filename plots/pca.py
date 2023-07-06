@@ -4,15 +4,11 @@ from sklearn.decomposition import PCA
 from plots.plot import Plot
 
 class Pca(Plot):
-    def generate_figures(self, args):
-        plot_array = self.__generate_pca_figures(args)
-        return plot_array
-    
     @staticmethod
     def requires_all_samples():
         return True
 
-    def __generate_pca_figures(self, args):
+    def generate_figures(self, args):
         assert len(args["prep_data"]) >= 2, 'The number of samples must be greater than 2 for PCA analysis.'    
         pca = PCA(n_components=2)
         pca.fit(args["prep_data"])

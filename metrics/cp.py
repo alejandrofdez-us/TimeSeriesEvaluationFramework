@@ -3,12 +3,8 @@ import numpy as np
 from metrics.metric import Metric
 
 class Cp(Metric):
-    def compute(self, ts1, ts2, cached_metric):
-        if cached_metric[0] == "cp":
-            metric_result = {"Multivariate": cached_metric[1]}
-
-        else:
-            metric_result = {"Multivariate": self.__cp(ts1, ts2)}
+    def compute(self, ts1, ts2):
+        metric_result = {"Multivariate": self.__cp(ts1, ts2)}
 
         return metric_result
     

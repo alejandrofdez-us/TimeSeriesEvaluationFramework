@@ -6,8 +6,9 @@ import pandas
 from plots.plot import Plot
 
 class TwoDimensions(Plot):
-    # TODO: Hacer que en el init se sobreescriba el nombre de la clase (el nombre va a ser 2d)
-    # TODO: Comprobar que todos los plots sobreescriban correctamente generate_figures
+    def get_name(self):
+        return "2d"
+
     def generate_figures(self, args):
         plot_array = []
         

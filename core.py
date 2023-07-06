@@ -18,13 +18,12 @@ def compute_metrics(ts1, ts2_dict, metric_config):
     computed_metrics = {}
     for filename, ts_dict in TS1_TS2_ASSOCIATED_WINDOWS.items():
         computed_metrics[filename] = {}
-        # TODO: Iterar los objetos de metrica directamente y aprovechar el nuevo atributo name
-        for metric_to_be_computed in factory.metrics_to_be_computed:
-            metric = factory.create_metric(metric_to_be_computed)
-            # TODO: Preguntar aqui si la metrica esta ya cacheada y si es asi, no llamamos
-            computed_metrics[filename][metric_to_be_computed] = metric.compute(
-                ts_dict["ts1"], ts_dict["ts2"], ts_dict["cached_metric"]
-            )
+        for metric_name, metric in factory.metric_objects.items():
+            if metric_name not in ts_dict["cached_metric"].keys():
+                computed_metrics[filename][metric_name] = metric.compute(
+                    ts_dict["ts1"], ts_dict["ts2"])
+            else:
+                computed_metrics[filename][metric_name] = ts_dict["cached_metric"][metric_name]
 
     computed_metrics = json.dumps(computed_metrics, indent=4)
 
@@ -36,22 +35,18 @@ def generate_figures(ts1, ts2_dict, header, plot_config):
         TS1_TS2_ASSOCIATED_WINDOWS = create_ts1_ts2_associated_windows(ts1, ts2_dict, plot_config.stride, plot_config.window_selection_metric)
 
     args = update_figures_arguments(TS1_TS2_ASSOCIATED_WINDOWS, header, plot_config.figures, plot_config.timestamp_frequency_seconds)
-
     factory = PlotFactory(plot_config.figures, args)
-
     generated_figures = {}
+    computed_figures_requires_all_samples = []
+
     for filename, figure_to_be_computed_args in args.items():
         generated_figures[filename] = {}
-        # TODO: Devolvemos los objetos como haremos arriba
-        for figure_to_be_computed in factory.figures_to_be_generated:
-            # TODO: La factory no deberia de tener la responsabilidad de recoger figuras ya computadas
-            if figure_to_be_computed not in factory.computed_figures_requires_all_samples:
-                plot = factory.create_figure(figure_to_be_computed)
-                generated_figures[filename][figure_to_be_computed] = plot.generate_figures(
-                    figure_to_be_computed_args
-                )
-                if figure_to_be_computed in factory.figures_requires_all_samples:
-                    factory.computed_figures_requires_all_samples.append(figure_to_be_computed)
+        for figure_name, figure in factory.figure_objects.items():
+            if figure_name not in computed_figures_requires_all_samples:
+                generated_figures[filename][figure_name] = figure.generate_figures(
+                    figure_to_be_computed_args)
+                if figure_name in factory.figures_requires_all_samples:
+                    computed_figures_requires_all_samples.append(figure_name)
 
 
     return generated_figures

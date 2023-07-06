@@ -5,11 +5,8 @@ from scipy.spatial import cKDTree as KDTree
 from metrics.metric import Metric
 
 class Js(Metric):
-    def compute(self, ts1, ts2, cached_metric):
-        if cached_metric[0] == "js":
-            metric_result = {"Multivariate": cached_metric[1]}
-        else:
-            metric_result = {"Multivariate": self.__js_distance_multivariate(ts1, ts2)}
+    def compute(self, ts1, ts2):
+        metric_result = {"Multivariate": self.__js_distance_multivariate(ts1, ts2)}
 
         for column in range(ts2.shape[1]):
             metric_result.update({f"Column {column}": self.__js_distance(ts1[:, column].reshape(-1, 1), ts2[:, column].reshape(-1, 1))})

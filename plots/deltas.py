@@ -7,10 +7,6 @@ from plots.plot import Plot
 
 class Deltas(Plot):
     def generate_figures(self, args):
-        plot_array = self.__generate_deltas_figures(args)
-        return plot_array
-
-    def __generate_deltas_figures(self, args):
 
         plot_array = []
         for index, column in enumerate(args["header"]):

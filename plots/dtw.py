@@ -6,10 +6,6 @@ from plots.plot import Plot
 
 class Dtw(Plot):
     def generate_figures(self, args):
-        plot_array = self.__generate_dtw_figures(args)
-        return plot_array
-
-    def __generate_dtw_figures(self, args):
         figures = []
         for column, index in zip(args["header"], range(len(args["header"]))):
             figures.append(

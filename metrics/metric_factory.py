@@ -16,19 +16,16 @@ class MetricFactory(metaclass=Singleton):
         self.metrics_to_be_computed = metrics_to_be_computed
 
         self.folder_path = os.path.dirname(os.path.abspath(__file__))
-        self.metric_classes = self.find_metrics_in_directory(metrics_to_be_computed, self.folder_path)
-
-    def create_metric(self, metric_name):
-
-        if metric_name in self.metric_classes.keys():
-            metric_object = self.metric_classes[metric_name]
-            return metric_object
-        else:
-            raise ValueError('Invalid metric name')
+        self.metric_objects = self.find_metrics_in_directory(metrics_to_be_computed, self.folder_path)
 
     @staticmethod
     def find_metrics_in_directory(metrics_to_be_computed, folder_path):
-        available_metrics = find_available_classes(folder_path, Metric, "metrics")
+        available_metrics = MetricFactory.find_available_metrics(folder_path)
         available_metrics = {k: v for k, v in available_metrics.items() if k in metrics_to_be_computed}
 
+        return available_metrics
+
+    @staticmethod
+    def find_available_metrics(folder_path):
+        available_metrics = find_available_classes(folder_path, Metric, "metrics")
         return available_metrics

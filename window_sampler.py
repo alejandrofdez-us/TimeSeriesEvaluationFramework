@@ -12,7 +12,7 @@ def get_most_similar_ts_sample(ts1_windows, ts2, metric_object):
             current_best = current_distance
             most_similar_sample = ts1_window
 
-    return most_similar_sample, current_best
+    return most_similar_sample
 
 def split_ts_strided(ts_np, seq_len, stride):
     assert seq_len <= ts_np.shape[0], 'Seq_len cannot be greater than the original dataset length.'
@@ -34,8 +34,8 @@ def create_ts1_ts2_associated_windows(ts1, ts2_dict, stride, window_selection_me
 
     for filename, ts2 in ts2_dict.items():
         ts1_windows = split_ts_strided(ts1, ts2.shape[0], stride)
-        best_ts1, computed_metric = get_most_similar_ts_sample(ts1_windows, ts2, metric_object)
-        cached_metric = [window_selection_metric, computed_metric]
+        best_ts1 = get_most_similar_ts_sample(ts1_windows, ts2, metric_object)
+        cached_metric = {window_selection_metric: metric_object.compute(best_ts1, ts2)}
 
         ts1_ts2_associated_windows[filename] = {}
         ts1_ts2_associated_windows[filename]["ts1"] = best_ts1

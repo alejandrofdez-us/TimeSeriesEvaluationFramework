@@ -5,15 +5,11 @@ import numpy as np
 from plots.plot import Plot
 
 class Tsne(Plot):
-    def generate_figures(self, args):
-        plot_array = self.__generate_tsne_figures(args)
-        return plot_array
-
     @staticmethod
     def requires_all_samples():
         return True
 
-    def __generate_tsne_figures(self, args):
+    def generate_figures(self, args):
         prep_data_final = np.concatenate((args["prep_data"], args["prep_data_hat"]), axis=0)
 
         perplexity = 40

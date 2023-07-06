@@ -18,24 +18,20 @@ class PlotFactory(metaclass=Singleton):
         self.pca_is_computed = False
         self.tsne_is_computed = False
         self.figures_requires_all_samples = PlotFactory.get_figures_that_requires_all_samples(figures_to_be_generated)
-        self.computed_figures_requires_all_samples= []
 
         self.folder_path = os.path.dirname(os.path.abspath(__file__))
-        self.figure_classes = self.__find_figures_in_directory(self.folder_path, figures_to_be_generated)
-
-    def create_figure(self, figure_to_be_computed):
-
-        if figure_to_be_computed in self.figure_classes.keys():
-            figure_object = self.figure_classes[figure_to_be_computed]
-            return figure_object
-        else:
-            raise ValueError('Invalid metric name')
+        self.figure_objects = self.__find_figures_in_directory(self.folder_path, figures_to_be_generated)
 
     @staticmethod
     def __find_figures_in_directory(folder_path, figures_to_be_generated):
-        available_figures = find_available_classes(folder_path, Plot, "plots")
+        available_figures = PlotFactory.find_available_figures(folder_path)
         available_figures = {k: v for k, v in available_figures.items() if k in figures_to_be_generated}
 
+        return available_figures
+
+    @staticmethod
+    def find_available_figures(folder_path):
+        available_figures = find_available_classes(folder_path, Plot, "plots")
         return available_figures
 
     @staticmethod

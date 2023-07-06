@@ -3,25 +3,14 @@ import argparse
 
 from metrics.metric import Metric
 from metrics.metric_config import MetricConfig
-from plots.plot import Plot
+from metrics.metric_factory import MetricFactory
 from plots.plot_config import PlotConfig
 from plots.plot_factory import PlotFactory
 from core import compute_metrics, generate_figures
-from reader import find_available_classes, load_ts_from_csv, load_ts_from_path
-
+from reader import load_ts_from_csv, load_ts_from_path
 
 def main(arguments):
     try:
-        # TODO: Pasar estas dos llamadas a la factory que corresponda
-        available_metrics = find_available_classes("metrics", Metric, "metrics")
-        available_figures = find_available_classes("plots", Plot, "plots")
-
-        if check_list_contains_sublist(available_metrics.keys(), arguments.metrics) is False:
-            raise ValueError("Metric name not found.")
-
-        if check_list_contains_sublist(available_figures.keys(), arguments.figures) is False:
-            raise ValueError("Figure name not found.")
-
         ts1, header_ts1 = load_ts_from_csv(
             arguments.time_series_1_filename, arguments.header
         )
@@ -71,6 +60,9 @@ def check_list_contains_sublist(list, sublist):
     return set(sublist).issubset(set(list))
 
 if __name__ == "__main__":
+    available_metrics = MetricFactory.find_available_metrics("metrics").keys()
+    available_figures = PlotFactory.find_available_figures("plots").keys()
+
     parser = argparse.ArgumentParser(
         usage="python main.py -ts1 path_to_file_1 -ts2_path path_to_files_2 [--metrics] [js ...] [--figures] [tsne ...] \
             [--header] [--timestamp_frequency_seconds] 300 [--stride] 2 [--window_selection_metric] metric_name"
@@ -89,12 +81,12 @@ if __name__ == "__main__":
         type=str,
         required=True,
     )
-    # TODO: Añadir container en los argumentos
     parser.add_argument(
         "-m",
         "--metrics",
         nargs="+",
         help="<Optional> Include metrics to be computed as a list separated by spaces.",
+        choices=available_metrics,
         required=False,
     )
     parser.add_argument(
@@ -102,6 +94,7 @@ if __name__ == "__main__":
         "--figures",
         nargs="+",
         help="<Optional> Include figure names to be generated as a list separated by spaces.",
+        choices=available_figures,
         required=False,
     )
     parser.add_argument(

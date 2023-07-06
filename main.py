@@ -8,6 +8,7 @@ from plots.plot_factory import PlotFactory
 from core import compute_metrics, generate_figures
 from reader import load_ts_from_csv, load_ts_from_path
 
+
 def main(arguments):
     try:
         ts1, header_ts1 = load_ts_from_csv(
@@ -23,21 +24,21 @@ def main(arguments):
             save_metrics(computed_metrics)
 
         if arguments.figures:
-            plot_config = PlotConfig(arguments.stride, arguments.window_selection_metric, arguments.figures, arguments.timestamp_frequency_seconds)
+            plot_config = PlotConfig(arguments.stride, arguments.window_selection_metric, arguments.figures,
+                                     arguments.timestamp_frequency_seconds)
             generated_figures = generate_figures(ts1, ts2_dict, header_ts1, plot_config)
-            figures_requires_all_samples = PlotFactory.get_figures_that_requires_all_samples(arguments.figures)
-            save_figures(generated_figures, figures_requires_all_samples)
+            save_figures(generated_figures)
 
     except ValueError as error:
         print("Error: ", error)
 
-def save_figures(figures_dict, figures_requires_all_samples, path="results/figures"):
+
+def save_figures(figures_dict, path="results/figures"):
+    figures_requires_all_samples = PlotFactory.get_figures_that_requires_all_samples(arguments.figures)
     for filename, figures in figures_dict.items():
         for figure_name, plots in figures.items():
             for plot in plots:
                 plot_label = plot[0].axes[0].get_title()
-                dir_path = ""
-
                 if figure_name not in figures_requires_all_samples:
                     original_filename = filename.split(".")[0]
                     dir_path = f"{path}/{original_filename}/{figure_name}/"
@@ -50,13 +51,16 @@ def save_figures(figures_dict, figures_requires_all_samples, path="results/figur
                     format="pdf", bbox_inches="tight"
                 )
 
+
 def save_metrics(computed_metrics, path="results/metrics"):
     os.makedirs(f"{path}", exist_ok=True)
     with open(f"{path}/results.json", "w") as file:
         file.write(computed_metrics)
 
+
 def check_list_contains_sublist(list, sublist):
     return set(sublist).issubset(set(list))
+
 
 if __name__ == "__main__":
     available_metrics = MetricFactory.find_available_metrics("metrics").keys()

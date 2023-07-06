@@ -30,12 +30,14 @@ def load_ts_from_csv(filename, has_header=None):
 
 
 def load_ts_from_path(path, header_ts1, has_header=None):
+    if not os.path.exists(path):
+        raise FileNotFoundError(f" Path {path} does not exist")
     time_series = {}
     if os.path.isfile(path):
         ts2, header_ts2 = load_ts_from_csv(path, has_header)
         check_headers(header_ts1, header_ts2)
         time_series[os.path.basename(path)] = ts2
-    else:
+    elif os.path.isdir(path):
         for _, _, files in os.walk(path):
             for file in files:
                 ts2, header_ts2 = load_ts_from_csv(f"{path}/{file}", has_header)

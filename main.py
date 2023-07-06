@@ -6,50 +6,38 @@ from metrics.metric_factory import MetricFactory
 from plots.plot_config import PlotConfig
 from plots.plot_factory import PlotFactory
 from core import compute_metrics, generate_figures
-from reader import load_ts_from_csv, load_ts_from_path
+from csv_reader_helper import load_ts_from_csv, load_ts_from_path
 
 
 def main(arguments):
     try:
-        ts1, header_ts1 = load_ts_from_csv(
-            arguments.time_series_1_filename, arguments.header
-        )
-        ts2_dict = load_ts_from_path(
-            arguments.time_series_2_path, header_ts1, arguments.header
-        )
-
+        ts1, header_ts1 = load_ts_from_csv(arguments.time_series_1_filename, arguments.header)
+        ts2_dict = load_ts_from_path(arguments.time_series_2_path, header_ts1, arguments.header)
         if arguments.metrics:
             metric_config = MetricConfig(arguments.stride, arguments.window_selection_metric, arguments.metrics)
             computed_metrics = compute_metrics(ts1, ts2_dict, metric_config)
             save_metrics(computed_metrics)
-
         if arguments.figures:
             plot_config = PlotConfig(arguments.stride, arguments.window_selection_metric, arguments.figures,
                                      arguments.timestamp_frequency_seconds)
             generated_figures = generate_figures(ts1, ts2_dict, header_ts1, plot_config)
             save_figures(generated_figures)
-
     except ValueError as error:
         print("Error: ", error)
 
 
 def save_figures(figures_dict, path="results/figures"):
-    figures_requires_all_samples = PlotFactory.get_figures_that_requires_all_samples(arguments.figures)
     for filename, figures in figures_dict.items():
         for figure_name, plots in figures.items():
             for plot in plots:
                 plot_label = plot[0].axes[0].get_title()
-                if figure_name not in figures_requires_all_samples:
+                if figure_name in PlotFactory().figures_requires_all_samples:
+                    dir_path = f"{path}/{figure_name}/"
+                else:
                     original_filename = filename.split(".")[0]
                     dir_path = f"{path}/{original_filename}/{figure_name}/"
-                else:
-                    dir_path = f"{path}/{figure_name}/"
                 os.makedirs(dir_path, exist_ok=True)
-
-                plot[0].savefig(
-                    f"{dir_path}{plot_label}.pdf",
-                    format="pdf", bbox_inches="tight"
-                )
+                plot[0].savefig(f"{dir_path}{plot_label}.pdf", format="pdf", bbox_inches="tight")
 
 
 def save_metrics(computed_metrics, path="results/metrics"):
@@ -58,14 +46,9 @@ def save_metrics(computed_metrics, path="results/metrics"):
         file.write(computed_metrics)
 
 
-def check_list_contains_sublist(list, sublist):
-    return set(sublist).issubset(set(list))
-
-
 if __name__ == "__main__":
-    available_metrics = MetricFactory.find_available_metrics("metrics").keys()
-    available_figures = PlotFactory.find_available_figures("plots").keys()
-
+    available_metrics = MetricFactory.find_available_metrics().keys()
+    available_figures = PlotFactory.find_available_figures().keys()
     parser = argparse.ArgumentParser(
         usage="python main.py -ts1 path_to_file_1 -ts2_path path_to_files_2 [--metrics] [js ...] [--figures] [tsne ...] \
             [--header] [--timestamp_frequency_seconds] 300 [--stride] 2 [--window_selection_metric] metric_name"

@@ -1,5 +1,6 @@
 import numpy as np
 from dtaidistance import dtw_ndim
+
 from metrics.metric import Metric
 
 class Dtw(Metric):

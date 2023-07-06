@@ -1,7 +1,6 @@
 import os
 import argparse
 
-from metrics.metric import Metric
 from metrics.metric_config import MetricConfig
 from metrics.metric_factory import MetricFactory
 from plots.plot_config import PlotConfig

@@ -7,7 +7,6 @@ from plots.plot import Plot
 
 class Deltas(Plot):
     def generate_figures(self, args):
-
         plot_array = []
         for index, column in enumerate(args["header"]):
             time_delta_minutes = [2, 5, 10]
@@ -16,7 +15,6 @@ class Deltas(Plot):
             for minutes in time_delta_minutes:
                 plot_array.append(self.__generate_figures_grouped_by_minutes_various_ts_samples(minutes, index, column, args["ts1"], args["ts2"], 
                                                                         args["seq_len"], args["ts_freq_secs"], args["n_ts1_samples"]))
-
         return plot_array
 
     def __generate_figures_grouped_by_minutes_various_ts_samples(self, minutes, column_number, column_name, ts1, generated_data_sample, 

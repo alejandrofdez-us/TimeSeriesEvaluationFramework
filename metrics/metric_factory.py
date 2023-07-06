@@ -1,7 +1,8 @@
 import os
 
 from metrics.metric import Metric
-from reader import find_available_classes
+from dynamic_import_helper import find_available_classes
+
 
 class Singleton(type):
     _instances = {}
@@ -10,6 +11,7 @@ class Singleton(type):
         if cls not in cls._instances:
             cls._instances[cls] = super().__call__(*args, **kwargs)
         return cls._instances[cls]
+
 
 class MetricFactory(metaclass=Singleton):
     def __init__(self, metrics_to_be_computed):
@@ -26,6 +28,6 @@ class MetricFactory(metaclass=Singleton):
         return available_metrics
 
     @staticmethod
-    def find_available_metrics(folder_path):
+    def find_available_metrics(folder_path='metrics'):
         available_metrics = find_available_classes(folder_path, Metric, "metrics")
         return available_metrics

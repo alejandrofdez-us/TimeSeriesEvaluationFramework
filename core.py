@@ -1,4 +1,5 @@
 import json
+from tqdm import tqdm
 from metrics.metric_config import MetricConfig
 from metrics.metric_factory import MetricFactory
 from plots.plot_config import PlotConfig
@@ -25,24 +26,36 @@ class Core:
         ts2_names = ts2_names if ts2_names is not None else ["ts2-" + str(i) for i in range(len(ts2s))]
         return {ts2_name: ts2 for ts2, ts2_name in zip(ts2s, ts2_names)}
 
-    def compute_metrics(self):
+    def compute_metrics(self, show_progress=False):
         computed_metrics = {}
-        for filename, ts_dict in self.ts1_ts2_associated_windows.items():
+        iterator = self.__setup_progress_bar(self.ts1_ts2_associated_windows.items(), show_progress,
+                                             'Computing metrics')
+        for filename, ts_dict in iterator:
             computed_metrics[filename] = {}
             for metric_name, metric in self.metric_factory.metric_objects.items():
                 if metric_name not in ts_dict["cached_metric"].keys():
                     computed_metrics[filename][metric_name] = metric.compute(ts_dict["ts1"], ts_dict["ts2"])
                 else:
                     computed_metrics[filename][metric_name] = ts_dict["cached_metric"][metric_name]
+            if show_progress:
+                iterator.set_postfix(file=filename)
         computed_metrics = json.dumps(computed_metrics, indent=4)
         return computed_metrics
 
-    def generate_figures(self):
+    def __setup_progress_bar(self, iterator, show_progress, desc):
+        tqdm_iterator = iterator
+        if show_progress:
+            tqdm_iterator = tqdm(tqdm_iterator, total=len(iterator), desc=desc,
+                                 disable=not show_progress)
+        return tqdm_iterator
+
+    def generate_figures(self, show_progress=False):
         args = update_figures_arguments(self.ts1_ts2_associated_windows, self.ts1_windows, self.header_names,
                                         self.plot_config)
         generated_figures = {}
         computed_figures_requires_all_samples = []
-        for filename, figure_to_be_computed_args in args.items():
+        iterator = self.__setup_progress_bar(args.items(), show_progress, 'Computing figures')
+        for filename, figure_to_be_computed_args in iterator:
             generated_figures[filename] = {}
             for figure_name, figure in self.plot_factory.plots_to_be_generated.items():
                 if figure_name not in computed_figures_requires_all_samples:
@@ -50,4 +63,6 @@ class Core:
                         figure_to_be_computed_args)
                     if figure_name in self.plot_factory.figures_requires_all_samples:
                         computed_figures_requires_all_samples.append(figure_name)
+            if show_progress:
+                iterator.set_postfix(file=filename)
         return generated_figures

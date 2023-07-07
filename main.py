@@ -1,6 +1,6 @@
 import os
 import argparse
-
+from tqdm import tqdm
 from metrics.metric_config import MetricConfig
 from metrics.metric_factory import MetricFactory
 from plots.plot_config import PlotConfig
@@ -15,21 +15,25 @@ def main(arguments):
         ts2_dict = load_ts_from_path(arguments.time_series_2_path, header_ts1, arguments.header)
         metric_config = MetricConfig(arguments.metrics, arguments.stride,
                                      arguments.window_selection_metric) if arguments.metrics else None
-        plot_config = PlotConfig(arguments.figures, arguments.timestamp_frequency_seconds, arguments.stride,
-                                 arguments.window_selection_metric) if arguments.figures else None
+        plot_config = PlotConfig(arguments.figures,
+                                 arguments.timestamp_frequency_seconds) if arguments.figures else None
         core = Core(ts1, list(ts2_dict.values()), list(ts2_dict.keys()), header_ts1, metric_config, plot_config)
         if arguments.metrics:
-            computed_metrics = core.compute_metrics()
+            computed_metrics = core.compute_metrics(show_progress=True)
             save_metrics(computed_metrics)
         if arguments.figures:
-            generated_figures = core.generate_figures()
-            save_figures(generated_figures)
+            generated_figures = core.generate_figures(show_progress=True)
+            save_figures(generated_figures, show_progress=True)
     except ValueError as error:
         print("Error: ", error)
 
 
-def save_figures(figures_dict, path="results/figures"):
-    for filename, figures in figures_dict.items():
+def save_figures(figures_dict, path="results/figures", show_progress=False):
+    iterator = figures_dict.items()
+    if show_progress:
+        iterator = tqdm(figures_dict.items(), total=len(figures_dict.items()), desc='   Saving figures',
+                        disable=not show_progress)
+    for filename, figures in iterator:
         for figure_name, plots in figures.items():
             for plot in plots:
                 plot_label = plot[0].axes[0].get_title()
@@ -40,6 +44,8 @@ def save_figures(figures_dict, path="results/figures"):
                     dir_path = f"{path}/{original_filename}/{figure_name}/"
                 os.makedirs(dir_path, exist_ok=True)
                 plot[0].savefig(f"{dir_path}{plot_label}.pdf", format="pdf", bbox_inches="tight")
+        if show_progress:
+            iterator.set_postfix(file=filename)
 
 
 def save_metrics(computed_metrics, path="results/metrics"):

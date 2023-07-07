@@ -1,6 +1,8 @@
 import os
 import argparse
 from tqdm import tqdm
+
+from core_config import CoreConfig
 from metrics.metric_config import MetricConfig
 from metrics.metric_factory import MetricFactory
 from plots.plot_config import PlotConfig
@@ -13,22 +15,27 @@ def main(arguments):
     try:
         ts1, header_ts1 = load_ts_from_csv(arguments.time_series_1_filename, arguments.header)
         ts2_dict = load_ts_from_path(arguments.time_series_2_path, header_ts1, arguments.header)
-        metric_config = MetricConfig(arguments.metrics, arguments.stride,
-                                     arguments.window_selection_metric) if arguments.metrics else None
-        plot_config = PlotConfig(arguments.figures,
-                                 arguments.timestamp_frequency_seconds) if arguments.figures else None
-        core = Core(ts1, list(ts2_dict.values()), list(ts2_dict.keys()), header_ts1, metric_config, plot_config)
+        core_config = __create_core_config(arguments)
+        core = Core(ts1, list(ts2_dict.values()), list(ts2_dict.keys()), header_ts1, core_config)
         if arguments.metrics:
             computed_metrics = core.compute_metrics(show_progress=True)
-            save_metrics(computed_metrics)
+            __save_metrics(computed_metrics)
         if arguments.figures:
             generated_figures = core.generate_figures(show_progress=True)
-            save_figures(generated_figures, show_progress=True)
+            __save_figures(generated_figures, show_progress=True)
     except ValueError as error:
         print("Error: ", error)
 
 
-def save_figures(figures_dict, path="results/figures", show_progress=False):
+def __create_core_config(arguments):
+    metric_config = MetricConfig(arguments.metrics) if arguments.metrics else None
+    plot_config = PlotConfig(arguments.figures,
+                             arguments.timestamp_frequency_seconds) if arguments.figures else None
+    core_config = CoreConfig(metric_config, plot_config, arguments.stride, arguments.window_selection_metric)
+    return core_config
+
+
+def __save_figures(figures_dict, path="results/figures", show_progress=False):
     iterator = figures_dict.items()
     if show_progress:
         iterator = tqdm(figures_dict.items(), total=len(figures_dict.items()), desc='   Saving figures',
@@ -48,7 +55,7 @@ def save_figures(figures_dict, path="results/figures", show_progress=False):
             iterator.set_postfix(file=filename)
 
 
-def save_metrics(computed_metrics, path="results/metrics"):
+def __save_metrics(computed_metrics, path="results/metrics"):
     os.makedirs(f"{path}", exist_ok=True)
     with open(f"{path}/results.json", "w") as file:
         file.write(computed_metrics)

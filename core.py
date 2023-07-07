@@ -1,24 +1,23 @@
 import json
 from tqdm import tqdm
-from metrics.metric_config import MetricConfig
+
+from core_config import CoreConfig
 from metrics.metric_factory import MetricFactory
-from plots.plot_config import PlotConfig
 from plots.plot_factory import PlotFactory
 from plot_helper import update_figures_arguments
 from window_sampler import create_ts1_ts2_associated_windows, split_ts_strided
 
 
 class Core:
-    def __init__(self, ts1, ts2s, ts2_names=None, header_names=None, metric_config=None, plot_config=None):
+    def __init__(self, ts1, ts2s, ts2_names=None, header_names=None, core_config=None):
         self.ts1 = ts1
         self.ts2_dict = self.__build_ts2_dict(ts2s, ts2_names)
-        self.metric_config = metric_config if metric_config is not None else MetricConfig()
-        self.plot_config = plot_config if plot_config is not None else PlotConfig()
-        self.ts1_windows = split_ts_strided(ts1, ts2s[0].shape[0], self.metric_config.stride)
+        self.core_config = core_config if core_config is not None else CoreConfig()
+        self.ts1_windows = split_ts_strided(ts1, ts2s[0].shape[0], self.core_config.stride)
         self.ts1_ts2_associated_windows = create_ts1_ts2_associated_windows(self.ts1_windows, self.ts2_dict,
-                                                                            self.metric_config.window_selection_metric)
-        self.metric_factory = MetricFactory(self.metric_config.metrics)
-        self.plot_factory = PlotFactory(self.plot_config.figures)
+                                                                            self.core_config.window_selection_metric)
+        self.metric_factory = MetricFactory(self.core_config.metric_config.metrics)
+        self.plot_factory = PlotFactory(self.core_config.plot_config.figures)
         self.header_names = header_names if header_names is not None else ["column-" + str(i) for i in
                                                                            range(ts1.shape[1])]
 
@@ -51,7 +50,7 @@ class Core:
 
     def generate_figures(self, show_progress=False):
         args = update_figures_arguments(self.ts1_ts2_associated_windows, self.ts1_windows, self.header_names,
-                                        self.plot_config)
+                                        self.core_config.plot_config)
         generated_figures = {}
         computed_figures_requires_all_samples = []
         iterator = self.__setup_progress_bar(args.items(), show_progress, 'Computing figures')

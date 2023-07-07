@@ -9,6 +9,7 @@ def update_figures_arguments(time_series_2_dict, ts1_windows, header, plot_confi
     tsne_pca_args = {}
     for filename, ts_dict in time_series_2_dict.items():
         args[filename] = {"ts1": ts_dict["ts1"], "ts2": ts_dict["ts2"], "header": header}
+        # FIXME: refactor to make all these checks strings dynamic and adapt to the new object oriented config classes.
         if ("tsne" in plot_config.figures or "pca" in plot_config.figures) and are_tsne_pca_preprocessed is False:
             tsne_pca_args = tsne_pca_preprocess(time_series_2_dict, ts1_windows)
             args[filename].update(tsne_pca_args)
@@ -17,8 +18,8 @@ def update_figures_arguments(time_series_2_dict, ts1_windows, header, plot_confi
             if are_tsne_pca_preprocessed:
                 args[filename].update(tsne_pca_args)
 
-        if "deltas" in plot_config.figures:
-            args[filename].update(deltas_preprocess(ts_dict["ts1"], plot_config.timestamp_frequency_seconds))
+        if "delta" in plot_config.figures:
+            args[filename].update(delta_preprocess(ts_dict["ts1"], plot_config.timestamp_frequency_seconds))
 
         if "2d" in plot_config.figures:
             args[filename].update(two_dimensions_preprocess(ts_dict["ts1"], ts_dict["ts2"], header))
@@ -35,7 +36,7 @@ def get_random_time_series_sample(seq_len, time_series):
     return ts_sample
 
 
-def deltas_preprocess(ts1, ts_freq_secs):
+def delta_preprocess(ts1, ts_freq_secs):
     args = {"seq_len": len(ts1[:, 0]), "ts_freq_secs": ts_freq_secs, "n_ts1_samples": 1}
     return args
 

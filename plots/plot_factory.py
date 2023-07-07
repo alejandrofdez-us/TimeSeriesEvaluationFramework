@@ -23,7 +23,7 @@ class PlotFactory(metaclass=Singleton):
         plots_to_be_generated = {plot_name: plot for plot_name, plot in available_plots.items() if
                                  plot_name in figure_names_to_be_generated}
         return plots_to_be_generated
-    
+
     @staticmethod
     def find_available_figures():
         return find_available_classes(os.path.dirname(os.path.abspath(__file__)), Plot, 'plots')
@@ -32,7 +32,7 @@ class PlotFactory(metaclass=Singleton):
     def get_instance(figure_names_to_be_generated=None):
         if not hasattr(PlotFactory, "_instance"):
             if figure_names_to_be_generated is None:
-                figure_names_to_be_generated = ['2d', 'deltas', 'dtw', 'pca', 'tsne']
+                figure_names_to_be_generated = PlotFactory.find_available_figures().keys()
             PlotFactory._instance = PlotFactory(figure_names_to_be_generated)
         return PlotFactory._instance
 

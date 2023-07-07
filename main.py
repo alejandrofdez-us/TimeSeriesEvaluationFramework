@@ -17,10 +17,10 @@ def main(arguments):
         ts2_dict = load_ts_from_path(arguments.time_series_2_path, header_ts1, arguments.header)
         core_config = __create_core_config(arguments)
         core = Core(ts1, list(ts2_dict.values()), list(ts2_dict.keys()), header_ts1, core_config)
-        if arguments.metrics:
+        if core_config.metric_config.metrics:
             computed_metrics = core.compute_metrics(show_progress=True)
             __save_metrics(computed_metrics)
-        if arguments.figures:
+        if core_config.plot_config.figures:
             generated_figures = core.generate_figures(show_progress=True)
             __save_figures(generated_figures, show_progress=True)
     except ValueError as error:
@@ -28,9 +28,12 @@ def main(arguments):
 
 
 def __create_core_config(arguments):
-    metric_config = MetricConfig(arguments.metrics) if arguments.metrics else None
-    plot_config = PlotConfig(arguments.figures,
-                             arguments.timestamp_frequency_seconds) if arguments.figures else None
+    metric_config = None
+    plot_config = None
+    if arguments.metrics is not None or arguments.figures is not None:
+        metric_config = MetricConfig(arguments.metrics) if arguments.metrics else MetricConfig([])
+        plot_config = PlotConfig(arguments.figures,
+                                 arguments.timestamp_frequency_seconds) if arguments.figures else PlotConfig([])
     core_config = CoreConfig(metric_config, plot_config, arguments.stride, arguments.window_selection_metric)
     return core_config
 

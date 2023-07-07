@@ -35,6 +35,6 @@ class MetricFactory(metaclass=Singleton):
     def get_instance(metrics_to_be_computed=None):
         if not hasattr(MetricFactory, "_instance"):
             if metrics_to_be_computed is None:
-                metrics_to_be_computed = ['js', 'mmd', 'kl', 'ks', 'dtw', 'cc', 'cp', 'hi']
+                metrics_to_be_computed = MetricFactory.find_available_metrics().keys()
             MetricFactory._instance = MetricFactory(metrics_to_be_computed)
         return MetricFactory._instance

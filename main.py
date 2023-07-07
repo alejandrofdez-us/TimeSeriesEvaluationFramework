@@ -44,7 +44,7 @@ def __save_figures(figures_dict, path="results/figures", show_progress=False):
         for figure_name, plots in figures.items():
             for plot in plots:
                 plot_label = plot[0].axes[0].get_title()
-                if figure_name in PlotFactory().figures_requires_all_samples:
+                if figure_name in PlotFactory.get_instance().figures_requires_all_samples:
                     dir_path = f"{path}/{figure_name}/"
                 else:
                     original_filename = filename.split(".")[0]

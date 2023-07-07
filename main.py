@@ -5,7 +5,7 @@ from metrics.metric_config import MetricConfig
 from metrics.metric_factory import MetricFactory
 from plots.plot_config import PlotConfig
 from plots.plot_factory import PlotFactory
-from core import compute_metrics, generate_figures
+from core import Core
 from csv_reader_helper import load_ts_from_csv, load_ts_from_path
 
 
@@ -13,14 +13,16 @@ def main(arguments):
     try:
         ts1, header_ts1 = load_ts_from_csv(arguments.time_series_1_filename, arguments.header)
         ts2_dict = load_ts_from_path(arguments.time_series_2_path, header_ts1, arguments.header)
+        metric_config = MetricConfig(arguments.metrics, arguments.stride,
+                                     arguments.window_selection_metric) if arguments.metrics else None
+        plot_config = PlotConfig(arguments.figures, arguments.timestamp_frequency_seconds, arguments.stride,
+                                 arguments.window_selection_metric) if arguments.figures else None
+        core = Core(ts1, list(ts2_dict.values()), list(ts2_dict.keys()), header_ts1, metric_config, plot_config)
         if arguments.metrics:
-            metric_config = MetricConfig(arguments.stride, arguments.window_selection_metric, arguments.metrics)
-            computed_metrics = compute_metrics(ts1, ts2_dict, metric_config)
+            computed_metrics = core.compute_metrics()
             save_metrics(computed_metrics)
         if arguments.figures:
-            plot_config = PlotConfig(arguments.stride, arguments.window_selection_metric, arguments.figures,
-                                     arguments.timestamp_frequency_seconds)
-            generated_figures = generate_figures(ts1, ts2_dict, header_ts1, plot_config)
+            generated_figures = core.generate_figures()
             save_figures(generated_figures)
     except ValueError as error:
         print("Error: ", error)

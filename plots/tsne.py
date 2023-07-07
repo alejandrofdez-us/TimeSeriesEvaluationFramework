@@ -4,6 +4,7 @@ import numpy as np
 
 from plots.plot import Plot
 
+
 class Tsne(Plot):
     @staticmethod
     def requires_all_samples():
@@ -11,32 +12,30 @@ class Tsne(Plot):
 
     def generate_figures(self, args):
         prep_data_final = np.concatenate((args["prep_data"], args["prep_data_hat"]), axis=0)
-
         perplexity = 40
-
         if args["n_samples"] < 40:
             perplexity = args["n_samples"]
-
         plot_array = []
-
         plot_array.append(self.__compute_tsne(args["anal_sample_no"], args["colors"], perplexity, prep_data_final, 300,
-                    'iter_300-perplexity_40'))
+                                              'iter_300-perplexity_40'))
         plot_array.append(self.__compute_tsne(args["anal_sample_no"], args["colors"], perplexity, prep_data_final, 1000,
-                    'iter_1000-perplexity_40'))
-
+                                              'iter_1000-perplexity_40'))
         if args["n_samples"] >= 10:
             perplexity = 10
-            plot_array.append(self.__compute_tsne(args["anal_sample_no"], args["colors"], perplexity, prep_data_final, 300,
-                        'iter_300-perplexity_10'))
-            plot_array.append(self.__compute_tsne(args["anal_sample_no"], args["colors"], perplexity, prep_data_final, 1000,
-                        'iter_1000-perplexity_10'))
-
+            plot_array.append(
+                self.__compute_tsne(args["anal_sample_no"], args["colors"], perplexity, prep_data_final, 300,
+                                    'iter_300-perplexity_10'))
+            plot_array.append(
+                self.__compute_tsne(args["anal_sample_no"], args["colors"], perplexity, prep_data_final, 1000,
+                                    'iter_1000-perplexity_10'))
         if args["n_samples"] >= 5:
             perplexity = 5
-            plot_array.append(self.__compute_tsne(args["anal_sample_no"], args["colors"], perplexity, prep_data_final, 300,
-                        'iter_300-perplexity_5'))
-            plot_array.append(self.__compute_tsne(args["anal_sample_no"], args["colors"], perplexity, prep_data_final, 1000,
-                        'iter_1000-perplexity_5'))
+            plot_array.append(
+                self.__compute_tsne(args["anal_sample_no"], args["colors"], perplexity, prep_data_final, 300,
+                                    'iter_300-perplexity_5'))
+            plot_array.append(
+                self.__compute_tsne(args["anal_sample_no"], args["colors"], perplexity, prep_data_final, 1000,
+                                    'iter_1000-perplexity_5'))
 
         return plot_array
 

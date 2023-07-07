@@ -14,10 +14,12 @@ class Singleton(type):
 
 
 class PlotFactory(metaclass=Singleton):
+    # FIXME: Necesitamos un método get_instance
     def __init__(self, figure_names_to_be_generated):
         self.figures_names_to_be_generated = figure_names_to_be_generated
         self.plots_to_be_generated = self.__get_plots_to_be_generated(figure_names_to_be_generated)
         self.figures_requires_all_samples = self.__get_figures_that_requires_all_samples(figure_names_to_be_generated)
+        self.ts1_windows = None
 
     def __get_plots_to_be_generated(self, figure_names_to_be_generated, folder_path=None):
         if folder_path is None:

@@ -38,6 +38,7 @@ def load_ts_from_path(path, header_ts1, has_header=None):
         time_series[os.path.basename(path)] = ts2
     elif os.path.isdir(path):
         for _, _, files in os.walk(path):
+            files = [file for file in files if not file.startswith('.')]
             for file in files:
                 ts2, header_ts2 = load_ts_from_csv(f"{path}/{file}", has_header)
                 check_headers(header_ts1, header_ts2)

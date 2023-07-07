@@ -1,5 +1,4 @@
 import os
-
 from metrics.metric import Metric
 from dynamic_import_helper import find_available_classes
 
@@ -14,20 +13,28 @@ class Singleton(type):
 
 
 class MetricFactory(metaclass=Singleton):
-    def __init__(self, metrics_to_be_computed):
-        self.metrics_to_be_computed = metrics_to_be_computed
-
-        self.folder_path = os.path.dirname(os.path.abspath(__file__))
-        self.metric_objects = self.find_metrics_in_directory(metrics_to_be_computed, self.folder_path)
+    def __init__(self, metrics_names_to_be_computed):
+        self.metric_objects = self.__get_metrics_to_be_computed(metrics_names_to_be_computed)
 
     @staticmethod
-    def find_metrics_in_directory(metrics_to_be_computed, folder_path):
-        available_metrics = MetricFactory.find_available_metrics(folder_path)
-        available_metrics = {k: v for k, v in available_metrics.items() if k in metrics_to_be_computed}
-
-        return available_metrics
+    def __get_metrics_to_be_computed(metrics_names_to_be_computed):
+        available_metrics = MetricFactory.find_available_metrics()
+        metrics_to_be_computed = {metric_name: metric for metric_name, metric in available_metrics.items() if
+                                  metric_name in metrics_names_to_be_computed}
+        return metrics_to_be_computed
 
     @staticmethod
-    def find_available_metrics(folder_path='metrics'):
-        available_metrics = find_available_classes(folder_path, Metric, "metrics")
-        return available_metrics
+    def find_available_metrics():
+        return find_available_classes(os.path.dirname(os.path.abspath(__file__)), Metric, "metrics")
+
+    @staticmethod
+    def get_metric_by_name(metric_name):
+        return MetricFactory.find_available_metrics()[metric_name]
+
+    @staticmethod
+    def get_instance(metrics_to_be_computed=None):
+        if not hasattr(MetricFactory, "_instance"):
+            if metrics_to_be_computed is None:
+                metrics_to_be_computed = ['js', 'mmd', 'kl', 'ks', 'dtw', 'cc', 'cp', 'hi']
+            MetricFactory._instance = MetricFactory(metrics_to_be_computed)
+        return MetricFactory._instance

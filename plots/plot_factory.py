@@ -1,5 +1,4 @@
 import os
-
 from plots.plot import Plot
 from dynamic_import_helper import find_available_classes
 
@@ -14,17 +13,14 @@ class Singleton(type):
 
 
 class PlotFactory(metaclass=Singleton):
-    # FIXME: Necesitamos un método get_instance
     def __init__(self, figure_names_to_be_generated):
         self.figures_names_to_be_generated = figure_names_to_be_generated
         self.plots_to_be_generated = self.__get_plots_to_be_generated(figure_names_to_be_generated)
         self.figures_requires_all_samples = self.__get_figures_that_requires_all_samples(figure_names_to_be_generated)
         self.ts1_windows = None
 
-    def __get_plots_to_be_generated(self, figure_names_to_be_generated, folder_path=None):
-        if folder_path is None:
-            folder_path = os.path.dirname(os.path.abspath(__file__))
-        available_plots = PlotFactory.find_available_figures(folder_path)
+    def __get_plots_to_be_generated(self, figure_names_to_be_generated):
+        available_plots = PlotFactory.find_available_figures()
         plots_to_be_generated = {plot_name: plot for plot_name, plot in available_plots.items() if
                                  plot_name in figure_names_to_be_generated}
         return plots_to_be_generated
@@ -37,8 +33,8 @@ class PlotFactory(metaclass=Singleton):
         return self.plots_to_be_generated[figure_name].requires_all_samples()
 
     @staticmethod
-    def find_available_figures(folder_path='plots'):
-        return find_available_classes(folder_path, Plot, 'plots')
+    def find_available_figures():
+        return find_available_classes(os.path.dirname(os.path.abspath(__file__)), Plot, 'plots')
 
     @staticmethod
     def get_instance(figure_names_to_be_generated=None):

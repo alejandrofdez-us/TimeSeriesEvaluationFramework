@@ -16,7 +16,7 @@ class Core:
         self.ts1_windows = split_ts_strided(ts1, ts2s[0].shape[0], self.core_config.stride)
         self.ts1_ts2_associated_windows = create_ts1_ts2_associated_windows(self.ts1_windows, self.ts2_dict,
                                                                             self.core_config.window_selection_metric)
-        self.metric_factory = MetricFactory(self.core_config.metric_config.metrics)
+        self.metric_factory = MetricFactory.get_instance(self.core_config.metric_config.metrics)
         self.plot_factory = PlotFactory.get_instance(self.core_config.plot_config.figures)
         self.header_names = header_names if header_names is not None else ["column-" + str(i) for i in
                                                                            range(ts1.shape[1])]

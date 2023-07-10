@@ -1,16 +1,14 @@
 import json
 from tqdm import tqdm
-
 from core_config import CoreConfig
 from metrics.metric_factory import MetricFactory
 from plots.plot_factory import PlotFactory
-from plot_helper import update_figures_arguments
 from window_sampler import create_ts1_ts2_associated_windows, split_ts_strided
-
 
 class Core:
     def __init__(self, ts1, ts2s, ts2_names=None, header_names=None, core_config=None):
         self.ts1 = ts1
+        self.ts2s= ts2s
         self.ts2_dict = self.__build_ts2_dict(ts2s, ts2_names)
         self.core_config = core_config if core_config is not None else CoreConfig()
         self.ts1_windows = split_ts_strided(ts1, ts2s[0].shape[0], self.core_config.stride)
@@ -33,7 +31,7 @@ class Core:
             computed_metrics[filename] = {}
             for metric_name, metric in self.metric_factory.metric_objects.items():
                 if metric_name not in ts_dict["cached_metric"].keys():
-                    computed_metrics[filename][metric_name] = metric.compute(ts_dict["ts1"], ts_dict["ts2"])
+                    computed_metrics[filename][metric_name] = metric.compute(ts_dict["most_similar_ts1_sample"], ts_dict["ts2"])
                 else:
                     computed_metrics[filename][metric_name] = ts_dict["cached_metric"][metric_name]
             if show_progress:
@@ -49,19 +47,16 @@ class Core:
         return tqdm_iterator
 
     def generate_figures(self, show_progress=False):
-        args = update_figures_arguments(self.ts1_ts2_associated_windows, self.ts1_windows, self.header_names,
-                                        self.core_config.plot_config)
         generated_figures = {}
-        computed_figures_requires_all_samples = []
-        iterator = self.__setup_progress_bar(args.items(), show_progress, 'Computing figures')
-        for filename, figure_to_be_computed_args in iterator:
+        already_computed_figures_requires_all_samples = []
+        iterator = self.__setup_progress_bar(self.ts1_ts2_associated_windows, show_progress, 'Computing figures')
+        for filename in iterator:
             generated_figures[filename] = {}
             for figure_name, figure in self.plot_factory.plots_to_be_generated.items():
-                if figure_name not in computed_figures_requires_all_samples:
-                    generated_figures[filename][figure_name] = figure.generate_figures(
-                        figure_to_be_computed_args)
+                if figure_name not in already_computed_figures_requires_all_samples:
+                    generated_figures[filename][figure_name] = figure.generate_figures(self, filename)
                     if figure_name in self.plot_factory.figures_requires_all_samples:
-                        computed_figures_requires_all_samples.append(figure_name)
+                        already_computed_figures_requires_all_samples.append(figure_name)
             if show_progress:
                 iterator.set_postfix(file=filename)
         return generated_figures

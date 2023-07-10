@@ -29,11 +29,11 @@ def main(arguments):
 
 def __create_core_config(arguments):
     metric_config = None
-    plot_config = None
+    plot_config = None if arguments.timestamp_frequency_seconds is None else PlotConfig(None,arguments.timestamp_frequency_seconds)
     if arguments.metrics is not None or arguments.figures is not None:
         metric_config = MetricConfig(arguments.metrics) if arguments.metrics else MetricConfig([])
         plot_config = PlotConfig(arguments.figures,
-                                 arguments.timestamp_frequency_seconds) if arguments.figures else PlotConfig([])
+                                 arguments.timestamp_frequency_seconds) if arguments.figures else PlotConfig([],arguments.timestamp_frequency_seconds)
     core_config = CoreConfig(metric_config, plot_config, arguments.stride, arguments.window_selection_metric)
     return core_config
 
@@ -79,7 +79,7 @@ if __name__ == "__main__":
         required=True,
     )
     parser.add_argument(
-        "-ts2_path",
+        "-ts2",
         "--time_series_2_path",
         help="<Required> Include the path to a csv file or a directory with csv files, each one representing time series.",
         type=str,

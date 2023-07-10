@@ -1,33 +1,44 @@
+import random
 from itertools import cycle
 import matplotlib.pyplot as plt
 import numpy as np
-
-from plot_helper import get_random_time_series_sample
 from plots.plot import Plot
 
-
 class Delta(Plot):
-    # FIXME: usar las configuraciones para obtener lo que necesite cada plot, es decir, en lugar de args["xxx"], plotconfig.XXX
-    def generate_figures(self, args):
+    def __init__(self):
+        super().__init__()
+        self.seq_len = None
+        self.ts_freq_secs = None
+        self.n_ts1_samples_to_plot = None
+
+    def initialize(self, core, filename):
+        super().initialize(core, filename)
+        self.seq_len = core.ts2_dict[filename].shape[0]
+        self.ts_freq_secs = core.core_config.plot_config.timestamp_frequency_seconds
+        self.n_ts1_samples_to_plot = 5
+    
+    def generate_figures(self, core, filename):
+        self.initialize(core, filename)
+
         plot_array = []
-        for index, column in enumerate(args["header"]):
+        for index, column in enumerate(self.header_names):
             time_delta_minutes = [2, 5, 10]
-            time_delta_minutes = [(args["ts_freq_secs"] / 60) * value for value in time_delta_minutes]
+            time_delta_minutes = [(self.ts_freq_secs / 60) * value for value in time_delta_minutes]
 
             for minutes in time_delta_minutes:
                 plot_array.append(
-                    self.__generate_figures_grouped_by_minutes_various_ts_samples(minutes, index, column, args["ts1"],
-                                                                                  args["ts2"],
-                                                                                  args["seq_len"], args["ts_freq_secs"],
-                                                                                  args["n_ts1_samples"]))
+                    self.__generate_figures_grouped_by_minutes_various_ts_samples(minutes, index, column, self.ts1_windows,
+                                                                                  self.ts2,
+                                                                                  core.ts2_dict[filename].shape[0], self.ts_freq_secs,
+                                                                                  self.n_ts1_samples_to_plot))
         return plot_array
 
-    def __generate_figures_grouped_by_minutes_various_ts_samples(self, minutes, column_number, column_name, ts1,
+    def __generate_figures_grouped_by_minutes_various_ts_samples(self, minutes, column_number, column_name, ts1_windows,
                                                                  generated_data_sample,
                                                                  seq_len, ts_freq_secs, n_ts1_samples):
         delta_ts1_column_array = [
             self.__compute_grouped_delta_from_sample(column_number, minutes,
-                                                     get_random_time_series_sample(seq_len, ts1), seq_len,
+                                                     self.get_random_time_series_sample(), seq_len,
                                                      ts_freq_secs) for _ in range(n_ts1_samples)]
 
         delta_gen_column = self.__compute_grouped_delta_from_sample(column_number, minutes, generated_data_sample,
@@ -40,6 +51,15 @@ class Delta(Plot):
                                     generated_column_values=delta_gen_column, column_name=column_name,
                                     axis=[0, len(delta_ts1_column_array[0]) - 1, min_y_value, max_y_value],
                                     minutes=minutes)
+    
+    def get_random_time_series_sample(self):
+        if len(self.ts1_windows) > self.seq_len:
+            ts_sample_start = random.randrange(0, len(self.ts1_windows) - self.seq_len)
+        else:
+            ts_sample_start = 0
+        ts_sample_end = ts_sample_start + self.seq_len
+        ts_sample = self.ts1_windows[ts_sample_start:ts_sample_end]
+        return ts_sample
 
     def __compute_grouped_delta_from_sample(self, column_number, minutes, data_sample, seq_len, ts_freq_secs):
         sample_column = data_sample[:, column_number]
@@ -55,20 +75,15 @@ class Delta(Plot):
         cycol = cycle('grcmk')
 
         for ts1_column_values in ts1_column_values_array:
-            plt.plot(ts1_column_values, c=next(cycol), label=f'TS_1', linewidth=1)
+            plt.plot(ts1_column_values, c=next(cycol), label=f"TS_1_sample_{i}", linewidth=1)
             i += 1
 
-        plt.plot(generated_column_values, c="blue", label="TS_2", linewidth=2)
-
+        plt.plot(generated_column_values, c="blue", label="TS_2", linewidth=3)
         plt.axis(axis)
-
         plt.title(f'{column_name}_TS_1_vs_TS_2_(grouped_by_{int(minutes)}_minutes)')
         plt.xlabel('time')
         plt.ylabel(column_name)
         ax.legend()
-
-        plot_tuple = (fig, ax)
-
         plt.close(fig)
-
+        plot_tuple = (fig, ax)
         return plot_tuple

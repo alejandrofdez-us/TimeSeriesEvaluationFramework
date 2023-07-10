@@ -30,10 +30,10 @@ def create_ts1_ts2_associated_windows(ts1_windows, ts2_dict, window_selection_me
     ts1_ts2_associated_windows = {}
 
     for filename, ts2 in ts2_dict.items():
-        best_ts1 = get_most_similar_ts_sample(ts1_windows, ts2, metric_object)
-        cached_metric = {window_selection_metric: metric_object.compute(best_ts1, ts2)}
+        most_similar_ts1_sample = get_most_similar_ts_sample(ts1_windows, ts2, metric_object)
+        cached_metric = {window_selection_metric: metric_object.compute(most_similar_ts1_sample, ts2)}
         ts1_ts2_associated_windows[filename] = {}
-        ts1_ts2_associated_windows[filename]["ts1"] = best_ts1
+        ts1_ts2_associated_windows[filename]["most_similar_ts1_sample"] = most_similar_ts1_sample
         ts1_ts2_associated_windows[filename]["ts2"] = ts2
         ts1_ts2_associated_windows[filename]["cached_metric"] = cached_metric
 

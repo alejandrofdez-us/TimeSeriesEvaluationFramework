@@ -40,8 +40,8 @@ class TwoDimensions(Plot):
         plt.xlabel('time')
         plt.ylabel('y_label')
         fig.clf()
-        plt.close()
-        return fig, ax
+        plt.close("all")
+        return (1,2)
 
     def __generate_figures_by_column(self, column_number, column_name):
         return self.__create_figure(ts1_column_values_array=[self.ts1[:, column_number]],
@@ -66,6 +66,6 @@ class TwoDimensions(Plot):
         plt.xlabel('time')
         plt.ylabel(column_name)
         ax.legend()
-        fig.clf()
-        plt.close()
+        plt.clf()
+        plt.close("all")
         return fig, ax

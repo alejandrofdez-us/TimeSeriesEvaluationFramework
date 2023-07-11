@@ -33,6 +33,6 @@ class Pca(DimensionalityReduction):
         plt.title('PCA')
         plt.xlabel('x_pca')
         plt.ylabel('y_pca')
-        fig.clf()
-        plt.close()
+        plt.clf()
+        plt.close("all")
         return fig, ax

@@ -22,6 +22,6 @@ class Dtw(Plot):
             time_series_1_column, time_series_2_column, path
         )
         fig.axes[0].set_title(f"DTW_{column_name}")
-        fig.clf()
-        plt.close()
+        plt.clf()
+        plt.close("all")
         return fig, axes

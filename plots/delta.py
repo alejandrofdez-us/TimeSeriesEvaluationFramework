@@ -47,18 +47,12 @@ class Delta(Plot):
                                     minutes=minutes)
 
     def __get_random_time_series_sample(self):
-        if len(self.ts1_windows) > self.seq_len:
-            ts_sample_start = random.randrange(0, len(self.ts1_windows) - self.seq_len)
-        else:
-            ts_sample_start = 0
-        ts_sample_end = ts_sample_start + self.seq_len
-        ts_sample = self.ts1_windows[ts_sample_start:ts_sample_end]
-        return ts_sample
+        return self.ts1_windows[np.random.randint(0, len(self.ts1_windows))]
 
     def __compute_grouped_delta_from_sample(self, column_number, minutes, data_sample, seq_len, ts_freq_secs):
         sample_column = data_sample[:, column_number]
         sample_column_splitted = np.array_split(sample_column, seq_len // (minutes / (ts_freq_secs / 60)))
-        sample_column_mean = [np.mean(batch) for batch in sample_column_splitted]
+        sample_column_mean = [np.mean(sample_column_slit) for sample_column_slit in sample_column_splitted]
         delta_sample_column = -np.diff(sample_column_mean)
         return delta_sample_column
 

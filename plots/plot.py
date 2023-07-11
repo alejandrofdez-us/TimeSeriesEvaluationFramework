@@ -1,14 +1,18 @@
+from matplotlib import pyplot as plt
+
+
 class Plot:
     @staticmethod
     def requires_all_samples():
         return False
 
-    def __init__(self):
+    def __init__(self, plot_size=(18, 3)):
         self.filename = None
         self.ts1 = None
         self.ts2 = None
         self.ts1_windows = None
         self.header_names = None
+        plt.rcParams["figure.figsize"] = plot_size
 
     def initialize(self, core, filename):
         self.filename = filename

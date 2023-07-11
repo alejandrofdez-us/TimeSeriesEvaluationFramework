@@ -15,8 +15,8 @@ def main(arguments):
     try:
         ts1, header_ts1 = load_ts_from_csv(arguments.time_series_1_filename, arguments.header)
         ts2_dict = load_ts_from_path(arguments.time_series_2_path, header_ts1, arguments.header)
-        core_config = __create_core_config(arguments)
-        core = Core(ts1, list(ts2_dict.values()), list(ts2_dict.keys()), header_ts1, core_config)
+        core_config = __create_core_config(arguments, list(ts2_dict.keys()), header_ts1)
+        core = Core(ts1, list(ts2_dict.values()), core_config)
         if core_config.metric_config.metrics:
             computed_metrics = core.compute_metrics(show_progress=True)
             __save_metrics(computed_metrics)
@@ -27,14 +27,17 @@ def main(arguments):
         print("Error: ", error)
 
 
-def __create_core_config(arguments):
+def __create_core_config(arguments, ts2_names, header_names):
     metric_config = None
-    plot_config = None if arguments.timestamp_frequency_seconds is None else PlotConfig(None,arguments.timestamp_frequency_seconds)
+    plot_config = None if arguments.timestamp_frequency_seconds is None else PlotConfig(None,
+                                                                                        arguments.timestamp_frequency_seconds)
     if arguments.metrics is not None or arguments.figures is not None:
         metric_config = MetricConfig(arguments.metrics) if arguments.metrics else MetricConfig([])
         plot_config = PlotConfig(arguments.figures,
-                                 arguments.timestamp_frequency_seconds) if arguments.figures else PlotConfig([],arguments.timestamp_frequency_seconds)
-    core_config = CoreConfig(metric_config, plot_config, arguments.stride, arguments.window_selection_metric)
+                                 arguments.timestamp_frequency_seconds) if arguments.figures else PlotConfig([],
+                                                                                                             arguments.timestamp_frequency_seconds)
+    core_config = CoreConfig(metric_config, plot_config, arguments.stride, arguments.window_selection_metric, ts2_names,
+                             header_names)
     return core_config
 
 

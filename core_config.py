@@ -3,7 +3,8 @@ from plots.plot_config import PlotConfig
 
 
 class CoreConfig:
-    def __init__(self, metric_config=None, plot_config=None, stride=1, window_selection_metric='dtw'):
+    def __init__(self, metric_config=None, plot_config=None, stride=1, window_selection_metric='dtw', ts2_names=None,
+                 header_names=None):
         if metric_config is None:
             metric_config = MetricConfig()
         if plot_config is None:
@@ -13,3 +14,5 @@ class CoreConfig:
         self.plot_config = plot_config
         self.stride = stride
         self.window_selection_metric = window_selection_metric
+        self.ts2_names = ts2_names
+        self.header_names = header_names

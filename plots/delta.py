@@ -64,7 +64,6 @@ class Delta(Plot):
         max_y_value = max(np.amax(delta_ts1_column_array), np.amax(delta_ts2_column))
         min_y_value = min(np.amin(delta_ts1_column_array), np.amin(delta_ts2_column))
         axis = [0, len(delta_ts2_column) - 1, min_y_value, max_y_value]
-        plt.rcParams["figure.figsize"] = (18, 3)
         fig, ax = plt.subplots(1)
         i = 1
         cycle_colors = cycle('grcmk')

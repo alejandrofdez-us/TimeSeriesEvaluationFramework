@@ -3,9 +3,10 @@ from dtaidistance import dtw
 from matplotlib import pyplot as plt
 from plots.plot import Plot
 
+
 class Dtw(Plot):
     def generate_figures(self, core, filename):
-        super().initialize(core, filename)
+        super().generate_figures(core, filename)
         figures = []
         for column, index in zip(self.header_names, range(len(self.header_names))):
             figures.append(

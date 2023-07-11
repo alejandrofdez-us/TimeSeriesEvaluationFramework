@@ -2,12 +2,11 @@ import numpy as np
 
 from metrics.metric import Metric
 
+
 class Cp(Metric):
     def compute(self, ts1, ts2):
-        metric_result = {"Multivariate": self.__cp(ts1, ts2)}
+        return {"Multivariate": self.__cp(ts1, ts2)}
 
-        return metric_result
-    
     def compute_distance(self, ts1, ts2):
         return self.__cp(ts1, ts2)
 

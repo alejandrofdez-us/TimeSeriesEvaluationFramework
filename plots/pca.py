@@ -3,6 +3,7 @@ import numpy as np
 from sklearn.decomposition import PCA
 from plots.plot import Plot
 
+
 class Pca(Plot):
     @staticmethod
     def requires_all_samples():
@@ -22,14 +23,14 @@ class Pca(Plot):
         seq_len = ts.shape[1]
         for i in range(len(ts)):
             if i == 0:
-                ts_prepared= np.reshape(np.mean(ts[0, :, :], 1), [1, seq_len])
+                ts_prepared = np.reshape(np.mean(ts[0, :, :], 1), [1, seq_len])
             else:
                 ts_prepared = np.concatenate((ts_prepared, np.reshape(np.mean(ts[i, :, :], 1), [1, seq_len])))
         return ts_prepared
 
     def generate_figures(self, core, filename):
         assert len(core.ts2s) >= 2, 'The number of samples must be greater than 2 for PCA analysis.'
-        self.initialize(core, filename)
+        super().generate_figures(core, filename)
         pca = PCA(n_components=2)
         pca.fit(self.ts1_prepared)
         pca_ts1 = pca.transform(self.ts1_prepared)
@@ -49,4 +50,4 @@ class Pca(Plot):
         plt.xlabel('x_pca')
         plt.ylabel('y_pca')
         plt.close()
-        return fig,ax
+        return fig, ax

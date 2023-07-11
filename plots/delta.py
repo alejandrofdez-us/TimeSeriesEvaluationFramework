@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from plots.plot import Plot
 
+
 class Delta(Plot):
     def __init__(self):
         super().__init__()
@@ -16,10 +17,9 @@ class Delta(Plot):
         self.seq_len = core.ts2_dict[filename].shape[0]
         self.ts_freq_secs = core.core_config.plot_config.timestamp_frequency_seconds
         self.n_ts1_samples_to_plot = 5
-    
-    def generate_figures(self, core, filename):
-        self.initialize(core, filename)
 
+    def generate_figures(self, core, filename):
+        super().generate_figures(core, filename)
         plot_array = []
         for index, column in enumerate(self.header_names):
             time_delta_minutes = [2, 5, 10]
@@ -27,9 +27,11 @@ class Delta(Plot):
 
             for minutes in time_delta_minutes:
                 plot_array.append(
-                    self.__generate_figures_grouped_by_minutes_various_ts_samples(minutes, index, column, self.ts1_windows,
+                    self.__generate_figures_grouped_by_minutes_various_ts_samples(minutes, index, column,
+                                                                                  self.ts1_windows,
                                                                                   self.ts2,
-                                                                                  core.ts2_dict[filename].shape[0], self.ts_freq_secs,
+                                                                                  core.ts2_dict[filename].shape[0],
+                                                                                  self.ts_freq_secs,
                                                                                   self.n_ts1_samples_to_plot))
         return plot_array
 
@@ -51,7 +53,7 @@ class Delta(Plot):
                                     generated_column_values=delta_gen_column, column_name=column_name,
                                     axis=[0, len(delta_ts1_column_array[0]) - 1, min_y_value, max_y_value],
                                     minutes=minutes)
-    
+
     def get_random_time_series_sample(self):
         if len(self.ts1_windows) > self.seq_len:
             ts_sample_start = random.randrange(0, len(self.ts1_windows) - self.seq_len)

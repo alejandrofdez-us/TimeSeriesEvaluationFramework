@@ -20,8 +20,5 @@ class Plot:
     def get_name(self):
         return self.__class__.__name__.lower()
 
-    def generate_figures (self):
-        raise NotImplementedError("generate_figures not implemented")
-
-    def are_args_computed(self):
-        return True
+    def generate_figures(self, core, filename):
+        self.initialize(core, filename)

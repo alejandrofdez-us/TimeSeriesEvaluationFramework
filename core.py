@@ -5,10 +5,11 @@ from metrics.metric_factory import MetricFactory
 from plots.plot_factory import PlotFactory
 from window_sampler import create_ts1_ts2_associated_windows, split_ts_strided
 
+
 class Core:
     def __init__(self, ts1, ts2s, ts2_names=None, header_names=None, core_config=None):
         self.ts1 = ts1
-        self.ts2s= ts2s
+        self.ts2s = ts2s
         self.ts2_dict = self.__build_ts2_dict(ts2s, ts2_names)
         self.core_config = core_config if core_config is not None else CoreConfig()
         self.ts1_windows = split_ts_strided(ts1, ts2s[0].shape[0], self.core_config.stride)
@@ -31,7 +32,8 @@ class Core:
             computed_metrics[filename] = {}
             for metric_name, metric in self.metric_factory.metric_objects.items():
                 if metric_name not in ts_dict["cached_metric"].keys():
-                    computed_metrics[filename][metric_name] = metric.compute(ts_dict["most_similar_ts1_sample"], ts_dict["ts2"])
+                    computed_metrics[filename][metric_name] = metric.compute(ts_dict["most_similar_ts1_sample"],
+                                                                             ts_dict["ts2"])
                 else:
                     computed_metrics[filename][metric_name] = ts_dict["cached_metric"][metric_name]
             if show_progress:

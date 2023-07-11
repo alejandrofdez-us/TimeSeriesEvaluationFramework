@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import pandas
 from plots.plot import Plot
 
+
 class TwoDimensions(Plot):
     def __init__(self):
         super().__init__()
@@ -18,7 +19,7 @@ class TwoDimensions(Plot):
         return "2d"
 
     def generate_figures(self, core, filename):
-        self.initialize(core, filename)
+        super().generate_figures(core, filename)
         plot_array = []
         plot_array.append(self.__generate_figure_from_df())
         for index, column in enumerate(self.header_names):
@@ -27,7 +28,7 @@ class TwoDimensions(Plot):
 
     def __generate_figure_from_df(self):
         ts_sample_df = pandas.DataFrame(self.ts1, columns=[f'{column_name}_TS_1' for column_name in
-                                                                        self.ts2_df.columns])
+                                                           self.ts2_df.columns])
         plt.rcParams["figure.figsize"] = (18, 3)
         fig, ax = plt.subplots(1)
         ts_sample_df.plot(ax=ax, color='darkgrey')
@@ -45,7 +46,7 @@ class TwoDimensions(Plot):
 
     def __generate_figures_by_column(self, column_number, column_name):
         return self.__create_figure(ts1_column_values_array=[self.ts1[:, column_number]],
-                    ts2_column_values=self.ts2[:, column_number], column_name=column_name)
+                                    ts2_column_values=self.ts2[:, column_number], column_name=column_name)
 
     def __create_figure(self, ts1_column_values_array, ts2_column_values, column_name, axis=None):
         plt.rcParams["figure.figsize"] = (18, 3)

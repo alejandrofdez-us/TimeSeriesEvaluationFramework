@@ -1,4 +1,3 @@
-import os
 import numpy as np
 from metrics.metric_factory import MetricFactory
 
@@ -11,7 +10,6 @@ def get_most_similar_ts_sample(ts1_windows, ts2, metric_object):
         if metric_object.compare(current_distance, current_best) > 0:
             current_best = current_distance
             most_similar_sample = ts1_window
-
     return most_similar_sample
 
 
@@ -28,7 +26,6 @@ def split_ts_strided(ts_np, seq_len, stride):
 def create_ts1_ts2_associated_windows(ts1_windows, ts2_dict, window_selection_metric):
     metric_object = MetricFactory.get_metric_by_name(window_selection_metric)
     ts1_ts2_associated_windows = {}
-
     for filename, ts2 in ts2_dict.items():
         most_similar_ts1_sample = get_most_similar_ts_sample(ts1_windows, ts2, metric_object)
         cached_metric = {window_selection_metric: metric_object.compute(most_similar_ts1_sample, ts2)}
@@ -36,5 +33,4 @@ def create_ts1_ts2_associated_windows(ts1_windows, ts2_dict, window_selection_me
         ts1_ts2_associated_windows[filename]["most_similar_ts1_sample"] = most_similar_ts1_sample
         ts1_ts2_associated_windows[filename]["ts2"] = ts2
         ts1_ts2_associated_windows[filename]["cached_metric"] = cached_metric
-
     return ts1_ts2_associated_windows

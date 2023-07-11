@@ -41,5 +41,6 @@ class Tsne(DimensionalityReduction):
         plt.title(f't_SNE_{filename}')
         plt.xlabel('x_tsne')
         plt.ylabel('y_tsne')
+        fig.clf()
         plt.close()
         return fig, ax

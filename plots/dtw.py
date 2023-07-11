@@ -1,5 +1,6 @@
 from dtaidistance import dtw_visualisation
 from dtaidistance import dtw
+from matplotlib import pyplot as plt
 from plots.plot import Plot
 
 
@@ -17,8 +18,10 @@ class Dtw(Plot):
 
     def __generate_dtw_figure(self, time_series_1_column, time_series_2_column, column_name):
         path = dtw.warping_path(time_series_1_column, time_series_2_column)
-        figure, axes = dtw_visualisation.plot_warping(
+        fig, axes = dtw_visualisation.plot_warping(
             time_series_1_column, time_series_2_column, path
         )
-        figure.axes[0].set_title(f"DTW_{column_name}")
-        return figure, axes
+        fig.axes[0].set_title(f"DTW_{column_name}")
+        fig.clf()
+        plt.close()
+        return fig, axes

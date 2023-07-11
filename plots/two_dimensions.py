@@ -39,9 +39,9 @@ class TwoDimensions(Plot):
         plt.legend(loc='best')
         plt.xlabel('time')
         plt.ylabel('y_label')
+        fig.clf()
         plt.close()
-        plot_tuple = (fig, ax)
-        return plot_tuple
+        return fig, ax
 
     def __generate_figures_by_column(self, column_number, column_name):
         return self.__create_figure(ts1_column_values_array=[self.ts1[:, column_number]],
@@ -66,6 +66,6 @@ class TwoDimensions(Plot):
         plt.xlabel('time')
         plt.ylabel(column_name)
         ax.legend()
-        plot_tuple = (fig, ax)
+        fig.clf()
         plt.close()
-        return plot_tuple
+        return fig, ax

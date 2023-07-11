@@ -1,7 +1,6 @@
 import os
 import argparse
 from tqdm import tqdm
-
 from core_config import CoreConfig
 from metrics.metric_config import MetricConfig
 from metrics.metric_factory import MetricFactory

@@ -1,4 +1,3 @@
-import random
 from itertools import cycle
 import matplotlib.pyplot as plt
 import numpy as np
@@ -22,19 +21,10 @@ class Delta(Plot):
         self.time_magnitude, self.time_magnitude_name = self.__compute_time_magnitude()
 
     def __compute_time_magnitude(self):
-        if self.ts_freq_secs < 60:
-            time_magnitude = 1
-            time_magnitude_name = 'seconds'
-        elif self.ts_freq_secs < 60 * 60:
-            time_magnitude = 60
-            time_magnitude_name = 'minutes'
-        elif self.ts_freq_secs < 60 * 60 * 24:
-            time_magnitude = 60 * 60
-            time_magnitude_name = 'hours'
-        else:
-            time_magnitude = 60 * 60 * 24
-            time_magnitude_name = 'days'
-        return time_magnitude, time_magnitude_name
+        time_magnitudes = {60 * 60 * 24: 'days', 60 * 60: 'hours', 60: 'minutes', 1: 'seconds'}
+        for magnitude, name in time_magnitudes.items():
+            if self.ts_freq_secs >= magnitude:
+                return magnitude, name
 
     def generate_figures(self, core, filename):
         super().generate_figures(core, filename)

@@ -13,14 +13,14 @@ class SimilarityAnalysisComputer:
 
     def __next__(self):
         try:
-            return self.compute_next_analysis()
+            return self._compute_next_analysis()
         except StopIteration:
             self.current_associated_window = next(self.ts1_ts2_associated_windows_iterator)
             self.analysis_iterator = iter(self.analysis)
-            return self.compute_next_analysis()
+            return self._compute_next_analysis()
 
     def __len__(self):
         return self.length
 
-    def compute_next_analysis(self):
+    def _compute_next_analysis(self):
         raise NotImplementedError('Subclasses must implement compute_next_analysis() method')

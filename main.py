@@ -1,6 +1,8 @@
 import json
 import os
 import argparse
+import warnings
+import sys
 from tqdm import tqdm
 from core_config import CoreConfig
 from metrics.metric_config import MetricConfig
@@ -9,6 +11,13 @@ from plots.plot_config import PlotConfig
 from plots.plot_factory import PlotFactory
 from core import Core
 from csv_reader_helper import load_ts_from_csv, load_ts_from_path
+
+
+def warning_handler(message, category, filename, lineno, file=None, line=None):
+    print(message, file=sys.stderr)
+
+
+warnings.showwarning = warning_handler
 
 
 def main(arguments):
@@ -21,7 +30,7 @@ def main(arguments):
             __compute_metrics(core)
         if core_config.plot_config.figures:
             __compute_figures(core)
-    except ValueError as error:
+    except ValueError as error:  # FIXME: Value error?
         print("Error: ", error)
 
 

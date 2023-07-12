@@ -27,6 +27,7 @@ class TwoDimensions(Plot):
         return plot_array
 
     def __generate_figure_from_df(self):
+        plt.rcParams["figure.figsize"] = self.fig_size
         ts_sample_df = pandas.DataFrame(self.ts1, columns=[f'{column_name}_TS_1' for column_name in
                                                            self.ts2_df.columns])
         fig, ax = plt.subplots(1)
@@ -47,10 +48,10 @@ class TwoDimensions(Plot):
                                     ts2_column_values=self.ts2[:, column_number], column_name=column_name)
 
     def __create_figure(self, ts1_column_values_array, ts2_column_values, column_name, axis=None):
+        plt.rcParams["figure.figsize"] = self.fig_size
         fig, ax = plt.subplots(1)
         i = 1
         cycol = cycle('grcmk')
-
         for ts1_column_values in ts1_column_values_array:
             plt.plot(ts1_column_values, c=next(cycol), label="TS_1", linewidth=1)
             i += 1

@@ -11,9 +11,6 @@ class Tsne(DimensionalityReduction):
     def requires_all_samples():
         return True
 
-    def __init__(self):  # FIXME: eliminar ya que no hace nada?
-        super().__init__()
-
     def compute(self, core, filename):
         super().compute(core, filename)
         ts1_ts2_reduced_dimensions_concatenated = np.concatenate(
@@ -38,6 +35,7 @@ class Tsne(DimensionalityReduction):
         return tsne.fit_transform(ts1_ts2_reduced_dimensions_concatenated)
 
     def __tsne_ploting(self, anal_sample_no, colors, tsne_embedding, title):
+        plt.rcParams["figure.figsize"] = self.fig_size
         fig, ax = plt.subplots(1)
         plt.scatter(tsne_embedding[:anal_sample_no, 0], tsne_embedding[:anal_sample_no, 1],
                     c=colors[:anal_sample_no], alpha=0.2, label="TS_1")

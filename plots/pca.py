@@ -8,9 +8,6 @@ class Pca(DimensionalityReduction):
     def requires_all_samples():
         return True
 
-    def __init__(self):
-        super().__init__()
-
     def compute(self, core, filename):
         super().compute(core, filename)
         pca = PCA(n_components=2)
@@ -21,6 +18,7 @@ class Pca(DimensionalityReduction):
         return [(fig, ax)]
 
     def generate_plot(self, pca_ts1, pca_ts2):
+        plt.rcParams["figure.figsize"] = self.fig_size
         fig, ax = plt.subplots(1)
         colors = ["red" for _ in range(len(pca_ts1))] + ["blue" for _ in range(len(pca_ts2))]
         plt.scatter(pca_ts1[:, 0], pca_ts1[:, 1],

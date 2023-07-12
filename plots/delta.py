@@ -64,11 +64,12 @@ class Delta(Plot):
         return delta_sample_column
 
     def __create_figure(self, delta_ts1_column_array, delta_ts2_column, column_name, time_interval):
+        plt.rcParams["figure.figsize"] = self.fig_size
         max_y_value = max(np.amax(delta_ts1_column_array), np.amax(delta_ts2_column))
         min_y_value = min(np.amin(delta_ts1_column_array), np.amin(delta_ts2_column))
         axis = [0, len(delta_ts2_column) - 1, min_y_value, max_y_value]
         fig, ax = plt.subplots(1)
-        self.___plot_ts1_columns(delta_ts1_column_array)
+        self.__plot_ts1_columns(delta_ts1_column_array)
         plt.plot(delta_ts2_column, c="blue", label="TS_2", linewidth=3)
         plt.axis(axis)
         plt.title(f'{column_name}_TS_1_vs_TS_2_(grouped_by_{int(time_interval)}_{self.time_magnitude_name})')
@@ -78,7 +79,7 @@ class Delta(Plot):
         plt.close("all")
         return fig, ax
 
-    def ___plot_ts1_columns(self, delta_ts1_column_array):
+    def __plot_ts1_columns(self, delta_ts1_column_array):
         cycle_colors = cycle('grcmk')
         labels = ["TS_1"] if len(delta_ts1_column_array) == 1 else [f"TS_1_sample_{i}" for i in
                                                                     range(1, len(delta_ts1_column_array) + 1)]

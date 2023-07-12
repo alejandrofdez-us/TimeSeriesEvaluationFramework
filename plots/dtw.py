@@ -17,6 +17,7 @@ class Dtw(Plot):
         return figures
 
     def __generate_dtw_figure(self, time_series_1_column, time_series_2_column, column_name):
+        plt.rcParams["figure.figsize"] = self.fig_size
         path = dtw.warping_path(time_series_1_column, time_series_2_column)
         fig, axes = dtw_visualisation.plot_warping(
             time_series_1_column, time_series_2_column, path

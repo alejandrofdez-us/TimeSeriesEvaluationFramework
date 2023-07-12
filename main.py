@@ -1,3 +1,4 @@
+import json
 import os
 import argparse
 from tqdm import tqdm
@@ -17,11 +18,23 @@ def main(arguments):
         core_config = __create_core_config(arguments, list(ts2_dict.keys()), header_ts1)
         core = Core(ts1, list(ts2_dict.values()), core_config)
         if core_config.metric_config.metrics:
-            computed_metrics = core.compute_metrics(show_progress=True)
-            __save_metrics(computed_metrics)
+            metrics_results = {}
+            plot_computer_iterator = core.get_metric_computer()
+            tqdm_plot_computer_iterator = tqdm(plot_computer_iterator, total=len(plot_computer_iterator),
+                                               desc='Computing metrics')
+            for filename, metric_name, generated_plots in tqdm_plot_computer_iterator:
+                if filename not in metrics_results:
+                    tqdm_plot_computer_iterator.set_postfix(file=filename)
+                    metrics_results[filename] = {}
+                metrics_results[filename][metric_name] = generated_plots
+            __save_metrics(json.dumps(metrics_results, indent=4))
         if core_config.plot_config.figures:
-            generated_figures = core.generate_figures(show_progress=True)
-            __save_figures(generated_figures, show_progress=True)
+            plot_computer_iterator = core.get_plot_computer()
+            tqdm_plot_computer_iterator = tqdm(plot_computer_iterator, total=len(plot_computer_iterator),
+                                               desc='Computing plots')
+            for filename, plot_name, generated_plots in tqdm_plot_computer_iterator:
+                tqdm_plot_computer_iterator.set_postfix(file=filename)
+                __save_figures(filename, plot_name, generated_plots)
     except ValueError as error:
         print("Error: ", error)
 
@@ -40,24 +53,20 @@ def __create_core_config(arguments, ts2_names, header_names):
     return core_config
 
 
-def __save_figures(figures_dict, path="results/figures", show_progress=False):
-    iterator = figures_dict.items()
-    if show_progress:
-        iterator = tqdm(figures_dict.items(), total=len(figures_dict.items()), desc='   Saving figures',
-                        disable=not show_progress)
-    for filename, figures in iterator:
-        for figure_name, plots in figures.items():
-            for plot in plots:
-                plot_label = plot[0].axes[0].get_title()
-                if figure_name in PlotFactory.get_instance().figures_requires_all_samples:
-                    dir_path = f"{path}/{figure_name}/"
-                else:
-                    original_filename = filename.split(".")[0]
-                    dir_path = f"{path}/{original_filename}/{figure_name}/"
-                os.makedirs(dir_path, exist_ok=True)
-                plot[0].savefig(f"{dir_path}{plot_label}.pdf", format="pdf", bbox_inches="tight")
-        if show_progress:
-            iterator.set_postfix(file=filename)
+def __save_figures(filename, plot_name, generated_plots, path="results/figures"):
+    for plot in generated_plots:
+        dir_path = __create_directory(filename, path, plot_name)
+        plot[0].savefig(f"{dir_path}{plot[0].axes[0].get_title()}.pdf", format="pdf", bbox_inches="tight")
+
+
+def __create_directory(filename, path, plot_name):
+    if plot_name in PlotFactory.get_instance().figures_requires_all_samples:
+        dir_path = f"{path}/{plot_name}/"
+    else:
+        original_filename = os.path.splitext(filename)[0]
+        dir_path = f"{path}/{original_filename}/{plot_name}/"
+    os.makedirs(dir_path, exist_ok=True)
+    return dir_path
 
 
 def __save_metrics(computed_metrics, path="results/metrics"):

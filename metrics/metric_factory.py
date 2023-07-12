@@ -18,10 +18,8 @@ class MetricFactory(metaclass=Singleton):
 
     @staticmethod
     def __get_metrics_to_be_computed(metrics_names_to_be_computed):
-        available_metrics = MetricFactory.find_available_metrics()
-        metrics_to_be_computed = {metric_name: metric for metric_name, metric in available_metrics.items() if
-                                  metric_name in metrics_names_to_be_computed}
-        return metrics_to_be_computed
+        return [metric for metric_name, metric in MetricFactory.find_available_metrics().items() if
+                metric_name in metrics_names_to_be_computed]
 
     @staticmethod
     def find_available_metrics():

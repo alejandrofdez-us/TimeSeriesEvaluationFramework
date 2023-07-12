@@ -1,7 +1,9 @@
-import json
 from tqdm import tqdm
+
+from metrics.MetricComputer import MetricComputer
 from core_config import CoreConfig
 from metrics.metric_factory import MetricFactory
+from plots.PlotComputer import PlotComputer
 from plots.plot_factory import PlotFactory
 from window_sampler import create_ts1_ts2_associated_windows, split_ts_strided
 
@@ -16,60 +18,17 @@ class Core:
         self.ts1_ts2_associated_windows = create_ts1_ts2_associated_windows(self.ts1_windows, self.ts2_dict,
                                                                             self.core_config.window_selection_metric)
         self.metric_factory = MetricFactory.get_instance(self.core_config.metric_config.metrics)
-        self.plot_factory = PlotFactory.get_instance(self.core_config.plot_config.figures)
+        self.plot_factory = PlotFactory.get_instance(self.core_config.plot_config.figures)  # FIXME: eliminar?
         self.header_names = core_config.header_names if core_config.header_names is not None else ["column-" + str(i)
                                                                                                    for i in
                                                                                                    range(ts1.shape[1])]
 
-    def __build_ts2_dict(self, ts2s, ts2_names):
-        ts2_names = ts2_names if ts2_names is not None else ["ts2-" + str(i) for i in range(len(ts2s))]
-        return {ts2_name: ts2 for ts2, ts2_name in zip(ts2s, ts2_names)}
+    def __build_ts2_dict(self, ts2s, ts2_filenames):
+        ts2_filenames = ts2_filenames if ts2_filenames is not None else ["ts2-" + str(i) for i in range(len(ts2s))]
+        return {ts2_name: ts2 for ts2, ts2_name in zip(ts2s, ts2_filenames)}
 
-    def compute_metrics(self, show_progress=False):
-        computed_metrics = {}
-        tqdm_ts1_ts2_associated_windows = self.__setup_progress_bar(self.ts1_ts2_associated_windows.items(),
-                                                                    show_progress,
-                                                                    'Computing metrics')
-        for filename, ts_dict in tqdm_ts1_ts2_associated_windows:
-            computed_metrics[filename] = {}
-            for metric_name, metric in self.metric_factory.metric_objects.items():
-                if metric_name not in ts_dict["cached_metric"].keys():
-                    try:
-                        computed_metrics[filename][metric_name] = metric.compute(ts_dict["most_similar_ts1_sample"],
-                                                                                 ts_dict["ts2"])
-                    except Exception as e:
-                        tqdm.write(f"\nError computing metric '{metric_name}' for file '{filename}': {str(e)}")
-                        tqdm_ts1_ts2_associated_windows.set_postfix(error=True)
-                else:
-                    computed_metrics[filename][metric_name] = ts_dict["cached_metric"][metric_name]
-            if show_progress:
-                tqdm_ts1_ts2_associated_windows.set_postfix(file=filename)
-        computed_metrics = json.dumps(computed_metrics, indent=4)  # FIXME: Crear el json en main
-        return computed_metrics
+    def get_metric_computer(self):
+        return MetricComputer(self.ts1_ts2_associated_windows, self.metric_factory.metric_objects)
 
-    def __setup_progress_bar(self, iterator, show_progress, desc):
-        tqdm_iterator = iterator
-        if show_progress:
-            tqdm_iterator = tqdm(tqdm_iterator, total=len(iterator), desc=desc,
-                                 disable=not show_progress)
-        return tqdm_iterator
-
-    def generate_figures(self, show_progress=False):
-        generated_figures = {}
-        already_computed_figures_requires_all_samples = []
-        tqdm_ts1_ts2_associated_windows = self.__setup_progress_bar(self.ts1_ts2_associated_windows, show_progress,
-                                                                    'Computing figures')
-        for filename in tqdm_ts1_ts2_associated_windows:
-            generated_figures[filename] = {}
-            for figure_name, figure in self.plot_factory.plots_to_be_generated.items():
-                if figure_name not in already_computed_figures_requires_all_samples:
-                    try:
-                        generated_figures[filename][figure_name] = figure.generate_figures(self, filename)
-                    except Exception as e:
-                        tqdm.write(f"\nError generating figure '{figure_name}' for file '{filename}': {str(e)}")
-                        tqdm_ts1_ts2_associated_windows.set_postfix(error=True)
-                    if figure_name in self.plot_factory.figures_requires_all_samples:
-                        already_computed_figures_requires_all_samples.append(figure_name)
-            if show_progress:
-                tqdm_ts1_ts2_associated_windows.set_postfix(file=filename)
-        return generated_figures
+    def get_plot_computer(self):
+        return PlotComputer(self, self.ts1_ts2_associated_windows, self.plot_factory.plots_to_be_generated)

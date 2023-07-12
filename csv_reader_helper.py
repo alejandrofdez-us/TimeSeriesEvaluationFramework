@@ -1,6 +1,7 @@
 import csv
 import os
 import numpy as np
+from natsort import natsorted
 
 
 def read_header_from_csv(filename, ts_delimiter, has_header):
@@ -39,6 +40,7 @@ def load_ts_from_path(path, header_ts1, has_header=None):
     elif os.path.isdir(path):
         for _, _, files in os.walk(path):
             files = [file for file in files if not file.startswith('.')]
+            files = natsorted(files)
             for file in files:
                 ts2, header_ts2 = load_ts_from_csv(f"{path}/{file}", has_header)
                 check_headers(header_ts1, header_ts2)

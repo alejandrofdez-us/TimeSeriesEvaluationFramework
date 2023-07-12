@@ -1,5 +1,5 @@
 class Metric:
-    def get_name(self):
+    def get_name(self):  # FIXME: pensar en meter decorador @property
         return self.__class__.__name__.lower()
 
     def compute(self, ts1, ts2):

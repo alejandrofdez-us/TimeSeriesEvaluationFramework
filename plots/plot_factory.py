@@ -19,10 +19,8 @@ class PlotFactory(metaclass=Singleton):
 
     @staticmethod
     def __get_plots_to_be_generated(figure_names_to_be_generated):
-        available_plots = PlotFactory.find_available_figures()
-        plots_to_be_generated = {plot_name: plot for plot_name, plot in available_plots.items() if
-                                 plot_name in figure_names_to_be_generated}
-        return plots_to_be_generated
+        return [plot for plot_name, plot in PlotFactory.find_available_figures().items() if
+                plot_name in figure_names_to_be_generated]
 
     @staticmethod
     def find_available_figures():
@@ -40,5 +38,9 @@ class PlotFactory(metaclass=Singleton):
         return [figure_name for figure_name in figures_to_be_generated if
                 self.__figure_requires_all_samples(figure_name)]
 
-    def __figure_requires_all_samples(self, figure_name):
-        return self.plots_to_be_generated[figure_name].requires_all_samples()
+    def __figure_requires_all_samples(self, figure_name):  # FIXME: más fácil?
+        for plot in self.plots_to_be_generated:
+            if plot.get_name() == figure_name:
+                return plot.requires_all_samples()
+
+        return False

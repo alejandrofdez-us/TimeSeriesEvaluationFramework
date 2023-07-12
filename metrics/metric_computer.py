@@ -1,4 +1,4 @@
-from SimilarityAnalysisComputer import SimilarityAnalysisComputer
+from similarity_analysis_computer import SimilarityAnalysisComputer
 import warnings
 
 

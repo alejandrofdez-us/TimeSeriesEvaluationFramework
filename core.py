@@ -28,7 +28,7 @@ class Core:
         return {ts2_name: ts2 for ts2, ts2_name in zip(ts2s, ts2_filenames)}
 
     def get_metric_computer(self):
-        return MetricComputer(self.ts1_ts2_associated_windows, self.metric_factory.metric_objects)
+        return MetricComputer(self, self.metric_factory.metric_objects)
 
     def get_plot_computer(self):
-        return PlotComputer(self, self.ts1_ts2_associated_windows, self.plot_factory.plots_to_be_generated)
+        return PlotComputer(self, self.plot_factory.plots_to_be_generated)

@@ -18,25 +18,34 @@ def main(arguments):
         core_config = __create_core_config(arguments, list(ts2_dict.keys()), header_ts1)
         core = Core(ts1, list(ts2_dict.values()), core_config)
         if core_config.metric_config.metrics:
-            metrics_results = {}
-            plot_computer_iterator = core.get_metric_computer()
-            tqdm_plot_computer_iterator = tqdm(plot_computer_iterator, total=len(plot_computer_iterator),
-                                               desc='Computing metrics')
-            for filename, metric_name, generated_plots in tqdm_plot_computer_iterator:
-                if filename not in metrics_results:
-                    tqdm_plot_computer_iterator.set_postfix(file=filename)
-                    metrics_results[filename] = {}
-                metrics_results[filename][metric_name] = generated_plots
+            metrics_results = __compute_metrics(core)
             __save_metrics(json.dumps(metrics_results, indent=4))
         if core_config.plot_config.figures:
-            plot_computer_iterator = core.get_plot_computer()
-            tqdm_plot_computer_iterator = tqdm(plot_computer_iterator, total=len(plot_computer_iterator),
-                                               desc='Computing plots')
-            for filename, plot_name, generated_plots in tqdm_plot_computer_iterator:
-                tqdm_plot_computer_iterator.set_postfix(file=filename)
-                __save_figures(filename, plot_name, generated_plots)
+            __compute_figures(core)
     except ValueError as error:
         print("Error: ", error)
+
+
+def __compute_figures(core):
+    plot_computer_iterator = core.get_plot_computer()
+    tqdm_plot_computer_iterator = tqdm(plot_computer_iterator, total=len(plot_computer_iterator),
+                                       desc='Computing plots')
+    for filename, plot_name, generated_plots in tqdm_plot_computer_iterator:
+        tqdm_plot_computer_iterator.set_postfix(file=filename)
+        __save_figures(filename, plot_name, generated_plots)
+
+
+def __compute_metrics(core):
+    metrics_results = {}
+    metric_computer_iterator = core.get_metric_computer()
+    tqdm_metric_computer_iterator = tqdm(metric_computer_iterator, total=len(metric_computer_iterator),
+                                         desc='Computing metrics')
+    for filename, metric_name, computed_metric in tqdm_metric_computer_iterator:
+        if filename not in metrics_results:
+            tqdm_metric_computer_iterator.set_postfix(file=filename)
+            metrics_results[filename] = {}
+        metrics_results[filename][metric_name] = computed_metric
+    return metrics_results
 
 
 def __create_core_config(arguments, ts2_names, header_names):

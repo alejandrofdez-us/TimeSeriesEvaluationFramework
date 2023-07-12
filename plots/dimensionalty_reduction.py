@@ -8,14 +8,14 @@ class DimensionalityReduction(Plot):
 
     def __init__(self, plot_size=(8, 6)):
         super().__init__()
-        self.ts1_prepared = None
-        self.ts2_prepared = None
+        self.ts1_reduced_dimensions = None
+        self.ts2_reduced_dimensions = None
         plt.rcParams["figure.figsize"] = plot_size
 
     def initialize(self, core, filename):
         super().initialize(core, filename)
-        self.ts1_prepared, self.ts2_prepared = self.reduce_tss_dimensionality(core.ts1_windows,
-                                                                              np.asarray(core.ts2s))
+        self.ts1_reduced_dimensions, self.ts2_reduced_dimensions = self.reduce_tss_dimensionality(core.ts1_windows,
+                                                                                                  np.asarray(core.ts2s))
 
     def reduce_ts_dimensionality(self, ts):
         seq_len = ts.shape[1]

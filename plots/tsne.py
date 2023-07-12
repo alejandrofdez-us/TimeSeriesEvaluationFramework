@@ -12,8 +12,8 @@ class Tsne(DimensionalityReduction):
     def __init__(self):
         super().__init__()
 
-    def generate_figures(self, core, filename):
-        super().generate_figures(core, filename)
+    def compute(self, core, filename):
+        super().compute(core, filename)
         all_ts_prepared = np.concatenate((self.ts1_prepared, self.ts2_prepared), axis=0)
         colors = ["red" for _ in range(len(self.ts1_prepared))] + ["blue" for _ in range(len(self.ts2_prepared))]
         plot_array = []

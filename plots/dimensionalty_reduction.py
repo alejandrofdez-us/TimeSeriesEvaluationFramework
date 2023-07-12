@@ -41,7 +41,7 @@ class DimensionalityReduction(Plot):
                 ts_prepared = np.concatenate((ts_prepared, np.reshape(np.mean(ts[i, :, :], 1), [1, seq_len])))
         return ts_prepared
 
-    def generate_figures(self, core, filename):
+    def compute(self, core, filename):
         assert len(
             core.ts2s) >= 2, f'The number of samples must be greater than 2 for {self.get_name()} analysis.'  # FIXME: comprobar si tsne necesita también al menos dos samples
-        super().generate_figures(core, filename)
+        super().compute(core, filename)

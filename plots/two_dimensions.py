@@ -18,8 +18,8 @@ class TwoDimensions(Plot):
     def get_name(self):
         return "2d"
 
-    def generate_figures(self, core, filename):
-        super().generate_figures(core, filename)
+    def compute(self, core, filename):
+        super().compute(core, filename)
         plot_array = []
         plot_array.append(self.__generate_figure_from_df())
         for index, column in enumerate(self.header_names):

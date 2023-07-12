@@ -29,8 +29,8 @@ class Delta(Plot):
                 break
         return selected_magnitude, selected_name
 
-    def generate_figures(self, core, filename):
-        super().generate_figures(core, filename)
+    def compute(self, core, filename):
+        super().compute(core, filename)
         time_intervals = [(self.ts_freq_secs / self.time_magnitude) * value for value in [2, 5, 10]]
         plot_array = []
         for column_index, column_name in enumerate(self.header_names):

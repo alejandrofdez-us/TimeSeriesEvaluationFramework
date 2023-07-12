@@ -5,8 +5,8 @@ from plots.plot import Plot
 
 
 class Dtw(Plot):
-    def generate_figures(self, core, filename):
-        super().generate_figures(core, filename)
+    def compute(self, core, filename):
+        super().compute(core, filename)
         figures = []
         for column_name, index in zip(self.header_names, range(len(self.header_names))):
             figures.append(

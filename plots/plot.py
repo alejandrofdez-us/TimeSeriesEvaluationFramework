@@ -24,6 +24,5 @@ class Plot:
     def get_name(self):
         return self.__class__.__name__.lower()
 
-    def generate_figures(self, core,
-                         filename):  # FIXME: renombrar a generate o generate_plots o compute si lo igualamos a metric
+    def compute(self, core, filename):
         self.initialize(core, filename)

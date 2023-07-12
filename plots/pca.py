@@ -12,8 +12,8 @@ class Pca(DimensionalityReduction):
     def __init__(self):
         super().__init__()
 
-    def generate_figures(self, core, filename):
-        super().generate_figures(core, filename)
+    def compute(self, core, filename):
+        super().compute(core, filename)
         pca = PCA(n_components=2)
         pca.fit(self.ts1_prepared)
         pca_ts1 = pca.transform(self.ts1_prepared)

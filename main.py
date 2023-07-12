@@ -18,8 +18,7 @@ def main(arguments):
         core_config = __create_core_config(arguments, list(ts2_dict.keys()), header_ts1)
         core = Core(ts1, list(ts2_dict.values()), core_config)
         if core_config.metric_config.metrics:
-            metrics_results = __compute_metrics(core)
-            __save_metrics(json.dumps(metrics_results, indent=4))
+            __compute_metrics(core)
         if core_config.plot_config.figures:
             __compute_figures(core)
     except ValueError as error:
@@ -45,7 +44,7 @@ def __compute_metrics(core):
             tqdm_metric_computer_iterator.set_postfix(file=filename)
             metrics_results[filename] = {}
         metrics_results[filename][metric_name] = computed_metric
-    return metrics_results
+    __save_metrics(json.dumps(metrics_results, indent=4))
 
 
 def __create_core_config(arguments, ts2_names, header_names):

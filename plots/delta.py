@@ -75,7 +75,6 @@ class Delta(Plot):
         plt.xlabel('time')
         plt.ylabel(column_name)
         ax.legend()
-        # plt.clf()
         plt.close("all")
         return fig, ax
 

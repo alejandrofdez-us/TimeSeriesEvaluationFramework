@@ -15,7 +15,7 @@ class Singleton(type):
 class PlotFactory(metaclass=Singleton):
     def __init__(self, figure_names_to_be_generated):
         self.plots_to_be_generated = self.__get_plots_to_be_generated(figure_names_to_be_generated)
-        self.figures_requires_all_samples = self.__get_figures_that_requires_all_samples(figure_names_to_be_generated)
+        self.figures_requires_all_samples = self.__get_figures_that_requires_all_samples()
 
     @staticmethod
     def __get_plots_to_be_generated(figure_names_to_be_generated):
@@ -34,13 +34,6 @@ class PlotFactory(metaclass=Singleton):
             PlotFactory._instance = PlotFactory(figure_names_to_be_generated)
         return PlotFactory._instance
 
-    def __get_figures_that_requires_all_samples(self, figures_to_be_generated):
-        return [figure_name for figure_name in figures_to_be_generated if
-                self.__figure_requires_all_samples(figure_name)]
-
-    def __figure_requires_all_samples(self, figure_name):  # FIXME: más fácil?
-        for plot in self.plots_to_be_generated:
-            if plot.get_name() == figure_name:
-                return plot.requires_all_samples()
-
-        return False
+    def __get_figures_that_requires_all_samples(self):
+        return [plot.get_name() for plot in self.plots_to_be_generated if
+                plot.requires_all_samples()]

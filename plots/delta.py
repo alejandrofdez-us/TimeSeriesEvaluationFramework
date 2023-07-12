@@ -17,14 +17,17 @@ class Delta(Plot):
         super().initialize(core, filename)
         self.seq_len = core.ts2_dict[filename].shape[0]
         self.ts_freq_secs = core.core_config.plot_config.timestamp_frequency_seconds
-        self.n_ts1_samples_to_plot = 5
+        self.n_ts1_samples_to_plot = min(5, len(self.ts1_windows))
         self.time_magnitude, self.time_magnitude_name = self.__compute_time_magnitude()
 
     def __compute_time_magnitude(self):
-        time_magnitudes = {60 * 60 * 24: 'days', 60 * 60: 'hours', 60: 'minutes', 1: 'seconds'}
+        time_magnitudes = {60 * 60 * 24: 'days', 60 * 60: 'hours', 60: 'minutes'}
+        selected_magnitude, selected_name = 1, 'seconds'
         for magnitude, name in time_magnitudes.items():
             if self.ts_freq_secs >= magnitude:
-                return magnitude, name
+                selected_magnitude, selected_name = magnitude, name
+                break
+        return selected_magnitude, selected_name
 
     def generate_figures(self, core, filename):
         super().generate_figures(core, filename)
@@ -65,17 +68,21 @@ class Delta(Plot):
         min_y_value = min(np.amin(delta_ts1_column_array), np.amin(delta_ts2_column))
         axis = [0, len(delta_ts2_column) - 1, min_y_value, max_y_value]
         fig, ax = plt.subplots(1)
-        i = 1
-        cycle_colors = cycle('grcmk')
-        for delta_ts1_column in delta_ts1_column_array:
-            plt.plot(delta_ts1_column, c=next(cycle_colors), label=f"TS_1_sample_{i}", linewidth=1)
-            i += 1
+        self.___plot_ts1_columns(delta_ts1_column_array)
         plt.plot(delta_ts2_column, c="blue", label="TS_2", linewidth=3)
         plt.axis(axis)
         plt.title(f'{column_name}_TS_1_vs_TS_2_(grouped_by_{int(time_interval)}_{self.time_magnitude_name})')
         plt.xlabel('time')
         plt.ylabel(column_name)
         ax.legend()
-        plt.clf()
+        # plt.clf()
         plt.close("all")
         return fig, ax
+
+    def ___plot_ts1_columns(self, delta_ts1_column_array):
+        cycle_colors = cycle('grcmk')
+        labels = ["TS_1"] if len(delta_ts1_column_array) == 1 else [f"TS_1_sample_{i}" for i in
+                                                                    range(1, len(delta_ts1_column_array) + 1)]
+
+        for label, delta_ts1_column in zip(labels, delta_ts1_column_array):
+            plt.plot(delta_ts1_column, c=next(cycle_colors), label=label, linewidth=1)

@@ -14,9 +14,9 @@ class Pca(DimensionalityReduction):
     def compute(self, core, filename):
         super().compute(core, filename)
         pca = PCA(n_components=2)
-        pca.fit(self.ts1_prepared)
-        pca_ts1 = pca.transform(self.ts1_prepared)
-        pca_ts2 = pca.transform(self.ts2_prepared)
+        pca.fit(self.ts1_reduced_dimensions)
+        pca_ts1 = pca.transform(self.ts1_reduced_dimensions)
+        pca_ts2 = pca.transform(self.ts2_reduced_dimensions)
         fig, ax = self.generate_plot(pca_ts1, pca_ts2)
         return [(fig, ax)]
 

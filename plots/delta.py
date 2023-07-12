@@ -67,7 +67,8 @@ class Delta(Plot):
         plt.rcParams["figure.figsize"] = self.fig_size
         max_y_value = max(np.amax(delta_ts1_column_array), np.amax(delta_ts2_column))
         min_y_value = min(np.amin(delta_ts1_column_array), np.amin(delta_ts2_column))
-        axis = [0, len(delta_ts2_column) - 1, min_y_value, max_y_value]
+        axis = [0, len(delta_ts2_column) - 1, min_y_value,
+                max_y_value]  # FIXME: Felipe: Los ejes los dejabamos a criterio de matplotlib?
         fig, ax = plt.subplots(1)
         self.__plot_ts1_columns(delta_ts1_column_array)
         plt.plot(delta_ts2_column, c="blue", label="TS_2", linewidth=3)

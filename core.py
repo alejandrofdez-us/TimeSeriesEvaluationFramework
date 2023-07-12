@@ -1,9 +1,7 @@
-from tqdm import tqdm
-
-from metrics.MetricComputer import MetricComputer
 from core_config import CoreConfig
+from metrics.metric_computer import MetricComputer
 from metrics.metric_factory import MetricFactory
-from plots.PlotComputer import PlotComputer
+from plots.plot_computer import PlotComputer
 from plots.plot_factory import PlotFactory
 from window_sampler import create_ts1_ts2_associated_windows, split_ts_strided
 

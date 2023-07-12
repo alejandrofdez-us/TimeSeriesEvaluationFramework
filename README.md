@@ -45,12 +45,12 @@ This toolkit can generate the following figures:
 
   Each generated figure plots both the original and the synthetically generated data to easily obtain key insights into
   the similarities or differences between them.
-- `deltas`: the differences between the values of each column grouped by periods of time. For instance, the differences
-  between the cpu usage every 5 minutes or every 30 minutes. These deltas can be used as a means of comparison between
+- `delta`: the differences between the values of each column grouped by periods of time. For instance, the differences
+  between the cpu usage every 5 minutes or every 30 minutes. These delta can be used as a means of comparison between
   time series short-/mid-/long-term patterns.
-  ![Delta Image grouped by 2 minutes](docs/images/mini_sample_1/deltas/cpu_TS_1_vs_TS_2_(grouped_by_2_minutes).png)
-  ![Delta Image grouped by 5 minutes](docs/images/mini_sample_1/deltas/cpu_TS_1_vs_TS_2_(grouped_by_5_minutes).png)
-  ![Delta Image grouped by 10 minutes](docs/images/mini_sample_1/deltas/cpu_TS_1_vs_TS_2_(grouped_by_10_minutes).png)
+  ![Delta Image grouped by 2 minutes](docs/images/mini_sample_1/delta/cpu_TS_1_vs_TS_2_(grouped_by_2_minutes).png)
+  ![Delta Image grouped by 5 minutes](docs/images/mini_sample_1/delta/cpu_TS_1_vs_TS_2_(grouped_by_5_minutes).png)
+  ![Delta Image grouped by 10 minutes](docs/images/mini_sample_1/delta/cpu_TS_1_vs_TS_2_(grouped_by_10_minutes).png)
 - `pca`: the linear dimensionality reduction technique that aims to find the principal components of a data set by
   computing the linear combinations of the original characteristics that explain the most variance in the data.
   ![PCA Image](docs/images/pca/PCA.png)
@@ -147,7 +147,7 @@ The following examples of evaluation of similarity are shown below:
 
 1. A time series and all time series within a directory computing every metric and figure available:
     ```Bash
-    python main.py -ts1 data/example_1.csv -ts2 experiments -m cc cp dtw hi js kl ks mmd -f deltas dtw evolution pca tsne
+    python main.py -ts1 data/example_1.csv -ts2 experiments -m js mmd dtw ks kl cc cp hi -f delta dtw 2d pca tsne
     ```
 
 1. Comparison using filenames whose first rows are used as headers (all filenames must contain the same header):
@@ -157,37 +157,42 @@ The following examples of evaluation of similarity are shown below:
 
 1. Comparison between time series specifying the frequency in seconds in which samples were taken:
     ```Bash
-    python main.py -ts1 data/example_1.csv -ts2_path experiments -m dtw -f dtw --timestamp_frequency_seconds 60
+    python main.py -ts1 data/example_1.csv -ts2_path experiments -m dtw -f dtw -ts_freq_secs 60
     ```
 
 1. Comparison between time series specifying the stride that determines the step or distance by which a fixed-size
-   window
-   moves over the first time series:
+   window moves over the first time series:
     ```Bash
     python main.py -ts1 data/example_1.csv -ts2_path experiments -m dtw -f dtw -strd 5
     ```
 
-1. Comparison between time series specifying the window selection metric to be used when selecting the best windows in
+1. Comparison between time series specifying the window selection metric to be used when selecting the most similar
+   windows in
    the first time series:
 
     ```Bash
-    python main.py -ts1 data/example_1.csv -ts2_path experiments -m dtw -f dtw --window_selection_metric js
+    python main.py -ts1 data/example_1.csv -ts2_path experiments -m dtw -f dtw -w_select_met js
     ```
 
 1. Using our sample time series to compute every single metric and figure:
 
     ```Bash
-    python main.py -ts1 data/sample_1.csv -ts2_path experiments -head -m cc cp dtw hi js kl ks mmd -f deltas dtw evolution pca tsne -w_select_met cc -ts_freq_secs 60 -strd 5
+    python main.py -ts1 data/sample_1.csv -ts2_path experiments -head -m mmd dtw ks kl cc cp hi -f delta dtw 2d pca tsne -w_select_met cc -ts_freq_secs 60 -strd 5
     ```
 
 Every metric computation will be found in the `results` directory and every figure generated will be found at `figures`
-directory
+directory.
 
 ## Advanced usage
 
-Additionally, users may implement their own metric or figure classes an include them within the `metrics` or `plots`
-directory. To ensure compatibility with our framework, they have to inherit from the base classes (`Metric` and `Plot`)
-and include their implemented classes as options in the argument parser found in `main.py`.
+Additionally, users may implement their own metric or figure classes and include them within the `metrics` or `plots`
+directory. To ensure compatibility with our framework, they have to inherit from the base classes (`Metric` and `Plot`).
+
+The following code snippet is an example of a new metric:
+
+```Python
+
+```
 
 This allows the framework to dynamically recognize and utilize these custom classes based on user input. By including
 them in the argument parser, users can easily select their custom metrics or plots when running the framework, ensuring

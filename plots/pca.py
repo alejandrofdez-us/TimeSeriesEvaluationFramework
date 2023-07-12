@@ -13,7 +13,6 @@ class Pca(DimensionalityReduction):
         super().__init__()
 
     def generate_figures(self, core, filename):
-        assert len(core.ts2s) >= 2, 'The number of samples must be greater than 2 for PCA analysis.'
         super().generate_figures(core, filename)
         pca = PCA(n_components=2)
         pca.fit(self.ts1_prepared)
@@ -33,6 +32,5 @@ class Pca(DimensionalityReduction):
         plt.title('PCA')
         plt.xlabel('x_pca')
         plt.ylabel('y_pca')
-        plt.clf()
         plt.close("all")
         return fig, ax

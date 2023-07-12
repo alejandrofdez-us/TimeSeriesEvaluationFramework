@@ -130,6 +130,6 @@ dmypy.json
 
 *.pdf
 .vscode
-results/*
+tsne-pca-big-experiment/*
 .pylintrc
 data/*

@@ -41,6 +41,7 @@ class DimensionalityReduction(Plot):
         return ts_prepared
 
     def compute(self, core, filename):
-        assert len(
-            core.ts2s) >= 2, f'The number of samples must be greater than 2 for {self.get_name()} analysis.'  # FIXME: comprobar si tsne necesita también al menos dos samples
         super().compute(core, filename)
+
+    def generate_colors(self, color1_size, color2_size):
+        return ["red" for _ in range(color1_size)] + ["blue" for _ in range(color2_size)]

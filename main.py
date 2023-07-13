@@ -102,7 +102,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "-ts1",
         "--time_series_1_filename",
-        help="<Required> Include a csv filename that represents a time series. If ts1 is bigger than time series in ts2_path, it will be splitted in windows.",
+        help="<Required> Include a csv filename that represents a time series. If ts1 is bigger than time series in ts2_path, it will be split in windows.",
         type=str,
         required=True,
     )

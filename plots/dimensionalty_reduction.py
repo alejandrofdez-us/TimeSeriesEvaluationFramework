@@ -11,10 +11,10 @@ class DimensionalityReduction(Plot):
         self.ts1_reduced_dimensions = None
         self.ts2_reduced_dimensions = None
 
-    def initialize(self, core, ts2_filename):
-        super().initialize(core, ts2_filename)
-        self.ts1_reduced_dimensions, self.ts2_reduced_dimensions = self.reduce_tss_dimensionality(core.ts1_windows,
-                                                                                                  np.asarray(core.ts2s))
+    def initialize(self, similarity_ts, ts2_filename):
+        super().initialize(similarity_ts, ts2_filename)
+        self.ts1_reduced_dimensions, self.ts2_reduced_dimensions = self.reduce_tss_dimensionality(similarity_ts.ts1_windows,
+                                                                                                  np.asarray(similarity_ts.ts2s))
 
     def reduce_tss_dimensionality(self, ts1, ts2):
         ts1_reduced = self.reduce_ts_dimensionality(ts1)
@@ -40,8 +40,8 @@ class DimensionalityReduction(Plot):
                 ts_prepared = np.concatenate((ts_prepared, np.reshape(np.mean(ts[i, :, :], 1), [1, seq_len])))
         return ts_prepared
 
-    def compute(self, core, filename):
-        super().compute(core, filename)
+    def compute(self, similarity_ts, filename):
+        super().compute(similarity_ts, filename)
 
     def generate_colors(self, color1_size, color2_size):
         return ['red' for _ in range(color1_size)] + ['blue' for _ in range(color2_size)]

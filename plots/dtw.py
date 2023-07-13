@@ -5,8 +5,8 @@ from plots.plot import Plot
 
 
 class Dtw(Plot):
-    def compute(self, core, filename):
-        super().compute(core, filename)
+    def compute(self, similarity_ts, filename):
+        super().compute(similarity_ts, filename)
         figures = []
         for column_name, index in zip(self.header_names, range(len(self.header_names))):
             figures.append(

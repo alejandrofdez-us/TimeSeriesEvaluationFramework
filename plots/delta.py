@@ -13,10 +13,10 @@ class Delta(Plot):
         self.time_magnitude = None
         self.time_magnitude_name = None
 
-    def initialize(self, core, ts2_filename):
-        super().initialize(core, ts2_filename)
-        self.seq_len = core.ts2_dict[ts2_filename].shape[0]
-        self.ts_freq_secs = core.core_config.plot_config.timestamp_frequency_seconds
+    def initialize(self, similarity_ts, ts2_filename):
+        super().initialize(similarity_ts, ts2_filename)
+        self.seq_len = similarity_ts.ts2_dict[ts2_filename].shape[0]
+        self.ts_freq_secs = similarity_ts.similarity_ts_config.plot_config.timestamp_frequency_seconds
         self.n_ts1_samples_to_plot = min(5, len(self.ts1_windows))
         self.time_magnitude, self.time_magnitude_name = self.__compute_time_magnitude()
 
@@ -29,8 +29,8 @@ class Delta(Plot):
                 break
         return selected_magnitude, selected_name
 
-    def compute(self, core, filename):
-        super().compute(core, filename)
+    def compute(self, similarity_ts, filename):
+        super().compute(similarity_ts, filename)
         time_intervals = [(self.ts_freq_secs / self.time_magnitude) * value for value in [2, 5, 10]]
         plot_array = []
         for column_index, column_name in enumerate(self.header_names):

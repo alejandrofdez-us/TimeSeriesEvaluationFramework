@@ -1,11 +1,11 @@
 class SimilarityAnalysisComputer:
 
-    def __init__(self, core, analysis):
-        self.ts1_ts2_associated_windows_iterator = iter(core.ts1_ts2_associated_windows.items())
-        self.core = core
+    def __init__(self, similarity_ts, analysis):
+        self.ts1_ts2_associated_windows_iterator = iter(similarity_ts.ts1_ts2_associated_windows.items())
+        self.similarity_ts = similarity_ts
         self.analysis = analysis
         self.analysis_iterator = iter(analysis)
-        self.length = len(analysis) * len(core.ts1_ts2_associated_windows.items())
+        self.length = len(analysis) * len(similarity_ts.ts1_ts2_associated_windows.items())
         self.current_associated_window = None
 
     def __iter__(self):

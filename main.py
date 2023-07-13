@@ -4,12 +4,12 @@ import argparse
 import warnings
 import sys
 from tqdm import tqdm
-from core_config import CoreConfig
+from similarity_ts_config import SimilarityTsConfig
 from metrics.metric_config import MetricConfig
 from metrics.metric_factory import MetricFactory
 from plots.plot_config import PlotConfig
 from plots.plot_factory import PlotFactory
-from core import Core
+from similarity_ts import SimilarityTs
 from csv_reader_helper import load_ts_from_csv, load_ts_from_path
 
 all_warnings_messages = []
@@ -21,12 +21,12 @@ warnings.showwarning = warning_handler
 def main(arguments):
     ts1, header_ts1 = load_ts_from_csv(arguments.time_series_1_filename, arguments.header)
     ts2_dict = load_ts_from_path(arguments.time_series_2_path, header_ts1, arguments.header)
-    core_config = __create_core_config(arguments, list(ts2_dict.keys()), header_ts1)
-    core = Core(ts1, list(ts2_dict.values()), core_config)
-    if core_config.metric_config.metrics:
-        __compute_metrics(core)
-    if core_config.plot_config.figures:
-        __compute_figures(core)
+    similarity_ts_config = __create_similarity_ts_config(arguments, list(ts2_dict.keys()), header_ts1)
+    similarity_ts = SimilarityTs(ts1, list(ts2_dict.values()), similarity_ts_config)
+    if similarity_ts_config.metric_config.metrics:
+        __compute_metrics(similarity_ts)
+    if similarity_ts_config.plot_config.figures:
+        __compute_figures(similarity_ts)
     __print_warnings()
 
 
@@ -36,8 +36,8 @@ def __print_warnings():
             print(warning, file=sys.stderr)
 
 
-def __compute_figures(core):
-    plot_computer_iterator = core.get_plot_computer()
+def __compute_figures(similarity_ts):
+    plot_computer_iterator = similarity_ts.get_plot_computer()
     tqdm_plot_computer_iterator = tqdm(plot_computer_iterator, total=len(plot_computer_iterator),
                                        desc='Computing plots', dynamic_ncols=True)
     for filename, plot_name, generated_plots in tqdm_plot_computer_iterator:
@@ -45,9 +45,9 @@ def __compute_figures(core):
         __save_figures(filename, plot_name, generated_plots)
 
 
-def __compute_metrics(core):
+def __compute_metrics(similarity_ts):
     metrics_results = {}
-    metric_computer_iterator = core.get_metric_computer()
+    metric_computer_iterator = similarity_ts.get_metric_computer()
     tqdm_metric_computer_iterator = tqdm(metric_computer_iterator, total=len(metric_computer_iterator),
                                          desc='Computing metrics')
     for filename, metric_name, computed_metric in tqdm_metric_computer_iterator:
@@ -58,7 +58,7 @@ def __compute_metrics(core):
     __save_metrics(json.dumps(metrics_results, indent=4, ensure_ascii=False).encode('utf-8'))
 
 
-def __create_core_config(arguments, ts2_names, header_names):
+def __create_similarity_ts_config(arguments, ts2_names, header_names):
     metric_config = None
     plot_config = None if arguments.timestamp_frequency_seconds is None else PlotConfig(None,
                                                                                         arguments.timestamp_frequency_seconds)
@@ -67,9 +67,8 @@ def __create_core_config(arguments, ts2_names, header_names):
         plot_config = PlotConfig(arguments.figures,
                                  arguments.timestamp_frequency_seconds) if arguments.figures else PlotConfig([],
                                                                                                              arguments.timestamp_frequency_seconds)
-    core_config = CoreConfig(metric_config, plot_config, arguments.stride, arguments.window_selection_metric, ts2_names,
+    return SimilarityTsConfig(metric_config, plot_config, arguments.stride, arguments.window_selection_metric, ts2_names,
                              header_names)
-    return core_config
 
 
 def __save_figures(filename, plot_name, generated_plots, path='results/figures'):

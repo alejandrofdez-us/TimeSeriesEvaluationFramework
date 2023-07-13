@@ -14,18 +14,18 @@ class Plot:
         self.header_names = None
         self.fig_size = fig_size
 
-    def initialize(self, core, ts2_filename):
+    def initialize(self, similarity_ts, ts2_filename):
         self.ts2_filename = ts2_filename
-        self.ts1 = core.ts1_ts2_associated_windows[self.ts2_filename]['most_similar_ts1_sample']
-        self.ts2 = core.ts1_ts2_associated_windows[self.ts2_filename]['ts2']
-        self.ts1_windows = core.ts1_windows
-        self.header_names = core.header_names
+        self.ts1 = similarity_ts.ts1_ts2_associated_windows[self.ts2_filename]['most_similar_ts1_sample']
+        self.ts2 = similarity_ts.ts1_ts2_associated_windows[self.ts2_filename]['ts2']
+        self.ts1_windows = similarity_ts.ts1_windows
+        self.header_names = similarity_ts.header_names
 
     def get_name(self):
         return self.__class__.__name__.lower()
 
-    def compute(self, core, filename):
-        self.initialize(core, filename)
+    def compute(self, similarity_ts, filename):
+        self.initialize(similarity_ts, filename)
 
     def init_plot(self):
         plt.rcParams['figure.figsize'] = self.fig_size

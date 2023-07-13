@@ -2,7 +2,7 @@ from metrics.metric_config import MetricConfig
 from plots.plot_config import PlotConfig
 
 
-class CoreConfig:
+class SimilarityTsConfig:
     def __init__(self, metric_config=None, plot_config=None, stride=1, window_selection_metric='dtw', ts2_names=None,
                  header_names=None):
         if metric_config is None:

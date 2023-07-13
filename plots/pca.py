@@ -8,10 +8,10 @@ class Pca(DimensionalityReduction):
     def requires_all_samples():
         return True
 
-    def compute(self, core, filename):
-        assert len(core.ts1_windows) > 1, \
+    def compute(self, similarity_ts, filename):
+        assert len(similarity_ts.ts1_windows) > 1, \
             'TS1 was not split. PCA needs more than 1 TS1 windows. Check TS1 size and stride parameter.'
-        super().compute(core, filename)
+        super().compute(similarity_ts, filename)
         pca = PCA(n_components=2)
         pca.fit(self.ts1_reduced_dimensions)
         pca_ts1 = pca.transform(self.ts1_reduced_dimensions)

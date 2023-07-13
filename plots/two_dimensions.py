@@ -10,19 +10,19 @@ class TwoDimensions(Plot):
         self.ts2_df = None
         self.ts1_df = None
 
-    def initialize(self, core, ts2_filename):
-        super().initialize(core, ts2_filename)
+    def initialize(self, similarity_ts, ts2_filename):
+        super().initialize(similarity_ts, ts2_filename)
         self.ts1_df = pandas.DataFrame(self.ts1, columns=[f'{column_name}_TS_1' for column_name in
-                                                          core.header_names])
-        self.ts2_df = pandas.DataFrame(core.ts2_dict[ts2_filename], columns=[f'{column_name}_TS_2' for column_name in
-                                                                             core.header_names])
-        self.seq_len = core.ts2_dict[ts2_filename].shape[0]
+                                                          similarity_ts.header_names])
+        self.ts2_df = pandas.DataFrame(similarity_ts.ts2_dict[ts2_filename], columns=[f'{column_name}_TS_2' for column_name in
+                                                                             similarity_ts.header_names])
+        self.seq_len = similarity_ts.ts2_dict[ts2_filename].shape[0]
 
     def get_name(self):
         return '2d'
 
-    def compute(self, core, filename):
-        super().compute(core, filename)
+    def compute(self, similarity_ts, filename):
+        super().compute(similarity_ts, filename)
         plot_array = [self.__generate_plot_from_df()]
         for column_index, column_name in enumerate(self.header_names):
             plot_array.append(

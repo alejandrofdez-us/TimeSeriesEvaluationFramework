@@ -33,9 +33,9 @@ class Tsne(DimensionalityReduction):
         n_samples_ts1 = self.ts1_reduced_dimensions.shape[0]
         colors = super().generate_colors(len(self.ts1_reduced_dimensions), len(self.ts2_reduced_dimensions))
         plt.scatter(tsne_embedding[:n_samples_ts1, 0], tsne_embedding[:n_samples_ts1, 1],
-                    c=colors[:n_samples_ts1], alpha=0.2, label="TS_1")
+                    c=colors[:n_samples_ts1], alpha=0.2, label='TS_1')
         plt.scatter(tsne_embedding[n_samples_ts1:, 0], tsne_embedding[n_samples_ts1:, 1],
-                    c=colors[n_samples_ts1:], alpha=0.2, label="TS_2")
+                    c=colors[n_samples_ts1:], alpha=0.2, label='TS_2')
         super().set_labels(f't-SNE-iter_{n_iterations}-perplexity_{perplexity}', 'x_tsne', 'y_tsne')
-        plt.close("all")
+        plt.close('all')
         return fig, ax

@@ -28,7 +28,7 @@ class PlotFactory(metaclass=Singleton):
 
     @staticmethod
     def get_instance(figure_names_to_be_generated=None):
-        if not hasattr(PlotFactory, "_instance"):
+        if not hasattr(PlotFactory, '_instance'):
             if figure_names_to_be_generated is None:
                 figure_names_to_be_generated = PlotFactory.find_available_figures().keys()
             PlotFactory._instance = PlotFactory(figure_names_to_be_generated)

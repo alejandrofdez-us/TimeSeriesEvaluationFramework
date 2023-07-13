@@ -66,19 +66,19 @@ class Delta(Plot):
     def __generate_plot(self, delta_ts1_column_array, delta_ts2_column, column_name, time_interval):
         fig, axis = super().init_plot()
         self.__plot_ts1_columns(delta_ts1_column_array)
-        plt.plot(delta_ts2_column, c="blue", label="TS_2", linewidth=3)
+        plt.plot(delta_ts2_column, c='blue', label='TS_2', linewidth=3)
         max_y = max(np.amax(delta_ts1_column_array), np.amax(delta_ts2_column))
         min_y = min(np.amin(delta_ts1_column_array), np.amin(delta_ts2_column))
         axis_limits = [0, len(delta_ts2_column) - 1, min_y, max_y]
         plt.axis(axis_limits)
         super().set_labels(f'{column_name}_TS_1_vs_TS_2_(grouped_by_{int(time_interval)}_{self.time_magnitude_name})',
                            'time', column_name)
-        plt.close("all")
+        plt.close('all')
         return fig, axis
 
     def __plot_ts1_columns(self, delta_ts1_column_array):
         cycle_colors = cycle('grcmk')
-        labels = ["TS_1"] if len(delta_ts1_column_array) == 1 else [f"TS_1_sample_{i}" for i in
+        labels = ['TS_1'] if len(delta_ts1_column_array) == 1 else [f'TS_1_sample_{i}' for i in
                                                                     range(1, len(delta_ts1_column_array) + 1)]
 
         for label, delta_ts1_column in zip(labels, delta_ts1_column_array):

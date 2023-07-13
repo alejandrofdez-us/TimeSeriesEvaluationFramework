@@ -1,4 +1,3 @@
-from itertools import cycle
 import matplotlib.pyplot as plt
 import pandas
 from plots.plot import Plot
@@ -20,7 +19,7 @@ class TwoDimensions(Plot):
         self.seq_len = core.ts2_dict[ts2_filename].shape[0]
 
     def get_name(self):
-        return "2d"
+        return '2d'
 
     def compute(self, core, filename):
         super().compute(core, filename)
@@ -37,14 +36,14 @@ class TwoDimensions(Plot):
         self.ts2_df.plot(ax=ax)
         plt.xlim(left=0, right=len(self.ts2_df) - 1)
         super().set_labels('complete_TS_1_vs_TS_2', 'time', 'values')
-        plt.close("all")
+        plt.close('all')
         return fig, ax
 
     def __generate_plot_by_column(self, ts1_column, ts2_column, column_name):
         fig, axis = super().init_plot()
-        plt.plot(ts1_column, c="green", label="TS_1", linewidth=1)
-        plt.plot(ts2_column, c="blue", label="TS_2", linewidth=2)
+        plt.plot(ts1_column, c='green', label='TS_1', linewidth=1)
+        plt.plot(ts2_column, c='blue', label='TS_2', linewidth=2)
         plt.xlim(left=0, right=len(ts1_column) - 1)
         super().set_labels(f'{column_name}_TS_1_vs_TS_2', 'time', column_name)
-        plt.close("all")
+        plt.close('all')
         return fig, axis

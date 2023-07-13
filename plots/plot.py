@@ -16,8 +16,8 @@ class Plot:
 
     def initialize(self, core, ts2_filename):
         self.ts2_filename = ts2_filename
-        self.ts1 = core.ts1_ts2_associated_windows[self.ts2_filename]["most_similar_ts1_sample"]
-        self.ts2 = core.ts1_ts2_associated_windows[self.ts2_filename]["ts2"]
+        self.ts1 = core.ts1_ts2_associated_windows[self.ts2_filename]['most_similar_ts1_sample']
+        self.ts2 = core.ts1_ts2_associated_windows[self.ts2_filename]['ts2']
         self.ts1_windows = core.ts1_windows
         self.header_names = core.header_names
 
@@ -28,7 +28,7 @@ class Plot:
         self.initialize(core, filename)
 
     def init_plot(self):
-        plt.rcParams["figure.figsize"] = self.fig_size
+        plt.rcParams['figure.figsize'] = self.fig_size
         return plt.subplots(1)
 
     def set_labels(self, title, x_label, y_label):

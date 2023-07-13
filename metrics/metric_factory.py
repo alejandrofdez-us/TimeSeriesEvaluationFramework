@@ -23,7 +23,7 @@ class MetricFactory(metaclass=Singleton):
 
     @staticmethod
     def find_available_metrics():
-        return find_available_classes(os.path.dirname(os.path.abspath(__file__)), Metric, "metrics")
+        return find_available_classes(os.path.dirname(os.path.abspath(__file__)), Metric, 'metrics')
 
     @staticmethod
     def get_metric_by_name(metric_name):
@@ -31,7 +31,7 @@ class MetricFactory(metaclass=Singleton):
 
     @staticmethod
     def get_instance(metrics_to_be_computed=None):
-        if not hasattr(MetricFactory, "_instance"):
+        if not hasattr(MetricFactory, '_instance'):
             if metrics_to_be_computed is None:
                 metrics_to_be_computed = MetricFactory.find_available_metrics().keys()
             MetricFactory._instance = MetricFactory(metrics_to_be_computed)

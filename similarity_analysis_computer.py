@@ -6,6 +6,7 @@ class SimilarityAnalysisComputer:
         self.analysis = analysis
         self.analysis_iterator = iter(analysis)
         self.length = len(analysis) * len(core.ts1_ts2_associated_windows.items())
+        self.current_associated_window = None
 
     def __iter__(self):
         self.current_associated_window = next(self.ts1_ts2_associated_windows_iterator)

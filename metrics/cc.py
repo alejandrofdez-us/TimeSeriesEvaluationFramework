@@ -4,7 +4,7 @@ from metrics.metric import Metric
 
 class Cc(Metric):
     def compute(self, ts1, ts2):
-        metric_result = {"Multivariate": self.__cc(ts1, ts2)}
+        metric_result = {'Multivariate': self.__cc(ts1, ts2)}
         return metric_result
 
     def compute_distance(self, ts1, ts2):

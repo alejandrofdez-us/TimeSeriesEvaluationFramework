@@ -6,10 +6,10 @@ from metrics.metric import Metric
 
 class Kl(Metric):
     def compute (self, ts1, ts2):
-        metric_result = {"Multivariate": self.__kl_divergence(ts1, ts2)}
+        metric_result = {'Multivariate': self.__kl_divergence(ts1, ts2)}
 
         for column in range(ts2.shape[1]):
-            metric_result.update({f"Column {column}": self.__kl_divergence_univariate(ts1[:, column].reshape(-1, 1), ts2[:, column].reshape(-1, 1))})
+            metric_result.update({f'Column {column}': self.__kl_divergence_univariate(ts1[:, column].reshape(-1, 1), ts2[:, column].reshape(-1, 1))})
 
         return metric_result
 

@@ -25,11 +25,11 @@ def __is_module_subclass(module, module_name, parent_class):
 
 def __import_metric_module(module_name, package):
     try:
-        return importlib.import_module(f".{module_name}", package=package)
+        return importlib.import_module(f'.{module_name}', package=package)
     except ImportError:
         return None
 
 
 def __to_camel_case(snake_str):
     components = snake_str.split('_')
-    return "".join(x.capitalize() for x in components)
+    return ''.join(x.capitalize() for x in components)

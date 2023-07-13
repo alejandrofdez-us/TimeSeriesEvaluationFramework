@@ -5,10 +5,10 @@ from metrics.metric import Metric
 
 class Ks(Metric):
     def compute(self, ts1, ts2):
-        metric_result = {"Multivariate": self.__compute_ks(ts1, ts2)}
+        metric_result = {'Multivariate': self.__compute_ks(ts1, ts2)}
 
         for column in range(ts2.shape[1]):
-            metric_result.update({f"Column {column}": self.__compute_ks(ts1[:, column].reshape(-1, 1), ts2[:, column].reshape(-1, 1))})
+            metric_result.update({f'Column {column}': self.__compute_ks(ts1[:, column].reshape(-1, 1), ts2[:, column].reshape(-1, 1))})
 
         return metric_result
 

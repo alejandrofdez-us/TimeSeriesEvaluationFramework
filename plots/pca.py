@@ -10,7 +10,7 @@ class Pca(DimensionalityReduction):
 
     def compute(self, core, filename):
         assert len(core.ts1_windows) > 1, \
-            "TS1 was not split. PCA needs more than 1 TS1 windows. Check TS1 size and stride parameter."
+            'TS1 was not split. PCA needs more than 1 TS1 windows. Check TS1 size and stride parameter.'
         super().compute(core, filename)
         pca = PCA(n_components=2)
         pca.fit(self.ts1_reduced_dimensions)
@@ -21,12 +21,12 @@ class Pca(DimensionalityReduction):
 
     def __generate_plot(self, pca_ts1, pca_ts2):
         fig, ax = super().init_plot()
-        n_samples_ts1 = self.self.ts1_windows.shape[0]
+        n_samples_ts1 = self.ts1_windows.shape[0]
         colors = super().generate_colors(len(pca_ts1), len(pca_ts2))
         plt.scatter(pca_ts1[:, 0], pca_ts1[:, 1],
-                    c=colors[:n_samples_ts1], alpha=0.2, label="TS_1")
+                    c=colors[:n_samples_ts1], alpha=0.2, label='TS_1')
         plt.scatter(pca_ts2[:, 0], pca_ts2[:, 1],
-                    c=colors[n_samples_ts1:], alpha=0.2, label="TS_2")
+                    c=colors[n_samples_ts1:], alpha=0.2, label='TS_2')
         super().set_labels('PCA', 'x_pca', 'y_pca')
-        plt.close("all")
+        plt.close('all')
         return fig, ax

@@ -17,12 +17,12 @@ class Core:
                                                                             self.core_config.window_selection_metric)
         self.metric_factory = MetricFactory.get_instance(self.core_config.metric_config.metrics)
         self.plot_factory = PlotFactory.get_instance(self.core_config.plot_config.figures)
-        self.header_names = core_config.header_names if core_config.header_names is not None else ["column-" + str(i)
+        self.header_names = core_config.header_names if core_config.header_names is not None else ['column-' + str(i)
                                                                                                    for i in
                                                                                                    range(ts1.shape[1])]
 
     def __build_ts2_dict(self, ts2s, ts2_filenames):
-        ts2_filenames = ts2_filenames if ts2_filenames is not None else ["ts2-" + str(i) for i in range(len(ts2s))]
+        ts2_filenames = ts2_filenames if ts2_filenames is not None else ['ts2-' + str(i) for i in range(len(ts2s))]
         return {ts2_name: ts2 for ts2, ts2_name in zip(ts2s, ts2_filenames)}
 
     def get_metric_computer(self):

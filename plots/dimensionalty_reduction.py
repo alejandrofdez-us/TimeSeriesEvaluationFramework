@@ -44,4 +44,4 @@ class DimensionalityReduction(Plot):
         super().compute(core, filename)
 
     def generate_colors(self, color1_size, color2_size):
-        return ["red" for _ in range(color1_size)] + ["blue" for _ in range(color2_size)]
+        return ['red' for _ in range(color1_size)] + ['blue' for _ in range(color2_size)]

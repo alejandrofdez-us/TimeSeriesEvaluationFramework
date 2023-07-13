@@ -1,8 +1,8 @@
-import matplotlib.pyplot as plt
 import itertools
+import matplotlib.pyplot as plt
 import numpy as np
-from plots.dimensionalty_reduction import DimensionalityReduction
 from sklearn.manifold import TSNE
+from plots.dimensionalty_reduction import DimensionalityReduction
 
 
 class Tsne(DimensionalityReduction):
@@ -29,7 +29,7 @@ class Tsne(DimensionalityReduction):
         return tsne.fit_transform(ts1_ts2_reduced_dimensions_concatenated)
 
     def __generate_plot(self, tsne_embedding, n_iterations, perplexity):
-        fig, ax = super().init_plot()
+        fig, axis = super().init_plot()
         n_samples_ts1 = self.ts1_reduced_dimensions.shape[0]
         colors = super().generate_colors(len(self.ts1_reduced_dimensions), len(self.ts2_reduced_dimensions))
         plt.scatter(tsne_embedding[:n_samples_ts1, 0], tsne_embedding[:n_samples_ts1, 1],
@@ -38,4 +38,4 @@ class Tsne(DimensionalityReduction):
                     c=colors[n_samples_ts1:], alpha=0.2, label='TS_2')
         super().set_labels(f't-SNE-iter_{n_iterations}-perplexity_{perplexity}', 'x_tsne', 'y_tsne')
         plt.close('all')
-        return fig, ax
+        return fig, axis

@@ -3,7 +3,7 @@ from metrics.metric import Metric
 from helpers.dynamic_import_helper import find_available_classes
 
 
-class Singleton(type):
+class Singleton(type):  # FIXME: sacar esta clase a un fichero independiente y que se use desde las dos factorías
     _instances = {}
 
     def __call__(cls, *args, **kwargs):

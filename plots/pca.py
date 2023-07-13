@@ -16,11 +16,11 @@ class Pca(DimensionalityReduction):
         pca.fit(self.ts1_reduced_dimensions)
         pca_ts1 = pca.transform(self.ts1_reduced_dimensions)
         pca_ts2 = pca.transform(self.ts2_reduced_dimensions)
-        fig, ax = self.__generate_plot(pca_ts1, pca_ts2)
-        return [(fig, ax)]
+        fig, axis = self.__generate_plot(pca_ts1, pca_ts2)
+        return [(fig, axis)]
 
     def __generate_plot(self, pca_ts1, pca_ts2):
-        fig, ax = super().init_plot()
+        fig, axis = super().init_plot()
         n_samples_ts1 = self.ts1_windows.shape[0]
         colors = super().generate_colors(len(pca_ts1), len(pca_ts2))
         plt.scatter(pca_ts1[:, 0], pca_ts1[:, 1],
@@ -29,4 +29,4 @@ class Pca(DimensionalityReduction):
                     c=colors[n_samples_ts1:], alpha=0.2, label='TS_2')
         super().set_labels('PCA', 'x_pca', 'y_pca')
         plt.close('all')
-        return fig, ax
+        return fig, axis

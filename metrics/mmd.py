@@ -2,21 +2,23 @@ from sklearn import metrics
 
 from metrics.metric import Metric
 
+
 class Mmd(Metric):
 
     def compute(self, ts1, ts2):
         metric_result = {'Multivariate': self.__mmd_calculate_rbf(ts1, ts2)}
 
         for column in range(ts2.shape[1]):
-            metric_result.update({f'Column {column}': self.__mmd_calculate_rbf(ts1[:, column].reshape(-1, 1), ts2[:, column].reshape(-1, 1))})
+            metric_result.update({f'Column {column}': self.__mmd_calculate_rbf(ts1[:, column].reshape(-1, 1),
+                                                                               ts2[:, column].reshape(-1, 1))})
 
         return metric_result
 
     def compute_distance(self, ts1, ts2):
         return self.__mmd_calculate_rbf(ts1, ts2)
 
-    def __mmd_calculate_rbf(self, X, Y, gamma=1.0):
-        XX = metrics.pairwise.rbf_kernel(X, X, gamma)
-        YY = metrics.pairwise.rbf_kernel(Y, Y, gamma)
-        XY = metrics.pairwise.rbf_kernel(X, Y, gamma)
-        return XX.mean() + YY.mean() - 2 * XY.mean()
+    def __mmd_calculate_rbf(self, x, y, gamma=1.0):
+        xx = metrics.pairwise.rbf_kernel(x, x, gamma)
+        yy = metrics.pairwise.rbf_kernel(y, y, gamma)
+        xy = metrics.pairwise.rbf_kernel(x, y, gamma)
+        return xx.mean() + yy.mean() - 2 * xy.mean()

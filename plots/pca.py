@@ -9,6 +9,7 @@ class Pca(DimensionalityReduction):
         return True
 
     def compute(self, core, filename):
+        assert len(core.ts1) > len(core.ts2s[0]), "TS1 sample size must be grater than the size of TS2 samples."
         super().compute(core, filename)
         pca = PCA(n_components=2)
         pca.fit(self.ts1_reduced_dimensions)

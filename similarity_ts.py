@@ -3,7 +3,7 @@ from metrics.metric_computer import MetricComputer
 from metrics.metric_factory import MetricFactory
 from plots.plot_computer import PlotComputer
 from plots.plot_factory import PlotFactory
-from window_sampler import create_ts1_ts2_associated_windows, split_ts_strided
+from helpers.window_sampler import create_ts1_ts2_associated_windows, split_ts_strided
 
 
 class SimilarityTs:
@@ -17,9 +17,10 @@ class SimilarityTs:
                                                                             self.similarity_ts_config.window_selection_metric)
         self.metric_factory = MetricFactory.get_instance(self.similarity_ts_config.metric_config.metrics)
         self.plot_factory = PlotFactory.get_instance(self.similarity_ts_config.plot_config.figures)
-        self.header_names = similarity_ts_config.header_names if similarity_ts_config.header_names is not None else ['column-' + str(i)
-                                                                                                   for i in
-                                                                                                   range(ts1.shape[1])]
+        self.header_names = similarity_ts_config.header_names if similarity_ts_config.header_names is not None else [
+            'column-' + str(i)
+            for i in
+            range(ts1.shape[1])]
 
     def __build_ts2_dict(self, ts2s, ts2_filenames):
         ts2_filenames = ts2_filenames if ts2_filenames is not None else ['ts2-' + str(i) for i in range(len(ts2s))]

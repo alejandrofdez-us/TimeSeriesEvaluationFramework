@@ -1,6 +1,6 @@
 import os
 from metrics.metric import Metric
-from dynamic_import_helper import find_available_classes
+from helpers.dynamic_import_helper import find_available_classes
 
 
 class Singleton(type):

@@ -3,7 +3,7 @@
 [![last-update](https://img.shields.io/badge/last_update-07/XY/2023-brightgreen)](https://github.com/alejandrofdez-us/TimeSeriesEvaluationFramework/commits/main)
 ![license](https://img.shields.io/badge/license-MIT-orange)
 
-# Time Series Evaluation Framework
+# SimilarityTS: Toolkit for the Evaluation of Similarity for multivariate time series
 
 ## Table of Contents
 
@@ -143,38 +143,38 @@ The following examples of evaluation of similarity are shown below:
 
 1. Two time series computing all metrics and figures:
     ```Bash
-    python main.py -ts1 data/example_1.csv -ts2 experiments/mini_example_1.csv
+    python cli.py -ts1 data_samples/example_1.csv -ts2 experiments/mini_example_1.csv
     ```
 
 1. Two time series computing only DTW metric and DTW figure:
     ```Bash
-    python main.py -ts1 data/example_1.csv -ts2_path experiments/mini_example_1.csv -m dtw -f dtw
+    python cli.py -ts1 data_samples/example_1.csv -ts2_path experiments/mini_example_1.csv -m dtw -f dtw
     ```
 
 1. A time series and all time series within a directory computing only DTW metric and DTW figure::
     ```Bash
-    python main.py -ts1 data/example_1.csv -ts2_path experiments -m dtw -f dtw
+    python cli.py -ts1 data_samples/example_1.csv -ts2_path experiments -m dtw -f dtw
     ```
 
 1. A time series and all time series within a directory computing every metric and figure available:
     ```Bash
-    python main.py -ts1 data/example_1.csv -ts2 experiments -m js mmd dtw ks kl cc cp hi -f delta dtw 2d pca tsne
+    python cli.py -ts1 data_samples/example_1.csv -ts2 experiments -m js mmd dtw ks kl cc cp hi -f delta dtw 2d pca tsne
     ```
 
 1. Comparison using filenames whose first rows are used as headers (all filenames must contain the same header):
     ```Bash
-    python main.py -ts1 data/example_1.csv -ts2 experiments -m dtw -f dtw -head
+    python cli.py -ts1 data_samples/example_1.csv -ts2 experiments -m dtw -f dtw -head
     ```
 
 1. Comparison between time series specifying the frequency in seconds in which samples were taken:
     ```Bash
-    python main.py -ts1 data/example_1.csv -ts2_path experiments -m dtw -f dtw -ts_freq_secs 60
+    python cli.py -ts1 data_samples/example_1.csv -ts2_path experiments -m dtw -f dtw -ts_freq_secs 60
     ```
 
 1. Comparison between time series specifying the stride that determines the step or distance by which a fixed-size
    window moves over the first time series:
     ```Bash
-    python main.py -ts1 data/example_1.csv -ts2_path experiments -m dtw -f dtw -strd 5
+    python cli.py -ts1 data_samples/example_1.csv -ts2_path experiments -m dtw -f dtw -strd 5
     ```
 
 1. Comparison between time series specifying the window selection metric to be used when selecting the most similar
@@ -182,13 +182,13 @@ The following examples of evaluation of similarity are shown below:
    the first time series:
 
     ```Bash
-    python main.py -ts1 data/example_1.csv -ts2_path experiments -m dtw -f dtw -w_select_met js
+    python cli.py -ts1 data_samples/example_1.csv -ts2_path experiments -m dtw -f dtw -w_select_met js
     ```
 
 1. Using our sample time series to compute every single metric and figure:
 
     ```Bash
-    python main.py -ts1 data/sample_1.csv -ts2_path experiments -head -m mmd dtw ks kl cc cp hi -f delta dtw 2d pca tsne -w_select_met cc -ts_freq_secs 60 -strd 5
+    python cli.py -ts1 data_samples/sample_1.csv -ts2_path experiments -head -m mmd dtw ks kl cc cp hi -f delta dtw 2d pca tsne -w_select_met cc -ts_freq_secs 60 -strd 5
     ```
 
 Every metric computation will be found in the `results` directory and every figure generated will be found at `figures`

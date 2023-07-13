@@ -16,12 +16,13 @@ class Dtw(Plot):
             )
         return figures
 
-    def __generate_dtw_figure(self, time_series_1_column, time_series_2_column, column_name):
-        plt.rcParams["figure.figsize"] = self.fig_size
-        path = dtw.warping_path(time_series_1_column, time_series_2_column)
-        fig, axes = dtw_visualisation.plot_warping(
-            time_series_1_column, time_series_2_column, path
-        )
-        fig.axes[0].set_title(f"DTW_{column_name}")
+    def __generate_dtw_figure(self, ts1_column, ts2_column, column_name):
+        super().init_plot()
+        path = dtw.warping_path(ts1_column, ts2_column)
+        fig, axes = dtw_visualisation.plot_warping(ts1_column, ts2_column, path)
+        plt.xlim(left=0, right=len(ts1_column) - 1)
+        axes[0].set_title(f"DTW_{column_name}")
+        axes[0].legend(['TS_1'], loc='center right')
+        axes[1].legend(['TS_2'], loc='center right')
         plt.close("all")
         return fig, axes

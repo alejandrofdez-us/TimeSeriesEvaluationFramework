@@ -11,8 +11,8 @@ class DimensionalityReduction(Plot):
         self.ts1_reduced_dimensions = None
         self.ts2_reduced_dimensions = None
 
-    def initialize(self, core, filename):
-        super().initialize(core, filename)
+    def initialize(self, core, ts2_filename):
+        super().initialize(core, ts2_filename)
         self.ts1_reduced_dimensions, self.ts2_reduced_dimensions = self.reduce_tss_dimensionality(core.ts1_windows,
                                                                                                   np.asarray(core.ts2s))
 

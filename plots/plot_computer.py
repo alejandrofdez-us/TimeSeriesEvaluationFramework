@@ -10,13 +10,13 @@ class PlotComputer(SimilarityAnalysisComputer):
 
     def _compute_next_analysis(self):
         plot = next(self.analysis_iterator)
-        filename, _ = self.current_associated_window
+        ts2_filename, _ = self.current_associated_window
         computed_plots = []
         if plot.get_name() not in self.already_computed_figures_requires_all_samples:
             try:
                 if plot.requires_all_samples():
                     self.already_computed_figures_requires_all_samples.append(plot.get_name())
-                computed_plots = plot.compute(self.core, filename)
+                computed_plots = plot.compute(self.core, ts2_filename)
             except Exception as e:
                 warnings.warn(f"\nWarning: Plot {plot.get_name()} could not be computed. Details: {e}", Warning)
-        return filename, plot.get_name(), computed_plots
+        return ts2_filename, plot.get_name(), computed_plots

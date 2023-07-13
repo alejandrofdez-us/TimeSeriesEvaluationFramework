@@ -18,16 +18,12 @@ class Pca(DimensionalityReduction):
         return [(fig, ax)]
 
     def generate_plot(self, pca_ts1, pca_ts2):
-        plt.rcParams["figure.figsize"] = self.fig_size
-        fig, ax = plt.subplots(1)
+        fig, ax = super().init_plot()
         colors = ["red" for _ in range(len(pca_ts1))] + ["blue" for _ in range(len(pca_ts2))]
         plt.scatter(pca_ts1[:, 0], pca_ts1[:, 1],
                     c=colors[:len(self.ts1_windows)], alpha=0.2, label="TS_1")
         plt.scatter(pca_ts2[:, 0], pca_ts2[:, 1],
                     c=colors[len(self.ts1_windows):], alpha=0.2, label="TS_2")
-        ax.legend()
-        plt.title('PCA')
-        plt.xlabel('x_pca')
-        plt.ylabel('y_pca')
+        super().set_labels('PCA', 'x_pca', 'y_pca')
         plt.close("all")
         return fig, ax

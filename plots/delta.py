@@ -13,9 +13,9 @@ class Delta(Plot):
         self.time_magnitude = None
         self.time_magnitude_name = None
 
-    def initialize(self, core, filename):
-        super().initialize(core, filename)
-        self.seq_len = core.ts2_dict[filename].shape[0]
+    def initialize(self, core, ts2_filename):
+        super().initialize(core, ts2_filename)
+        self.seq_len = core.ts2_dict[ts2_filename].shape[0]
         self.ts_freq_secs = core.core_config.plot_config.timestamp_frequency_seconds
         self.n_ts1_samples_to_plot = min(5, len(self.ts1_windows))
         self.time_magnitude, self.time_magnitude_name = self.__compute_time_magnitude()
@@ -47,9 +47,9 @@ class Delta(Plot):
 
         delta_ts2_column = self.__compute_grouped_delta_from_sample(self.ts2, column_index, time_interval)
 
-        return self.__create_figure(delta_ts1_column_array=delta_ts1_column_array,
-                                    delta_ts2_column=delta_ts2_column, column_name=column_name,
-                                    time_interval=time_interval)
+        return self.__generate_figure(delta_ts1_column_array=delta_ts1_column_array,
+                                      delta_ts2_column=delta_ts2_column, column_name=column_name,
+                                      time_interval=time_interval)
 
     def __get_random_ts1_sample(self):
         return self.ts1_windows[np.random.randint(0, len(self.ts1_windows))]
@@ -63,22 +63,18 @@ class Delta(Plot):
         delta_sample_column = -np.diff(sample_column_mean)
         return delta_sample_column
 
-    def __create_figure(self, delta_ts1_column_array, delta_ts2_column, column_name, time_interval):
-        plt.rcParams["figure.figsize"] = self.fig_size
-        max_y_value = max(np.amax(delta_ts1_column_array), np.amax(delta_ts2_column))
-        min_y_value = min(np.amin(delta_ts1_column_array), np.amin(delta_ts2_column))
-        axis = [0, len(delta_ts2_column) - 1, min_y_value,
-                max_y_value]  # FIXME: Felipe: Los ejes los dejabamos a criterio de matplotlib?
-        fig, ax = plt.subplots(1)
+    def __generate_figure(self, delta_ts1_column_array, delta_ts2_column, column_name, time_interval):
+        fig, axis = super().init_plot()
         self.__plot_ts1_columns(delta_ts1_column_array)
         plt.plot(delta_ts2_column, c="blue", label="TS_2", linewidth=3)
-        plt.axis(axis)
-        plt.title(f'{column_name}_TS_1_vs_TS_2_(grouped_by_{int(time_interval)}_{self.time_magnitude_name})')
-        plt.xlabel('time')
-        plt.ylabel(column_name)
-        ax.legend()
+        max_y = max(np.amax(delta_ts1_column_array), np.amax(delta_ts2_column))
+        min_y = min(np.amin(delta_ts1_column_array), np.amin(delta_ts2_column))
+        axis_limits = [0, len(delta_ts2_column) - 1, min_y, max_y]
+        plt.axis(axis_limits)
+        super().set_labels(f'{column_name}_TS_1_vs_TS_2_(grouped_by_{int(time_interval)}_{self.time_magnitude_name})',
+                           'time', column_name)
         plt.close("all")
-        return fig, ax
+        return fig, axis
 
     def __plot_ts1_columns(self, delta_ts1_column_array):
         cycle_colors = cycle('grcmk')

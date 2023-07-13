@@ -87,9 +87,7 @@ pip install -r requirements.txt
 
 ## Usage
 
-Users must provide `.csv` files containing multivariate time series by using the arguments `-ts1` and `-ts2_path`. Those
-time series should not include a timestamp column and if a header is present, use the `-head` argument. The column
-delimiter is automatically detected.
+Users must provide `.csv` files containing multivariate time series by using the arguments `-ts1` and `-ts2_path`.
 
 - `-ts1` should point to a single `csv` filename. This time series may represent the baseline or ground truth time
   series.
@@ -100,9 +98,15 @@ delimiter is automatically detected.
 
 Constraints:
 
-- `-ts1` time-series file and `-ts2_path` time-series file(s) must have the same dimensionality (number of columns).
+- `-ts1` time-series file and `-ts2_path` time-series file(s) must:
+    - have the same dimensionality (number of columns)
+    - not include a timestamp column
+    - include only numeric values
+    - include the same header (if present)
+- if a header is present as first row, use the `-head` argument
 - all `-ts2_path` time-series files must have the same length (number of rows).
-- `-ts1` may be a longer time series (more rows) than those included in `-ts2_path` files.
+
+Note: the column delimiter is automatically detected.
 
 If `-ts1` time-series file is longer (more rows) than `-ts2_path` time-series file(s), the `-ts1` time series will be
 divided in windows of the same
@@ -110,18 +114,20 @@ length as the `-ts2_path` time-series file(s).
 
 For each `-ts2_path` time-series file, the most similar window (*) from `-ts1` time series is selected.
 
-Finally, metrics and figures that assess the similarity between each pair of `-ts2_path` file
-time-series and its associated most similar `-ts1` window are computed.
+Finally, metrics and figures that assess the similarity between each pair of `-ts2_path` time-series file and its
+associated most similar `-ts1` window are computed.
 
 (*) `-w_select_met` is the metric used for the selection of the most
 similar `-ts1` time-series window per each `--ts2_path` time-series file(s).`dtw` is the default value, however, any of
 the
 [metrics](#available-metrics) are also available for this purpose using this argument.
 
-Users must provide at least a metric or a figure to be computed/generated:
+Users can provide metrics or figures to be computed/generated:
 
 - `-m` the [metrics](#available-metrics) names to be computed as a list separated by spaces.
 - `-f` the [figures](#available-figures) names to be computed as a list separated by spaces
+
+If no metrics nor figures are provided, the tool will compute all the available metrics and figures.
 
 The following arguments are also available for fine-tuning:
 
@@ -134,6 +140,11 @@ The following arguments are also available for fine-tuning:
 ### Basic usage examples:
 
 The following examples of evaluation of similarity are shown below:
+
+1. Two time series computing all metrics and figures:
+    ```Bash
+    python main.py -ts1 data/example_1.csv -ts2 experiments/mini_example_1.csv
+    ```
 
 1. Two time series computing only DTW metric and DTW figure:
     ```Bash

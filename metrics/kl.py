@@ -4,26 +4,23 @@ from scipy.spatial import cKDTree as KDTree
 
 from metrics.metric import Metric
 
+
 class Kl(Metric):
-    def compute (self, ts1, ts2):
-        metric_result = {'Multivariate': self.__kl_divergence(ts1, ts2)}
-
+    def compute(self, ts1, ts2):
+        metric_result = {'Multivariate': self.kl_divergence(ts1, ts2)}
         for column in range(ts2.shape[1]):
-            metric_result.update({f'Column {column}': self.__kl_divergence_univariate(ts1[:, column].reshape(-1, 1), ts2[:, column].reshape(-1, 1))})
-
+            metric_result.update({f'Column {column}': self.kl_divergence_univariate(ts1[:, column].reshape(-1, 1),
+                                                                                    ts2[:, column].reshape(-1, 1))})
         return metric_result
 
     def compute_distance(self, ts1, ts2):
-        return self.__kl_divergence(ts1, ts2)
+        return self.kl_divergence(ts1, ts2)
 
-    def __kl_divergence_univariate(self, array_1, array_2, range_values=None, num_bins=10):
+    @staticmethod
+    def kl_divergence_univariate(array_1, array_2, range_values=None, num_bins=10):
         eps = 0.000001
-        min_array1 = array_1.min()
-        min_array2 = array_2.min()
-        min_all = min(min_array1, min_array2)
-        max_array1 = array_1.max()
-        max_array2 = array_2.max()
-        max_all = max(max_array1, max_array2)
+        min_all = min(array_1.min(), array_2.min())
+        max_all = max(array_1.max(), array_2.max())
         range_values = range_values if range_values is not None else (min_all, max_all)
         p = np.histogram(array_1, bins=np.linspace(range_values[0], range_values[1], num_bins + 1))[0] / len(array_1)
         q = np.histogram(array_2, bins=np.linspace(range_values[0], range_values[1], num_bins + 1))[0] / len(array_2)
@@ -31,12 +28,12 @@ class Kl(Metric):
         pq = eps * (num_bins - (q != 0).sum()) / (q != 0).sum()
         p = np.vectorize(lambda p_i: eps if p_i == 0 else p_i - pc)(p)
         q = np.vectorize(lambda q_i: eps if q_i == 0 else q_i - pq)(q)
-        KL_p_m = sum([p[i] * np.log(p[i] / q[i]) for i in range(len(p))])
-        KL_q_m = sum([q[i] * np.log(q[i] / p[i]) for i in range(len(p))])
-        return KL_p_m, KL_q_m
+        kl_p_m = sum([p[i] * np.log(p[i] / q[i]) for i in range(len(p))])
+        kl_q_m = sum([q[i] * np.log(q[i] / p[i]) for i in range(len(p))])
+        return kl_p_m, kl_q_m
 
-
-    def __kl_divergence(self, x, y):
+    @staticmethod
+    def kl_divergence(x, y):
         x = np.atleast_2d(x)
         y = np.atleast_2d(y)
 

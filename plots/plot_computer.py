@@ -18,5 +18,5 @@ class PlotComputer(SimilarityAnalysisComputer):
                     self.already_computed_figures_requires_all_samples.append(plot.get_name())
                 computed_plots = plot.compute(self.core, ts2_filename)
             except Exception as e:
-                warnings.warn(f'\nWarning: Plot {plot.get_name()} could not be computed. Details: {e}', Warning)
+                warnings.warn(f'Warning: Plot {plot.get_name()} could not be computed. Details: {e}', Warning)
         return ts2_filename, plot.get_name(), computed_plots

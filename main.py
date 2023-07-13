@@ -12,10 +12,9 @@ from plots.plot_factory import PlotFactory
 from core import Core
 from csv_reader_helper import load_ts_from_csv, load_ts_from_path
 
-
+all_warnings_messages = []
 def warning_handler(message, category, filename, lineno, file=None, line=None):
-    print(message, file=sys.stderr)
-
+    all_warnings_messages.append(message)
 warnings.showwarning = warning_handler
 
 
@@ -28,12 +27,19 @@ def main(arguments):
         __compute_metrics(core)
     if core_config.plot_config.figures:
         __compute_figures(core)
+    __print_warnings()
+
+
+def __print_warnings():
+    if all_warnings_messages:
+        for warning in all_warnings_messages:
+            print(warning, file=sys.stderr)
 
 
 def __compute_figures(core):
     plot_computer_iterator = core.get_plot_computer()
     tqdm_plot_computer_iterator = tqdm(plot_computer_iterator, total=len(plot_computer_iterator),
-                                       desc='Computing plots')
+                                       desc='Computing plots', dynamic_ncols=True)
     for filename, plot_name, generated_plots in tqdm_plot_computer_iterator:
         tqdm_plot_computer_iterator.set_postfix(file=filename)
         __save_figures(filename, plot_name, generated_plots)

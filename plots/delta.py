@@ -47,7 +47,7 @@ class Delta(Plot):
 
         delta_ts2_column = self.__compute_grouped_delta_from_sample(self.ts2, column_index, time_interval)
 
-        return self.__generate_figure(delta_ts1_column_array=delta_ts1_column_array,
+        return self.__generate_plot(delta_ts1_column_array=delta_ts1_column_array,
                                       delta_ts2_column=delta_ts2_column, column_name=column_name,
                                       time_interval=time_interval)
 
@@ -63,7 +63,7 @@ class Delta(Plot):
         delta_sample_column = -np.diff(sample_column_mean)
         return delta_sample_column
 
-    def __generate_figure(self, delta_ts1_column_array, delta_ts2_column, column_name, time_interval):
+    def __generate_plot(self, delta_ts1_column_array, delta_ts2_column, column_name, time_interval):
         fig, axis = super().init_plot()
         self.__plot_ts1_columns(delta_ts1_column_array)
         plt.plot(delta_ts2_column, c="blue", label="TS_2", linewidth=3)

@@ -24,13 +24,13 @@ class TwoDimensions(Plot):
 
     def compute(self, core, filename):
         super().compute(core, filename)
-        plot_array = [self.__generate_figure_from_df()]
+        plot_array = [self.__generate_plot_from_df()]
         for column_index, column_name in enumerate(self.header_names):
             plot_array.append(
-                self.__generate_figure_by_column(self.ts1[:, column_index], self.ts2[:, column_index], column_name))
+                self.__generate_plot_by_column(self.ts1[:, column_index], self.ts2[:, column_index], column_name))
         return plot_array
 
-    def __generate_figure_from_df(self):
+    def __generate_plot_from_df(self):
         fig, ax = super().init_plot()
         self.ts1_df.plot(ax=ax, style='--')
         plt.gca().set_prop_cycle(None)
@@ -40,7 +40,7 @@ class TwoDimensions(Plot):
         plt.close("all")
         return fig, ax
 
-    def __generate_figure_by_column(self, ts1_column, ts2_column, column_name):
+    def __generate_plot_by_column(self, ts1_column, ts2_column, column_name):
         fig, axis = super().init_plot()
         plt.plot(ts1_column, c="green", label="TS_1", linewidth=1)
         plt.plot(ts2_column, c="blue", label="TS_2", linewidth=2)

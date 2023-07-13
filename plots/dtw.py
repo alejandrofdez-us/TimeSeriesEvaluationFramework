@@ -10,13 +10,13 @@ class Dtw(Plot):
         figures = []
         for column_name, index in zip(self.header_names, range(len(self.header_names))):
             figures.append(
-                self.__generate_dtw_figure(
+                self.__generate_plot(
                     self.ts1[:, index], self.ts2[:, index], column_name
                 )
             )
         return figures
 
-    def __generate_dtw_figure(self, ts1_column, ts2_column, column_name):
+    def __generate_plot(self, ts1_column, ts2_column, column_name):
         super().init_plot()
         path = dtw.warping_path(ts1_column, ts2_column)
         fig, axes = dtw_visualisation.plot_warping(ts1_column, ts2_column, path)

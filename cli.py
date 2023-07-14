@@ -10,6 +10,7 @@ from metrics.metric_factory import MetricFactory
 from plots.plot_config import PlotConfig
 from plots.plot_factory import PlotFactory
 from similarity_ts import SimilarityTs
+from datetime import datetime
 from helpers.csv_reader_helper import load_ts_from_csv, load_ts_from_path
 
 
@@ -18,10 +19,11 @@ def main(arguments):
     ts2_dict = load_ts_from_path(arguments.time_series_2_path, header_ts1, arguments.header)
     similarity_ts_config = __create_similarity_ts_config(arguments, list(ts2_dict.keys()), header_ts1)
     similarity_ts = SimilarityTs(ts1, list(ts2_dict.values()), similarity_ts_config)
+    save_directory_folder = f'results/ts1_{os.path.basename(arguments.time_series_1_filename)}_ts2_{arguments.time_series_2_path.replace(os.sep, "-")}_{datetime.now().strftime("%Y-%m-%d-%H-%M")}'
     if similarity_ts_config.metric_config.metrics:
-        __compute_metrics(similarity_ts)
+        __compute_metrics(similarity_ts, save_directory_folder)
     if similarity_ts_config.plot_config.figures:
-        __compute_figures(similarity_ts)
+        __compute_figures(similarity_ts, save_directory_folder)
     __print_warnings()
 
 
@@ -42,16 +44,16 @@ def __print_warnings():
             print(warning, file=sys.stderr)
 
 
-def __compute_figures(similarity_ts):
+def __compute_figures(similarity_ts, save_directory_path):
     plot_computer_iterator = similarity_ts.get_plot_computer()
     tqdm_plot_computer_iterator = tqdm(plot_computer_iterator, total=len(plot_computer_iterator),
                                        desc='Computing plots  ', dynamic_ncols=True)
     for filename, plot_name, generated_plots in tqdm_plot_computer_iterator:
         tqdm_plot_computer_iterator.set_postfix(file=filename)
-        __save_figures(filename, plot_name, generated_plots)
+        __save_figures(filename, plot_name, generated_plots, path=save_directory_path)
 
 
-def __compute_metrics(similarity_ts):
+def __compute_metrics(similarity_ts, save_directory_path):
     metrics_results = {}
     metric_computer_iterator = similarity_ts.get_metric_computer()
     tqdm_metric_computer_iterator = tqdm(metric_computer_iterator, total=len(metric_computer_iterator),
@@ -61,7 +63,8 @@ def __compute_metrics(similarity_ts):
             tqdm_metric_computer_iterator.set_postfix(file=filename)
             metrics_results[filename] = {}
         metrics_results[filename][metric_name] = computed_metric
-    __save_metrics(json.dumps(metrics_results, indent=4, ensure_ascii=False).encode('utf-8'))
+    __save_metrics(json.dumps(metrics_results, indent=4, ensure_ascii=False).encode('utf-8'),
+                   path=f'{save_directory_path}/metrics')
 
 
 def __create_similarity_ts_config(arguments, ts2_names, header_names):
@@ -80,7 +83,7 @@ def __create_similarity_ts_config(arguments, ts2_names, header_names):
 
 def __save_figures(filename, plot_name, generated_plots, path='results/figures'):
     for plot in generated_plots:
-        dir_path = __create_directory(filename, path, plot_name)
+        dir_path = __create_directory(filename, f'{path}/figures', plot_name)
         plot[0].savefig(f'{dir_path}{plot[0].axes[0].get_title()}.pdf', format='pdf', bbox_inches='tight')
 
 

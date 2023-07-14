@@ -1,5 +1,5 @@
 import numpy as np
-from metrics.metric import Metric
+from src.metrics.metric import Metric
 
 
 class Hi(Metric):

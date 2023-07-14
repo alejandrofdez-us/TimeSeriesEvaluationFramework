@@ -1,13 +1,15 @@
 import statistics
 import scipy
-from metrics.metric import Metric
+from src.metrics.metric import Metric
+
 
 class Ks(Metric):
     def compute(self, ts1, ts2):
         metric_result = {'Multivariate': self.__compute_ks(ts1, ts2)}
 
         for column in range(ts2.shape[1]):
-            metric_result.update({f'Column {column}': self.__compute_ks(ts1[:, column].reshape(-1, 1), ts2[:, column].reshape(-1, 1))})
+            metric_result.update(
+                {f'Column {column}': self.__compute_ks(ts1[:, column].reshape(-1, 1), ts2[:, column].reshape(-1, 1))})
 
         return metric_result
 
@@ -18,4 +20,4 @@ class Ks(Metric):
         column_indexes = range(ts2.shape[1])
         return statistics.mean(
             [scipy.stats.ks_2samp(ts2[:, column_index], ts1[:, column_index])[0] for
-            column_index in column_indexes])
+             column_index in column_indexes])

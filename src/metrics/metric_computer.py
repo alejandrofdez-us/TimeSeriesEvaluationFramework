@@ -1,5 +1,5 @@
 import warnings
-from similarity_analysis_computer import SimilarityAnalysisComputer
+from src.similarity_analysis_computer import SimilarityAnalysisComputer
 
 
 class MetricComputer(SimilarityAnalysisComputer):

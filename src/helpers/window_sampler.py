@@ -1,6 +1,6 @@
 import numpy as np
 from tqdm import tqdm
-from metrics.metric_factory import MetricFactory
+from src.metrics.metric_factory import MetricFactory
 
 
 def __get_most_similar_ts_sample(ts1_windows, ts2, metric_object):

@@ -1,7 +1,7 @@
 from itertools import cycle
 import matplotlib.pyplot as plt
 import numpy as np
-from plots.plot import Plot
+from src.plots.plot import Plot
 
 
 class Delta(Plot):
@@ -48,8 +48,8 @@ class Delta(Plot):
         delta_ts2_column = self.__compute_grouped_delta_from_sample(self.ts2, column_index, time_interval)
 
         return self.__generate_plot(delta_ts1_column_array=delta_ts1_column_array,
-                                      delta_ts2_column=delta_ts2_column, column_name=column_name,
-                                      time_interval=time_interval)
+                                    delta_ts2_column=delta_ts2_column, column_name=column_name,
+                                    time_interval=time_interval)
 
     def __get_random_ts1_sample(self):
         return self.ts1_windows[np.random.randint(0, len(self.ts1_windows))]
@@ -72,7 +72,7 @@ class Delta(Plot):
         axis_limits = [0, len(delta_ts2_column) - 1, min_y, max_y]
         plt.axis(axis_limits)
         super()._set_labels(f'{column_name}_TS_1_vs_TS_2_(grouped_by_{int(time_interval)}_{self.time_magnitude_name})',
-                           'time', column_name)
+                            'time', column_name)
         plt.close('all')
         return fig, axis
 

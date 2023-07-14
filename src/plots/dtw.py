@@ -1,7 +1,7 @@
 from dtaidistance import dtw_visualisation
 from dtaidistance import dtw
 from matplotlib import pyplot as plt
-from plots.plot import Plot
+from src.plots.plot import Plot
 
 
 class Dtw(Plot):

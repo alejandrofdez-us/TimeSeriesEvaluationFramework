@@ -19,7 +19,7 @@ def main(arguments):
     ts2_dict = load_ts_from_path(arguments.time_series_2_path, header_ts1, arguments.header)
     similarity_ts_config = __create_similarity_ts_config(arguments, list(ts2_dict.keys()), header_ts1)
     similarity_ts = SimilarityTs(ts1, list(ts2_dict.values()), similarity_ts_config)
-    save_directory_folder = f'results/ts1_{os.path.basename(arguments.time_series_1_filename)}_ts2_{arguments.time_series_2_path.replace(os.sep, "-")}_{datetime.now().strftime("%Y-%m-%d-%H-%M")}'
+    save_directory_folder = f'results/{datetime.now().strftime("%Y-%m-%d-%H-%M")}_ts1_{os.path.basename(arguments.time_series_1_filename)}_ts2_{arguments.time_series_2_path.replace(os.sep, "-")}'
     if similarity_ts_config.metric_config.metrics:
         __compute_metrics(similarity_ts, save_directory_folder)
     if similarity_ts_config.plot_config.figures:

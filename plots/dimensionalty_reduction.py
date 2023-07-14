@@ -1,5 +1,5 @@
 import numpy as np
-from src.plots.plot import Plot
+from plots.plot import Plot
 
 
 class DimensionalityReduction(Plot):

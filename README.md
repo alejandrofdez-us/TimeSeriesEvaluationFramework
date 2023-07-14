@@ -48,20 +48,20 @@ This toolkit can generate the following figures:
 - `delta`: the differences between the values of each column grouped by periods of time. For instance, the differences
   between the cpu usage every 5 minutes or every 30 minutes. These delta can be used as a means of comparison between
   time series short-/mid-/long-term patterns.
-  ![Delta Image grouped by 2 minutes](src/docs/images/mini_sample_1/delta/cpu_TS_1_vs_TS_2_(grouped_by_2_minutes).png)
-  ![Delta Image grouped by 5 minutes](src/docs/images/mini_sample_1/delta/cpu_TS_1_vs_TS_2_(grouped_by_5_minutes).png)
-  ![Delta Image grouped by 10 minutes](src/docs/images/mini_sample_1/delta/cpu_TS_1_vs_TS_2_(grouped_by_10_minutes).png)
+  ![Delta Image grouped by 2 minutes](docs/images/mini_sample_1/delta/cpu_TS_1_vs_TS_2_(grouped_by_2_minutes).png)
+  ![Delta Image grouped by 5 minutes](docs/images/mini_sample_1/delta/cpu_TS_1_vs_TS_2_(grouped_by_5_minutes).png)
+  ![Delta Image grouped by 10 minutes](docs/images/mini_sample_1/delta/cpu_TS_1_vs_TS_2_(grouped_by_10_minutes).png)
 - `pca`: the linear dimensionality reduction technique that aims to find the principal components of a data set by
   computing the linear combinations of the original characteristics that explain the most variance in the data.
-  ![PCA Image](src/docs/images/pca/PCA.png)
+  ![PCA Image](docs/images/pca/PCA.png)
 - `tsne`: a tool for visualising high-dimensional data sets in a 2D or 3D graphical representation allowing the creation
   of a single map that reveals the structure of the data at many different scales.
-  ![TSNE Image 300 iterations 40 perplexity](src/docs/images/tsne/t_SNE_iter_300-perplexity_40.png)
-  ![TSNE Image 1000 iterations 40 perplexity](src/docs/images/tsne/t_SNE_iter_1000-perplexity_40.png)
+  ![TSNE Image 300 iterations 40 perplexity](docs/images/tsne/t_SNE_iter_300-perplexity_40.png)
+  ![TSNE Image 1000 iterations 40 perplexity](docs/images/tsne/t_SNE_iter_1000-perplexity_40.png)
 - `dtw` path: In addition to the numerical similarity measure, the graphical representation of the DTW path of each
   column can be useful to better analyse the similarities or differences between the time series columns. Notice that
   there is no multivariate representation of DTW paths, only single column representations.
-  ![DTW Image for cpu](src/docs/images/mini_sample_1/dtw/DTW_cpu.png)
+  ![DTW Image for cpu](docs/images/mini_sample_1/dtw/DTW_cpu.png)
 
 ## Installation
 

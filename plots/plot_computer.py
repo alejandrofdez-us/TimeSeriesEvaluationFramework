@@ -1,5 +1,5 @@
 import warnings
-from src.similarity_analysis_computer import SimilarityAnalysisComputer
+from similarity_analysis_computer import SimilarityAnalysisComputer
 
 
 class PlotComputer(SimilarityAnalysisComputer):

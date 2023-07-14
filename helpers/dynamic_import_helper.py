@@ -11,7 +11,7 @@ def find_available_classes(folder_path, parent_class, package):
                 module = __import_metric_module(module_name, package)
                 if __is_module_subclass(module, module_name, parent_class):
                     available_class = getattr(module, __to_camel_case(module_name))()
-                    available_classes[available_class.get_name()] = available_class
+                    available_classes[available_class.name] = available_class
     return available_classes
 
 

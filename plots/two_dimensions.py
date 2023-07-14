@@ -9,6 +9,7 @@ class TwoDimensions(Plot):
         self.seq_len = None
         self.ts2_df = None
         self.ts1_df = None
+        self.name = '2d'
 
     def _initialize(self, similarity_ts, ts2_filename):
         super()._initialize(similarity_ts, ts2_filename)
@@ -18,9 +19,6 @@ class TwoDimensions(Plot):
                                        columns=[f'{column_name}_TS_2' for column_name in
                                                 similarity_ts.header_names])
         self.seq_len = similarity_ts.ts2_dict[ts2_filename].shape[0]
-
-    def get_name(self):
-        return '2d'
 
     def compute(self, similarity_ts, ts2_filename):
         super().compute(similarity_ts, ts2_filename)

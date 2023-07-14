@@ -35,5 +35,5 @@ class PlotFactory(metaclass=Singleton):
         return PlotFactory._instance
 
     def __get_figures_that_requires_all_samples(self):
-        return [plot.get_name() for plot in self.plots_to_be_generated if
+        return [plot.name for plot in self.plots_to_be_generated if
                 plot.requires_all_samples()]

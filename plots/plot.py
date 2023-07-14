@@ -13,6 +13,7 @@ class Plot:
         self.ts1_windows = None
         self.header_names = None
         self.fig_size = fig_size
+        self.name = self.__class__.__name__.lower()
 
     def _initialize(self, similarity_ts, ts2_filename):
         self.ts2_filename = ts2_filename
@@ -20,9 +21,6 @@ class Plot:
         self.ts2 = similarity_ts.ts1_ts2_associated_windows[self.ts2_filename]['ts2']
         self.ts1_windows = similarity_ts.ts1_windows
         self.header_names = similarity_ts.header_names
-
-    def get_name(self):
-        return self.__class__.__name__.lower()
 
     def compute(self, similarity_ts, ts2_filename):
         self._initialize(similarity_ts, ts2_filename)

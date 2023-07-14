@@ -20,24 +20,8 @@ class DimensionalityReduction(Plot):
         return ts1_reduced, ts2_reduced
 
     def __reduce_ts_dimensionality(self, ts):
-        seq_len = ts.shape[1]
-        for i in range(len(ts)):
-            if i == 0:
-                ts_prepared = np.reshape(np.mean(ts[0, :, :], 1), [1, seq_len])
-            else:
-                ts_prepared = np.concatenate((ts_prepared, np.reshape(np.mean(ts[i, :, :], 1), [1, seq_len])))
-        return ts_prepared
-
-    # FIXME: Que hacemos cone esto?
-    def __reduce_ts_dimensionality_refactored(self, ts):  # FIXME: valorar el uso del que tenemos u otro nuevo
-        seq_len = ts.shape[1]
-        set1_2d = ts.reshape(-1, 2)  # Conjunto de series temporales 1 en formato 2D
-        for i in range(len(ts)):
-            if i == 0:
-                ts_prepared = np.reshape(np.mean(ts[0, :, :], 1), [1, seq_len])
-            else:
-                ts_prepared = np.concatenate((ts_prepared, np.reshape(np.mean(ts[i, :, :], 1), [1, seq_len])))
-        return ts_prepared
+        n_samples, n_steps, n_features = ts.shape
+        return np.reshape(ts, (n_samples, n_steps * n_features))
 
     def _generate_colors(self, color1_size, color2_size):
         return ['red' for _ in range(color1_size)] + ['blue' for _ in range(color2_size)]

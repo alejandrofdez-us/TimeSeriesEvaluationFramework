@@ -22,8 +22,8 @@ class TwoDimensions(Plot):
     def get_name(self):
         return '2d'
 
-    def compute(self, similarity_ts, filename):
-        super().compute(similarity_ts, filename)
+    def compute(self, similarity_ts, ts2_filename):
+        super().compute(similarity_ts, ts2_filename)
         plot_array = [self.__generate_plot_from_df()]
         for column_index, column_name in enumerate(self.header_names):
             plot_array.append(

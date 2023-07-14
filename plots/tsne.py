@@ -10,8 +10,8 @@ class Tsne(DimensionalityReduction):
     def requires_all_samples():
         return True
 
-    def compute(self, similarity_ts, filename):
-        super().compute(similarity_ts, filename)
+    def compute(self, similarity_ts, ts2_filename):
+        super().compute(similarity_ts, ts2_filename)
         ts1_ts2_reduced_dimensions_concatenated = np.concatenate(
             (self.ts1_reduced_dimensions, self.ts2_reduced_dimensions), axis=0)
         perplexities = [5, 10, min(40, len(self.ts1_reduced_dimensions))]

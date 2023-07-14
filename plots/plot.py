@@ -24,8 +24,8 @@ class Plot:
     def get_name(self):
         return self.__class__.__name__.lower()
 
-    def compute(self, similarity_ts, filename):
-        self._initialize(similarity_ts, filename)
+    def compute(self, similarity_ts, ts2_filename):
+        self._initialize(similarity_ts, ts2_filename)
 
     def _init_plot(self):
         plt.rcParams['figure.figsize'] = self.fig_size

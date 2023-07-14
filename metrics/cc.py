@@ -1,6 +1,6 @@
 import numpy as np
-
 from metrics.metric import Metric
+
 
 class Cc(Metric):
     def compute(self, ts1, ts2):

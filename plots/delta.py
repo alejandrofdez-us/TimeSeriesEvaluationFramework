@@ -13,8 +13,8 @@ class Delta(Plot):
         self.time_magnitude = None
         self.time_magnitude_name = None
 
-    def initialize(self, similarity_ts, ts2_filename):
-        super().initialize(similarity_ts, ts2_filename)
+    def _initialize(self, similarity_ts, ts2_filename):
+        super()._initialize(similarity_ts, ts2_filename)
         self.seq_len = similarity_ts.ts2_dict[ts2_filename].shape[0]
         self.ts_freq_secs = similarity_ts.similarity_ts_config.plot_config.timestamp_frequency_seconds
         self.n_ts1_samples_to_plot = min(5, len(self.ts1_windows))
@@ -64,14 +64,14 @@ class Delta(Plot):
         return delta_sample_column
 
     def __generate_plot(self, delta_ts1_column_array, delta_ts2_column, column_name, time_interval):
-        fig, axis = super().init_plot()
+        fig, axis = super()._init_plot()
         self.__plot_ts1_columns(delta_ts1_column_array)
         plt.plot(delta_ts2_column, c='blue', label='TS_2', linewidth=3)
         max_y = max(np.amax(delta_ts1_column_array), np.amax(delta_ts2_column))
         min_y = min(np.amin(delta_ts1_column_array), np.amin(delta_ts2_column))
         axis_limits = [0, len(delta_ts2_column) - 1, min_y, max_y]
         plt.axis(axis_limits)
-        super().set_labels(f'{column_name}_TS_1_vs_TS_2_(grouped_by_{int(time_interval)}_{self.time_magnitude_name})',
+        super()._set_labels(f'{column_name}_TS_1_vs_TS_2_(grouped_by_{int(time_interval)}_{self.time_magnitude_name})',
                            'time', column_name)
         plt.close('all')
         return fig, axis
@@ -80,6 +80,5 @@ class Delta(Plot):
         cycle_colors = cycle('grcmk')
         labels = ['TS_1'] if len(delta_ts1_column_array) == 1 else [f'TS_1_sample_{i}' for i in
                                                                     range(1, len(delta_ts1_column_array) + 1)]
-
         for label, delta_ts1_column in zip(labels, delta_ts1_column_array):
             plt.plot(delta_ts1_column, c=next(cycle_colors), label=label, linewidth=1)

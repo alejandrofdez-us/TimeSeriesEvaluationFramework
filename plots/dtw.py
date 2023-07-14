@@ -17,7 +17,7 @@ class Dtw(Plot):
         return figures
 
     def __generate_plot(self, ts1_column, ts2_column, column_name):
-        super().init_plot()
+        super()._init_plot()
         path = dtw.warping_path(ts1_column, ts2_column)
         fig, axes = dtw_visualisation.plot_warping(ts1_column, ts2_column, path)
         plt.xlim(left=0, right=len(ts1_column) - 1)

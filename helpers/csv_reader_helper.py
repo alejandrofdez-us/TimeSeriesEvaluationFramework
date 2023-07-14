@@ -4,14 +4,14 @@ import chardet
 import numpy as np
 from natsort import natsorted
 
-def detect_encoding(file_path):
+def __detect_encoding(file_path):
     with open(file_path, 'rb') as file:
         raw_data = file.read()
         result = chardet.detect(raw_data)
         return result['encoding'], result['confidence']
 
 
-def read_header_from_csv(filename, ts_delimiter, has_header):
+def __read_header_from_csv(filename, ts_delimiter, has_header):
     if has_header:
         header = np.genfromtxt(filename, delimiter=ts_delimiter, names=has_header, max_rows=1, dtype=str).dtype.names
     else:
@@ -20,8 +20,8 @@ def read_header_from_csv(filename, ts_delimiter, has_header):
     return header
 
 
-def detect_line_delimiter(filename):
-    encoding, _ = detect_encoding(filename)
+def __detect_line_delimiter(filename):
+    encoding, _ = __detect_encoding(filename)
     with open(filename, 'r', newline='', encoding=encoding) as file:
         ts_delimiter = csv.Sniffer().sniff(file.readline()).delimiter
 
@@ -29,9 +29,9 @@ def detect_line_delimiter(filename):
 
 
 def load_ts_from_csv(filename, has_header=None):
-    ts_delimiter = detect_line_delimiter(filename)
+    ts_delimiter = __detect_line_delimiter(filename)
 
-    header = read_header_from_csv(filename, ts_delimiter, has_header)
+    header = __read_header_from_csv(filename, ts_delimiter, has_header)
     skiprows = 1 if has_header else 0
 
     return np.loadtxt(filename, delimiter=ts_delimiter, skiprows=skiprows), header
@@ -43,7 +43,7 @@ def load_ts_from_path(path, header_ts1, has_header=None):
     time_series = {}
     if os.path.isfile(path):
         ts2, header_ts2 = load_ts_from_csv(path, has_header)
-        check_headers(header_ts1, header_ts2)
+        __check_headers(header_ts1, header_ts2)
         time_series[os.path.basename(path)] = ts2
     elif os.path.isdir(path):
         for _, _, files in os.walk(path):
@@ -51,12 +51,12 @@ def load_ts_from_path(path, header_ts1, has_header=None):
             files = natsorted(files)
             for file in files:
                 ts2, header_ts2 = load_ts_from_csv(f'{path}/{file}', has_header)
-                check_headers(header_ts1, header_ts2)
+                __check_headers(header_ts1, header_ts2)
                 time_series[file] = ts2
 
     return time_series
 
 
-def check_headers(header_ts1, header_ts2):
+def __check_headers(header_ts1, header_ts2):
     if header_ts1 != header_ts2:
         raise ValueError('All time series must have the same header column names.')

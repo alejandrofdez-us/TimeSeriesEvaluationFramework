@@ -1,6 +1,5 @@
 import statistics
 import scipy
-
 from metrics.metric import Metric
 
 class Ks(Metric):

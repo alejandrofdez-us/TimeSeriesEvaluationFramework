@@ -1,5 +1,4 @@
 from sklearn import metrics
-
 from metrics.metric import Metric
 
 

@@ -14,7 +14,7 @@ class Plot:
         self.header_names = None
         self.fig_size = fig_size
 
-    def initialize(self, similarity_ts, ts2_filename):
+    def _initialize(self, similarity_ts, ts2_filename):
         self.ts2_filename = ts2_filename
         self.ts1 = similarity_ts.ts1_ts2_associated_windows[self.ts2_filename]['most_similar_ts1_sample']
         self.ts2 = similarity_ts.ts1_ts2_associated_windows[self.ts2_filename]['ts2']
@@ -25,13 +25,13 @@ class Plot:
         return self.__class__.__name__.lower()
 
     def compute(self, similarity_ts, filename):
-        self.initialize(similarity_ts, filename)
+        self._initialize(similarity_ts, filename)
 
-    def init_plot(self):
+    def _init_plot(self):
         plt.rcParams['figure.figsize'] = self.fig_size
         return plt.subplots(1)
 
-    def set_labels(self, title, x_label, y_label):
+    def _set_labels(self, title, x_label, y_label):
         plt.title(title)
         plt.xlabel(x_label)
         plt.ylabel(y_label)

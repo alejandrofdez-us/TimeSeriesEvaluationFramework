@@ -1,5 +1,4 @@
 import numpy as np
-
 from metrics.metric import Metric
 
 

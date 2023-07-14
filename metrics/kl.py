@@ -1,7 +1,6 @@
 import sys
 import numpy as np
 from scipy.spatial import cKDTree as KDTree
-
 from metrics.metric import Metric
 
 

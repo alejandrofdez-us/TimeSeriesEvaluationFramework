@@ -3,7 +3,6 @@ from metrics.metric import Metric
 
 
 class Mmd(Metric):
-
     def compute(self, ts1, ts2):
         metric_result = {'Multivariate': self.__mmd_calculate_rbf(ts1, ts2)}
 

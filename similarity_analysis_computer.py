@@ -1,5 +1,4 @@
 class SimilarityAnalysisComputer:
-
     def __init__(self, similarity_ts, analysis):
         self.ts1_ts2_associated_windows_iterator = iter(similarity_ts.ts1_ts2_associated_windows.items())
         self.similarity_ts = similarity_ts
@@ -24,4 +23,4 @@ class SimilarityAnalysisComputer:
         return self.length
 
     def _compute_next_analysis(self):
-        raise NotImplementedError('Subclasses must implement compute_next_analysis() method')
+        raise NotImplementedError('Subclasses must implement _compute_next_analysis() method')

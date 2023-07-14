@@ -3,7 +3,6 @@ from similarity_analysis_computer import SimilarityAnalysisComputer
 
 
 class PlotComputer(SimilarityAnalysisComputer):
-
     def __init__(self, similarity_ts, analysis):
         super().__init__(similarity_ts, analysis)
         self.already_computed_figures_requires_all_samples = []

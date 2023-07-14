@@ -3,7 +3,6 @@ from plots.plot import Plot
 
 
 class DimensionalityReduction(Plot):
-
     def __init__(self, fig_size=(8, 6)):
         super().__init__(fig_size)
         self.ts1_reduced_dimensions = None

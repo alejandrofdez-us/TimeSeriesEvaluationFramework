@@ -4,6 +4,7 @@ import chardet
 import numpy as np
 from natsort import natsorted
 
+
 def __detect_encoding(file_path):
     with open(file_path, 'rb') as file:
         raw_data = file.read()
